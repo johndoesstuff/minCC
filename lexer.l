@@ -1,18 +1,37 @@
 %{
-#include "parser.tab.h"  // Needed for yylval and token types
-#include <stdlib.h>      // For atoi
+#include "parser.tab.h"
+#include <stdlib.h>
+#include <string.h>
 %}
 
 %%
 
-[0-9]+      {
-                yylval.ival = atoi(yytext);  // Must come BEFORE return
-                return NUMBER;
-            }
+[0-9]+ { //number
+	yylval.ival = atoi(yytext);
+	return NUMBER;
+}
 
-[ \t\n]+    { /* skip whitespace */ }
+[a-zA-Z_][a-zA-Z0-9_]* { //identifier
+	yylval.sval = strdup(yytext);
+	return IDENTIFIER;
+}
 
-.           { return yytext[0]; }
+[ \t\n]+ {} //whitespace
+
+
+"=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; } //assignment operators
+"|*=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"|/=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"|%=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"|+=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"|-=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"|<<=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"|>>=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"|&=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"|^=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"||=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+
+. { return yytext[0]; }
 
 %%
 

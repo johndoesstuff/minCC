@@ -1,32 +1,35 @@
 %{
 #include <stdio.h>
-#include <stdlib.h>  // for atoi
+#include <stdlib.h>
 %}
 
 %union {
-    int ival;
+	int ival;
+	char* sval;
 }
 
 %token <ival> NUMBER
 %type <ival> expr
+%token <sval> IDENTIFIER
+%token <sval> ASSIGNMENT_OPERATOR
 
 %%
 
 expr:
-    NUMBER '+' NUMBER {
-        $$ = $1 + $3;
-        printf("Sum = %d\n", $$);
-    }
+	NUMBER '+' NUMBER {
+		$$ = $1 + $3;
+		printf("Sum = %d\n", $$);
+	}
 ;
 
 %%
 
 int main() {
-    return yyparse();
+	return yyparse();
 }
 
 int yyerror(const char *s) {
-    fprintf(stderr, "Error: %s\n", s);
-    return 1;
+	fprintf(stderr, "Error: %s\n", s);
+	return 1;
 }
 

@@ -74,13 +74,18 @@
 #include <string.h>
 
 typedef struct TypeInfo {
-	char *signage;
-	char *type_size;
+	char* signage;
+	char* type_size;
 	int pointer_depth;
 } TypeInfo;
 
+typedef struct Variable {
+	char* identifier;
+	TypeInfo* typeinfo;
+} Variable;
 
-#line 84 "parser.tab.c"
+
+#line 89 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -117,10 +122,19 @@ enum yysymbol_kind_t
   YYSYMBOL_TYPE_SIGNAGE = 6,               /* TYPE_SIGNAGE  */
   YYSYMBOL_TYPE_SIZE = 7,                  /* TYPE_SIZE  */
   YYSYMBOL_POINTER_CHAIN = 8,              /* POINTER_CHAIN  */
-  YYSYMBOL_9_ = 9,                         /* '+'  */
-  YYSYMBOL_YYACCEPT = 10,                  /* $accept  */
-  YYSYMBOL_type = 11,                      /* type  */
-  YYSYMBOL_optional_signage = 12           /* optional_signage  */
+  YYSYMBOL_9_ = 9,                         /* '*'  */
+  YYSYMBOL_10_ = 10,                       /* ';'  */
+  YYSYMBOL_11_ = 11,                       /* '+'  */
+  YYSYMBOL_YYACCEPT = 12,                  /* $accept  */
+  YYSYMBOL_program = 13,                   /* program  */
+  YYSYMBOL_statement = 14,                 /* statement  */
+  YYSYMBOL_assignment_expression = 15,     /* assignment_expression  */
+  YYSYMBOL_assignment_rhs = 16,            /* assignment_rhs  */
+  YYSYMBOL_assignment_lhs = 17,            /* assignment_lhs  */
+  YYSYMBOL_type = 18,                      /* type  */
+  YYSYMBOL_optional_signage = 19,          /* optional_signage  */
+  YYSYMBOL_optional_pointer_chain = 20,    /* optional_pointer_chain  */
+  YYSYMBOL_expr = 21                       /* expr  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -446,18 +460,18 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  4
+#define YYFINAL  2
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   4
+#define YYLAST   11
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  10
+#define YYNTOKENS  12
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  3
+#define YYNNTS  10
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  4
+#define YYNRULES  13
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  7
+#define YYNSTATES  21
 
 /* YYMAXUTOK -- Last valid token kind.  */
 #define YYMAXUTOK   263
@@ -478,8 +492,8 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     9,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     9,    11,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,    10,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -507,7 +521,8 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    33,    33,    42,    43
+       0,    46,    46,    47,    51,    55,    61,    65,    74,    84,
+      85,    89,    90,    94
 };
 #endif
 
@@ -525,7 +540,9 @@ static const char *const yytname[] =
 {
   "\"end of file\"", "error", "\"invalid token\"", "NUMBER", "IDENTIFIER",
   "ASSIGNMENT_OPERATOR", "TYPE_SIGNAGE", "TYPE_SIZE", "POINTER_CHAIN",
-  "'+'", "$accept", "type", "optional_signage", YY_NULLPTR
+  "'*'", "';'", "'+'", "$accept", "program", "statement",
+  "assignment_expression", "assignment_rhs", "assignment_lhs", "type",
+  "optional_signage", "optional_pointer_chain", "expr", YY_NULLPTR
 };
 
 static const char *
@@ -535,7 +552,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-7)
+#define YYPACT_NINF (-10)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -549,7 +566,9 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -6,    -7,     1,    -5,    -7,    -4,    -7
+     -10,     0,   -10,   -10,   -10,    -9,    -3,    -1,    -2,   -10,
+       1,   -10,     2,    -4,   -10,   -10,     2,   -10,     5,   -10,
+     -10
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -557,19 +576,21 @@ static const yytype_int8 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       4,     3,     0,     0,     1,     0,     2
+       2,    10,     1,     9,     3,     0,     0,     0,     0,     4,
+       0,     7,    12,     0,     5,     6,    12,     8,     0,    11,
+      13
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -7,    -7,    -7
+     -10,   -10,   -10,   -10,   -10,   -10,   -10,   -10,    -7,   -10
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     2,     3
+       0,     1,     4,     5,    14,     6,     7,     8,    17,    15
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -577,31 +598,37 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-       1,     4,     5,     0,     6
+       2,     9,    10,    11,    13,    12,     3,    18,    20,    19,
+       0,    16
 };
 
 static const yytype_int8 yycheck[] =
 {
-       6,     0,     7,    -1,     8
+       0,    10,     5,     4,     3,     7,     6,    11,     3,    16,
+      -1,     9
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     6,    11,    12,     0,     7,     8
+       0,    13,     0,     6,    14,    15,    17,    18,    19,    10,
+       5,     4,     7,     3,    16,    21,     9,    20,    11,    20,
+       3
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    10,    11,    12,    12
+       0,    12,    13,    13,    14,    15,    16,    17,    18,    19,
+      19,    20,    20,    21
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     3,     1,     0
+       0,     2,     0,     2,     2,     3,     1,     2,     3,     1,
+       0,     2,     0,     3
 };
 
 
@@ -1064,31 +1091,84 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 2: /* type: optional_signage TYPE_SIZE POINTER_CHAIN  */
-#line 33 "parser.y"
-                                                 {
+  case 4: /* statement: assignment_expression ';'  */
+#line 51 "parser.y"
+                                   {}
+#line 1098 "parser.tab.c"
+    break;
+
+  case 5: /* assignment_expression: assignment_lhs ASSIGNMENT_OPERATOR assignment_rhs  */
+#line 55 "parser.y"
+                                                          {
+		printf("Variable %s is of type %s %s, pointer level %d. Assigning using %s a value of %d", (yyvsp[-2].variable)->identifier, (yyvsp[-2].variable)->typeinfo->signage, (yyvsp[-2].variable)->typeinfo->type_size, (yyvsp[-2].variable)->typeinfo->pointer_depth, (yyvsp[-1].sval), (yyvsp[0].ival));
+	}
+#line 1106 "parser.tab.c"
+    break;
+
+  case 6: /* assignment_rhs: expr  */
+#line 61 "parser.y"
+             { (yyval.ival) = (yyvsp[0].ival); }
+#line 1112 "parser.tab.c"
+    break;
+
+  case 7: /* assignment_lhs: type IDENTIFIER  */
+#line 65 "parser.y"
+                        {
+		Variable *v = malloc(sizeof(Variable));
+		v->identifier = (yyvsp[0].sval);
+		v->typeinfo = (yyvsp[-1].typeinfo);
+		(yyval.variable) = v;
+	}
+#line 1123 "parser.tab.c"
+    break;
+
+  case 8: /* type: optional_signage TYPE_SIZE optional_pointer_chain  */
+#line 74 "parser.y"
+                                                          {
 		TypeInfo *t = malloc(sizeof(TypeInfo));
 		t->signage = (yyvsp[-2].sval);
 		t->type_size = (yyvsp[-1].sval);
-		t->pointer_depth = strlen((yyvsp[0].sval));
+		t->pointer_depth = (yyvsp[0].ival);
+		(yyval.typeinfo) = t;
 	}
-#line 1076 "parser.tab.c"
+#line 1135 "parser.tab.c"
     break;
 
-  case 3: /* optional_signage: TYPE_SIGNAGE  */
-#line 42 "parser.y"
+  case 9: /* optional_signage: TYPE_SIGNAGE  */
+#line 84 "parser.y"
                      { (yyval.sval) = (yyvsp[0].sval); }
-#line 1082 "parser.tab.c"
+#line 1141 "parser.tab.c"
     break;
 
-  case 4: /* optional_signage: %empty  */
-#line 43 "parser.y"
+  case 10: /* optional_signage: %empty  */
+#line 85 "parser.y"
           { (yyval.sval) = "none"; }
-#line 1088 "parser.tab.c"
+#line 1147 "parser.tab.c"
+    break;
+
+  case 11: /* optional_pointer_chain: '*' optional_pointer_chain  */
+#line 89 "parser.y"
+                                   { (yyval.ival) = (yyvsp[0].ival) + 1; }
+#line 1153 "parser.tab.c"
+    break;
+
+  case 12: /* optional_pointer_chain: %empty  */
+#line 90 "parser.y"
+          { (yyval.ival) = 0; }
+#line 1159 "parser.tab.c"
+    break;
+
+  case 13: /* expr: NUMBER '+' NUMBER  */
+#line 94 "parser.y"
+                          {
+		(yyval.ival) = (yyvsp[-2].ival) + (yyvsp[0].ival);
+		printf("Sum = %d\n", (yyval.ival));
+	}
+#line 1168 "parser.tab.c"
     break;
 
 
-#line 1092 "parser.tab.c"
+#line 1172 "parser.tab.c"
 
       default: break;
     }
@@ -1281,7 +1361,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 53 "parser.y"
+#line 100 "parser.y"
 
 
 int main() {

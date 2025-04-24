@@ -15,7 +15,7 @@
 
 "int"|"char"|"long"|"float"|"double" { yylval.sval = strdup(yytext); return TYPE_SIZE; }
 
-"*"* { yylval.sval = strdup(yytext); return POINTER_CHAIN; }
+"*" { return '*'; }
 
 [a-zA-Z_][a-zA-Z0-9_]* { //identifier
 	yylval.sval = strdup(yytext);

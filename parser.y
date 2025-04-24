@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <llvm-c/Core.h>
+#include <llvm-c/Analysis.h>
+#include <llvm-c/Target.h>
+#include <llvm-c/TargetMachine.h>
 
 typedef struct TypeInfo {
 	char* signage;
@@ -53,7 +57,7 @@ statement:
 
 assignment_expression:
 	assignment_lhs ASSIGNMENT_OPERATOR assignment_rhs {
-		printf("Variable %s is of type %s %s, pointer level %d. Assigning using %s a value of %d", $1->identifier, $1->typeinfo->signage, $1->typeinfo->type_size, $1->typeinfo->pointer_depth, $2, $3);
+		printf("Variable %s is of type %s %s, pointer level %d. Assigning using %s a value of %d\n", $1->identifier, $1->typeinfo->signage, $1->typeinfo->type_size, $1->typeinfo->pointer_depth, $2, $3);
 	}
 ;
 
@@ -93,13 +97,31 @@ optional_pointer_chain:
 expr:
 	NUMBER '+' NUMBER {
 		$$ = $1 + $3;
-		printf("Sum = %d\n", $$);
 	}
 ;
 
 %%
 
 int main() {
+	LLVMModuleRef module = LLVMModuleCreateWithName("my_module");
+	LLVMBuilderRef builder = LLVMCreateBuilder();
+	LLVMContextRef context = LLVMGetGlobalContext();
+
+	LLVMTypeRef func_type = LLVMFunctionType(LLVMInt32Type(), NULL, 0, 0);
+	LLVMValueRef func = LLVMAddFunction(module, "main", func_type);
+	LLVMBasicBlockRef entry = LLVMAppendBasicBlock(func, "entry");
+
+	LLVMPositionBuilderAtEnd(builder, entry);
+	LLVMValueRef return_val = LLVMConstInt(LLVMInt32Type(), 42, 0);
+	LLVMBuildRet(builder, return_val);
+	
+	char *ir_string = LLVMPrintModuleToString(module);
+	printf("%s\n", ir_string);
+
+	LLVMDisposeMessage(ir_string);
+	LLVMDisposeBuilder(builder);
+	LLVMDisposeModule(module);
+
 	return yyparse();
 }
 

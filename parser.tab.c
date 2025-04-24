@@ -72,6 +72,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <llvm-c/Core.h>
+#include <llvm-c/Analysis.h>
+#include <llvm-c/Target.h>
+#include <llvm-c/TargetMachine.h>
 
 typedef struct TypeInfo {
 	char* signage;
@@ -85,7 +89,7 @@ typedef struct Variable {
 } Variable;
 
 
-#line 89 "parser.tab.c"
+#line 93 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -521,8 +525,8 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    46,    46,    47,    51,    55,    61,    65,    74,    84,
-      85,    89,    90,    94
+       0,    50,    50,    51,    55,    59,    65,    69,    78,    88,
+      89,    93,    94,    98
 };
 #endif
 
@@ -1092,38 +1096,38 @@ yyreduce:
   switch (yyn)
     {
   case 4: /* statement: assignment_expression ';'  */
-#line 51 "parser.y"
+#line 55 "parser.y"
                                    {}
-#line 1098 "parser.tab.c"
+#line 1102 "parser.tab.c"
     break;
 
   case 5: /* assignment_expression: assignment_lhs ASSIGNMENT_OPERATOR assignment_rhs  */
-#line 55 "parser.y"
+#line 59 "parser.y"
                                                           {
-		printf("Variable %s is of type %s %s, pointer level %d. Assigning using %s a value of %d", (yyvsp[-2].variable)->identifier, (yyvsp[-2].variable)->typeinfo->signage, (yyvsp[-2].variable)->typeinfo->type_size, (yyvsp[-2].variable)->typeinfo->pointer_depth, (yyvsp[-1].sval), (yyvsp[0].ival));
+		printf("Variable %s is of type %s %s, pointer level %d. Assigning using %s a value of %d\n", (yyvsp[-2].variable)->identifier, (yyvsp[-2].variable)->typeinfo->signage, (yyvsp[-2].variable)->typeinfo->type_size, (yyvsp[-2].variable)->typeinfo->pointer_depth, (yyvsp[-1].sval), (yyvsp[0].ival));
 	}
-#line 1106 "parser.tab.c"
+#line 1110 "parser.tab.c"
     break;
 
   case 6: /* assignment_rhs: expr  */
-#line 61 "parser.y"
+#line 65 "parser.y"
              { (yyval.ival) = (yyvsp[0].ival); }
-#line 1112 "parser.tab.c"
+#line 1116 "parser.tab.c"
     break;
 
   case 7: /* assignment_lhs: type IDENTIFIER  */
-#line 65 "parser.y"
+#line 69 "parser.y"
                         {
 		Variable *v = malloc(sizeof(Variable));
 		v->identifier = (yyvsp[0].sval);
 		v->typeinfo = (yyvsp[-1].typeinfo);
 		(yyval.variable) = v;
 	}
-#line 1123 "parser.tab.c"
+#line 1127 "parser.tab.c"
     break;
 
   case 8: /* type: optional_signage TYPE_SIZE optional_pointer_chain  */
-#line 74 "parser.y"
+#line 78 "parser.y"
                                                           {
 		TypeInfo *t = malloc(sizeof(TypeInfo));
 		t->signage = (yyvsp[-2].sval);
@@ -1131,44 +1135,43 @@ yyreduce:
 		t->pointer_depth = (yyvsp[0].ival);
 		(yyval.typeinfo) = t;
 	}
-#line 1135 "parser.tab.c"
+#line 1139 "parser.tab.c"
     break;
 
   case 9: /* optional_signage: TYPE_SIGNAGE  */
-#line 84 "parser.y"
+#line 88 "parser.y"
                      { (yyval.sval) = (yyvsp[0].sval); }
-#line 1141 "parser.tab.c"
+#line 1145 "parser.tab.c"
     break;
 
   case 10: /* optional_signage: %empty  */
-#line 85 "parser.y"
+#line 89 "parser.y"
           { (yyval.sval) = "none"; }
-#line 1147 "parser.tab.c"
+#line 1151 "parser.tab.c"
     break;
 
   case 11: /* optional_pointer_chain: '*' optional_pointer_chain  */
-#line 89 "parser.y"
+#line 93 "parser.y"
                                    { (yyval.ival) = (yyvsp[0].ival) + 1; }
-#line 1153 "parser.tab.c"
+#line 1157 "parser.tab.c"
     break;
 
   case 12: /* optional_pointer_chain: %empty  */
-#line 90 "parser.y"
+#line 94 "parser.y"
           { (yyval.ival) = 0; }
-#line 1159 "parser.tab.c"
+#line 1163 "parser.tab.c"
     break;
 
   case 13: /* expr: NUMBER '+' NUMBER  */
-#line 94 "parser.y"
+#line 98 "parser.y"
                           {
 		(yyval.ival) = (yyvsp[-2].ival) + (yyvsp[0].ival);
-		printf("Sum = %d\n", (yyval.ival));
 	}
-#line 1168 "parser.tab.c"
+#line 1171 "parser.tab.c"
     break;
 
 
-#line 1172 "parser.tab.c"
+#line 1175 "parser.tab.c"
 
       default: break;
     }
@@ -1361,10 +1364,29 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 100 "parser.y"
+#line 103 "parser.y"
 
 
 int main() {
+	LLVMModuleRef module = LLVMModuleCreateWithName("my_module");
+	LLVMBuilderRef builder = LLVMCreateBuilder();
+	LLVMContextRef context = LLVMGetGlobalContext();
+
+	LLVMTypeRef func_type = LLVMFunctionType(LLVMInt32Type(), NULL, 0, 0);
+	LLVMValueRef func = LLVMAddFunction(module, "main", func_type);
+	LLVMBasicBlockRef entry = LLVMAppendBasicBlock(func, "entry");
+
+	LLVMPositionBuilderAtEnd(builder, entry);
+	LLVMValueRef return_val = LLVMConstInt(LLVMInt32Type(), 42, 0);
+	LLVMBuildRet(builder, return_val);
+	
+	char *ir_string = LLVMPrintModuleToString(module);
+	printf("%s\n", ir_string);
+
+	LLVMDisposeMessage(ir_string);
+	LLVMDisposeBuilder(builder);
+	LLVMDisposeModule(module);
+
 	return yyparse();
 }
 

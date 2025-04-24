@@ -14,14 +14,15 @@ LEXER_C = lex.yy.c
 
 # Compiler
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = `llvm-config --cflags` -Wno-implicit-function-declaration -Wall
+LDFLAGS = `llvm-config --ldflags --libs core` -lfl
 
 # Default target
 all: $(TARGET)
 
 # Build final binary
 $(TARGET): $(PARSER_C) $(LEXER_C)
-	$(CC) $(CFLAGS) -o $(TARGET) $(PARSER_C) $(LEXER_C) -lfl
+	$(CC) $(CFLAGS) -o $(TARGET) $(PARSER_C) $(LEXER_C) $(LDFLAGS)
 
 # Generate parser source/header
 $(PARSER_C) $(PARSER_H): $(PARSER)

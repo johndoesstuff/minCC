@@ -73,7 +73,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct {
+typedef struct TypeInfo {
 	char *signage;
 	char *type_size;
 	int pointer_depth;

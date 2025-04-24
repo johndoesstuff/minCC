@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct {
+typedef struct TypeInfo {
 	char *signage;
 	char *type_size;
 	int pointer_depth;
@@ -14,7 +14,7 @@ typedef struct {
 %union {
 	int ival;
 	char* sval;
-	TypeInfo* typeinfo;
+	struct TypeInfo* typeinfo;
 }
 
 %token <ival> NUMBER

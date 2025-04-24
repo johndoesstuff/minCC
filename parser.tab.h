@@ -72,7 +72,7 @@ union YYSTYPE
 
 	int ival;
 	char* sval;
-	TypeInfo* typeinfo;
+	struct TypeInfo* typeinfo;
 
 #line 78 "parser.tab.h"
 

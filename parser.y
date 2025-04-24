@@ -20,6 +20,49 @@ typedef struct Variable {
 	TypeInfo* typeinfo;
 } Variable;
 
+typedef struct Symbol {
+	char* identifier;
+	LLVMValueRef llvm_ref;
+	TypeInfo* typeinfo;
+	struct Symbol* next;
+} Symbol;
+
+typedef struct SymbolNode {
+	Symbol* symbol;
+	struct SymbolNode* next;
+} SymbolNode;
+
+SymbolNode* symbol_table = NULL;
+
+Symbol* get_symbol(char* variable_name) {
+	if (symbol_table == NULL) {
+		return NULL;
+	}
+	SymbolNode* node = symbol_table;
+	while (node != NULL) {
+		if (strcmp(node->symbol->identifier, variable_name) == 0) {
+			return node->symbol;
+		}
+		node = node->next;
+	}
+	return NULL;
+}
+
+void add_symbol(Symbol* symbol) {
+	SymbolNode* node = malloc(sizeof(SymbolNode));
+	node->symbol = symbol;
+	node->next = NULL;
+	if (symbol_table == NULL) {
+		symbol_table = node;
+		return;
+	}
+	SymbolNode* current = symbol_table;
+	while (current->next != NULL) {
+		current = current->next;
+	}
+	current->next = node;
+}
+
 %}
 
 %union {
@@ -71,7 +114,7 @@ assignment_expression:
 		char *variable_name = $1->identifier;
 		
 		LLVMValueRef rhs_value = $3;
-		LLVMValueRef variable_pointer = get_variable_pointer(variable_name);
+		LLVMValueRef variable_pointer = get_symbol(variable_name)->llvm_ref;
 
 		LLVMBuildStore(builder, rhs_value, variable_pointer);
 

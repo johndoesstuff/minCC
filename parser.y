@@ -7,6 +7,8 @@
 #include <llvm-c/Target.h>
 #include <llvm-c/TargetMachine.h>
 
+LLVMBuilderRef builder;
+
 typedef struct TypeInfo {
 	char* signage;
 	char* type_size;
@@ -57,6 +59,22 @@ statement:
 
 assignment_expression:
 	assignment_lhs ASSIGNMENT_OPERATOR assignment_rhs {
+		TypeInfo *type = $1->typeinfo;
+		
+		LLVMTypeRef llvm_type;
+		if (strcmp(type->type_size, "int") == 0) {
+			llvm_type = LLVMInt32Type();
+		} else if (strcmp(type->type_size, "char") == 0) {
+			llvm_type = LLVMInt8Type();
+		}
+
+		char *variable_name = $1->identifier;
+		
+		LLVMValueRef rhs_value = $3;
+		LLVMValueRef variable_pointer = get_variable_pointer(variable_name);
+
+		LLVMBuildStore(builder, rhs_value, variable_pointer);
+
 		printf("Variable %s is of type %s %s, pointer level %d. Assigning using %s a value of %d\n", $1->identifier, $1->typeinfo->signage, $1->typeinfo->type_size, $1->typeinfo->pointer_depth, $2, $3);
 	}
 ;

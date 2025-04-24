@@ -77,6 +77,8 @@
 #include <llvm-c/Target.h>
 #include <llvm-c/TargetMachine.h>
 
+LLVMBuilderRef builder;
+
 typedef struct TypeInfo {
 	char* signage;
 	char* type_size;
@@ -89,7 +91,7 @@ typedef struct Variable {
 } Variable;
 
 
-#line 93 "parser.tab.c"
+#line 95 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -525,8 +527,8 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    50,    50,    51,    55,    59,    65,    69,    78,    88,
-      89,    93,    94,    98
+       0,    52,    52,    53,    57,    61,    83,    87,    96,   106,
+     107,   111,   112,   116
 };
 #endif
 
@@ -1096,38 +1098,54 @@ yyreduce:
   switch (yyn)
     {
   case 4: /* statement: assignment_expression ';'  */
-#line 55 "parser.y"
+#line 57 "parser.y"
                                    {}
-#line 1102 "parser.tab.c"
+#line 1104 "parser.tab.c"
     break;
 
   case 5: /* assignment_expression: assignment_lhs ASSIGNMENT_OPERATOR assignment_rhs  */
-#line 59 "parser.y"
+#line 61 "parser.y"
                                                           {
+		TypeInfo *type = (yyvsp[-2].variable)->typeinfo;
+		
+		LLVMTypeRef llvm_type;
+		if (strcmp(type->type_size, "int") == 0) {
+			llvm_type = LLVMInt32Type();
+		} else if (strcmp(type->type_size, "char") == 0) {
+			llvm_type = LLVMInt8Type();
+		}
+
+		char *variable_name = (yyvsp[-2].variable)->identifier;
+		
+		LLVMValueRef rhs_value = (yyvsp[0].ival);
+		LLVMValueRef variable_pointer = get_variable_pointer(variable_name);
+
+		LLVMBuildStore(builder, rhs_value, variable_pointer);
+
 		printf("Variable %s is of type %s %s, pointer level %d. Assigning using %s a value of %d\n", (yyvsp[-2].variable)->identifier, (yyvsp[-2].variable)->typeinfo->signage, (yyvsp[-2].variable)->typeinfo->type_size, (yyvsp[-2].variable)->typeinfo->pointer_depth, (yyvsp[-1].sval), (yyvsp[0].ival));
 	}
-#line 1110 "parser.tab.c"
+#line 1128 "parser.tab.c"
     break;
 
   case 6: /* assignment_rhs: expr  */
-#line 65 "parser.y"
+#line 83 "parser.y"
              { (yyval.ival) = (yyvsp[0].ival); }
-#line 1116 "parser.tab.c"
+#line 1134 "parser.tab.c"
     break;
 
   case 7: /* assignment_lhs: type IDENTIFIER  */
-#line 69 "parser.y"
+#line 87 "parser.y"
                         {
 		Variable *v = malloc(sizeof(Variable));
 		v->identifier = (yyvsp[0].sval);
 		v->typeinfo = (yyvsp[-1].typeinfo);
 		(yyval.variable) = v;
 	}
-#line 1127 "parser.tab.c"
+#line 1145 "parser.tab.c"
     break;
 
   case 8: /* type: optional_signage TYPE_SIZE optional_pointer_chain  */
-#line 78 "parser.y"
+#line 96 "parser.y"
                                                           {
 		TypeInfo *t = malloc(sizeof(TypeInfo));
 		t->signage = (yyvsp[-2].sval);
@@ -1135,43 +1153,43 @@ yyreduce:
 		t->pointer_depth = (yyvsp[0].ival);
 		(yyval.typeinfo) = t;
 	}
-#line 1139 "parser.tab.c"
-    break;
-
-  case 9: /* optional_signage: TYPE_SIGNAGE  */
-#line 88 "parser.y"
-                     { (yyval.sval) = (yyvsp[0].sval); }
-#line 1145 "parser.tab.c"
-    break;
-
-  case 10: /* optional_signage: %empty  */
-#line 89 "parser.y"
-          { (yyval.sval) = "none"; }
-#line 1151 "parser.tab.c"
-    break;
-
-  case 11: /* optional_pointer_chain: '*' optional_pointer_chain  */
-#line 93 "parser.y"
-                                   { (yyval.ival) = (yyvsp[0].ival) + 1; }
 #line 1157 "parser.tab.c"
     break;
 
-  case 12: /* optional_pointer_chain: %empty  */
-#line 94 "parser.y"
-          { (yyval.ival) = 0; }
+  case 9: /* optional_signage: TYPE_SIGNAGE  */
+#line 106 "parser.y"
+                     { (yyval.sval) = (yyvsp[0].sval); }
 #line 1163 "parser.tab.c"
     break;
 
+  case 10: /* optional_signage: %empty  */
+#line 107 "parser.y"
+          { (yyval.sval) = "none"; }
+#line 1169 "parser.tab.c"
+    break;
+
+  case 11: /* optional_pointer_chain: '*' optional_pointer_chain  */
+#line 111 "parser.y"
+                                   { (yyval.ival) = (yyvsp[0].ival) + 1; }
+#line 1175 "parser.tab.c"
+    break;
+
+  case 12: /* optional_pointer_chain: %empty  */
+#line 112 "parser.y"
+          { (yyval.ival) = 0; }
+#line 1181 "parser.tab.c"
+    break;
+
   case 13: /* expr: NUMBER '+' NUMBER  */
-#line 98 "parser.y"
+#line 116 "parser.y"
                           {
 		(yyval.ival) = (yyvsp[-2].ival) + (yyvsp[0].ival);
 	}
-#line 1171 "parser.tab.c"
+#line 1189 "parser.tab.c"
     break;
 
 
-#line 1175 "parser.tab.c"
+#line 1193 "parser.tab.c"
 
       default: break;
     }
@@ -1364,7 +1382,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 103 "parser.y"
+#line 121 "parser.y"
 
 
 int main() {

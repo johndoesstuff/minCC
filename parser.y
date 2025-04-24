@@ -1,11 +1,20 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+	char *signage;
+	char *type_size;
+	int pointer_depth;
+} TypeInfo;
+
 %}
 
 %union {
 	int ival;
 	char* sval;
+	TypeInfo* typeinfo;
 }
 
 %token <ival> NUMBER
@@ -15,14 +24,17 @@
 %token <sval> TYPE_SIGNAGE
 %token <sval> TYPE_SIZE
 %token <sval> POINTER_CHAIN
-%type <ival> type
+%type <typeinfo> type
 %type <sval> optional_signage
 
 %%
 
 type:
 	optional_signage TYPE_SIZE POINTER_CHAIN {
-		printf("Signage %s, Type %s, Pointer %s", $1, $2, $3);
+		TypeInfo *t = malloc(sizeof(TypeInfo));
+		t->signage = $1;
+		t->type_size = $2;
+		t->pointer_depth = strlen($3);
 	}
 ;
 

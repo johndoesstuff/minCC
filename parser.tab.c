@@ -71,8 +71,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#line 76 "parser.tab.c"
+typedef struct {
+	char *signage;
+	char *type_size;
+	int pointer_depth;
+} TypeInfo;
+
+
+#line 84 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -499,7 +507,7 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    24,    24,    30,    31
+       0,    33,    33,    42,    43
 };
 #endif
 
@@ -1057,27 +1065,30 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* type: optional_signage TYPE_SIZE POINTER_CHAIN  */
-#line 24 "parser.y"
+#line 33 "parser.y"
                                                  {
-		printf("Signage %s, Type %s, Pointer %s", (yyvsp[-2].sval), (yyvsp[-1].sval), (yyvsp[0].sval));
+		TypeInfo *t = malloc(sizeof(TypeInfo));
+		t->signage = (yyvsp[-2].sval);
+		t->type_size = (yyvsp[-1].sval);
+		t->pointer_depth = strlen((yyvsp[0].sval));
 	}
-#line 1065 "parser.tab.c"
+#line 1076 "parser.tab.c"
     break;
 
   case 3: /* optional_signage: TYPE_SIGNAGE  */
-#line 30 "parser.y"
+#line 42 "parser.y"
                      { (yyval.sval) = (yyvsp[0].sval); }
-#line 1071 "parser.tab.c"
+#line 1082 "parser.tab.c"
     break;
 
   case 4: /* optional_signage: %empty  */
-#line 31 "parser.y"
+#line 43 "parser.y"
           { (yyval.sval) = "none"; }
-#line 1077 "parser.tab.c"
+#line 1088 "parser.tab.c"
     break;
 
 
-#line 1081 "parser.tab.c"
+#line 1092 "parser.tab.c"
 
       default: break;
     }
@@ -1270,7 +1281,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 41 "parser.y"
+#line 53 "parser.y"
 
 
 int main() {

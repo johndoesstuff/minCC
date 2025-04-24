@@ -11,6 +11,12 @@
 	return NUMBER;
 }
 
+"unsigned"|"signed" { yylval.sval = strdup(yytext); return TYPE_SIGNAGE; }
+
+"int"|"char"|"long"|"float"|"double" { yylval.sval = strdup(yytext); return TYPE_SIZE; }
+
+"*"* { yylval.sval = strdup(yytext); return POINTER_CHAIN; }
+
 [a-zA-Z_][a-zA-Z0-9_]* { //identifier
 	yylval.sval = strdup(yytext);
 	return IDENTIFIER;
@@ -20,16 +26,16 @@
 
 
 "=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; } //assignment operators
-"|*=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
-"|/=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
-"|%=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
-"|+=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
-"|-=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
-"|<<=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
-"|>>=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
-"|&=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
-"|^=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
-"||=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"*=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"/=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"%=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"+=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"-=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"<<=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+">>=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"&=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"^=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
+"|=" { yylval.sval = strdup(yytext); return ASSIGNMENT_OPERATOR; }
 
 . { return yytext[0]; }
 

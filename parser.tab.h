@@ -56,7 +56,10 @@ extern int yydebug;
     YYUNDEF = 257,                 /* "invalid token"  */
     NUMBER = 258,                  /* NUMBER  */
     IDENTIFIER = 259,              /* IDENTIFIER  */
-    ASSIGNMENT_OPERATOR = 260      /* ASSIGNMENT_OPERATOR  */
+    ASSIGNMENT_OPERATOR = 260,     /* ASSIGNMENT_OPERATOR  */
+    TYPE_SIGNAGE = 261,            /* TYPE_SIGNAGE  */
+    TYPE_SIZE = 262,               /* TYPE_SIZE  */
+    POINTER_CHAIN = 263            /* POINTER_CHAIN  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -70,7 +73,7 @@ union YYSTYPE
 	int ival;
 	char* sval;
 
-#line 74 "parser.tab.h"
+#line 77 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

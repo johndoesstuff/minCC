@@ -12,8 +12,24 @@
 %type <ival> expr
 %token <sval> IDENTIFIER
 %token <sval> ASSIGNMENT_OPERATOR
+%token <sval> TYPE_SIGNAGE
+%token <sval> TYPE_SIZE
+%token <sval> POINTER_CHAIN
+%type <ival> type
+%type <sval> optional_signage
 
 %%
+
+type:
+	optional_signage TYPE_SIZE POINTER_CHAIN {
+		printf("Signage %s, Type %s, Pointer %s", $1, $2, $3);
+	}
+;
+
+optional_signage:
+	TYPE_SIGNAGE { $$ = $1; }
+	| { $$ = "none"; }
+;
 
 expr:
 	NUMBER '+' NUMBER {

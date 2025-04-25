@@ -70,71 +70,11 @@
 #line 1 "parser.y"
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <llvm-c/Core.h>
-#include <llvm-c/Analysis.h>
-#include <llvm-c/Target.h>
-#include <llvm-c/TargetMachine.h>
+#include "ast.h"
 
-LLVMBuilderRef builder;
+ASTNode* root;
 
-typedef struct TypeInfo {
-	char* signage;
-	char* type_size;
-	int pointer_depth;
-} TypeInfo;
-
-typedef struct Variable {
-	char* identifier;
-	TypeInfo* typeinfo;
-} Variable;
-
-typedef struct Symbol {
-	char* identifier;
-	LLVMValueRef llvm_ref;
-	TypeInfo* typeinfo;
-	struct Symbol* next;
-} Symbol;
-
-typedef struct SymbolNode {
-	Symbol* symbol;
-	struct SymbolNode* next;
-} SymbolNode;
-
-SymbolNode* symbol_table = NULL;
-
-Symbol* get_symbol(char* variable_name) {
-	if (symbol_table == NULL) {
-		return NULL;
-	}
-	SymbolNode* node = symbol_table;
-	while (node != NULL) {
-		if (strcmp(node->symbol->identifier, variable_name) == 0) {
-			return node->symbol;
-		}
-		node = node->next;
-	}
-	return NULL;
-}
-
-void add_symbol(Symbol* symbol) {
-	SymbolNode* node = malloc(sizeof(SymbolNode));
-	node->symbol = symbol;
-	node->next = NULL;
-	if (symbol_table == NULL) {
-		symbol_table = node;
-		return;
-	}
-	SymbolNode* current = symbol_table;
-	while (current->next != NULL) {
-		current = current->next;
-	}
-	current->next = node;
-}
-
-
-#line 138 "parser.tab.c"
+#line 78 "parser.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -166,24 +106,10 @@ enum yysymbol_kind_t
   YYSYMBOL_YYerror = 1,                    /* error  */
   YYSYMBOL_YYUNDEF = 2,                    /* "invalid token"  */
   YYSYMBOL_NUMBER = 3,                     /* NUMBER  */
-  YYSYMBOL_IDENTIFIER = 4,                 /* IDENTIFIER  */
-  YYSYMBOL_ASSIGNMENT_OPERATOR = 5,        /* ASSIGNMENT_OPERATOR  */
-  YYSYMBOL_TYPE_SIGNAGE = 6,               /* TYPE_SIGNAGE  */
-  YYSYMBOL_TYPE_SIZE = 7,                  /* TYPE_SIZE  */
-  YYSYMBOL_POINTER_CHAIN = 8,              /* POINTER_CHAIN  */
-  YYSYMBOL_9_ = 9,                         /* '*'  */
-  YYSYMBOL_10_ = 10,                       /* ';'  */
-  YYSYMBOL_11_ = 11,                       /* '+'  */
-  YYSYMBOL_YYACCEPT = 12,                  /* $accept  */
-  YYSYMBOL_program = 13,                   /* program  */
-  YYSYMBOL_statement = 14,                 /* statement  */
-  YYSYMBOL_assignment_expression = 15,     /* assignment_expression  */
-  YYSYMBOL_assignment_rhs = 16,            /* assignment_rhs  */
-  YYSYMBOL_assignment_lhs = 17,            /* assignment_lhs  */
-  YYSYMBOL_type = 18,                      /* type  */
-  YYSYMBOL_optional_signage = 19,          /* optional_signage  */
-  YYSYMBOL_optional_pointer_chain = 20,    /* optional_pointer_chain  */
-  YYSYMBOL_expr = 21                       /* expr  */
+  YYSYMBOL_4_ = 4,                         /* '+'  */
+  YYSYMBOL_YYACCEPT = 5,                   /* $accept  */
+  YYSYMBOL_input = 6,                      /* input  */
+  YYSYMBOL_expr = 7                        /* expr  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -509,21 +435,21 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  2
+#define YYFINAL  4
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   11
+#define YYLAST   4
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  12
+#define YYNTOKENS  5
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  10
+#define YYNNTS  3
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  13
+#define YYNRULES  4
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  21
+#define YYNSTATES  7
 
 /* YYMAXUTOK -- Last valid token kind.  */
-#define YYMAXUTOK   263
+#define YYMAXUTOK   258
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -541,8 +467,7 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     9,    11,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,    10,
+       2,     2,     2,     4,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -562,16 +487,15 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8
+       2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     1,     2,     3
 };
 
 #if YYDEBUG
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_uint8 yyrline[] =
+static const yytype_int8 yyrline[] =
 {
-       0,    95,    95,    96,   100,   104,   126,   130,   139,   149,
-     150,   154,   155,   159
+       0,    19,    19,    23,    24
 };
 #endif
 
@@ -587,11 +511,8 @@ static const char *yysymbol_name (yysymbol_kind_t yysymbol) YY_ATTRIBUTE_UNUSED;
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "\"end of file\"", "error", "\"invalid token\"", "NUMBER", "IDENTIFIER",
-  "ASSIGNMENT_OPERATOR", "TYPE_SIGNAGE", "TYPE_SIZE", "POINTER_CHAIN",
-  "'*'", "';'", "'+'", "$accept", "program", "statement",
-  "assignment_expression", "assignment_rhs", "assignment_lhs", "type",
-  "optional_signage", "optional_pointer_chain", "expr", YY_NULLPTR
+  "\"end of file\"", "error", "\"invalid token\"", "NUMBER", "'+'",
+  "$accept", "input", "expr", YY_NULLPTR
 };
 
 static const char *
@@ -601,7 +522,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-10)
+#define YYPACT_NINF (-4)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -615,9 +536,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-     -10,     0,   -10,   -10,   -10,    -9,    -3,    -1,    -2,   -10,
-       1,   -10,     2,    -4,   -10,   -10,     2,   -10,     5,   -10,
-     -10
+      -3,    -4,     1,    -2,    -4,    -3,    -2
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -625,21 +544,19 @@ static const yytype_int8 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       2,    10,     1,     9,     3,     0,     0,     0,     0,     4,
-       0,     7,    12,     0,     5,     6,    12,     8,     0,    11,
-      13
+       0,     3,     0,     2,     1,     0,     4
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -10,   -10,   -10,   -10,   -10,   -10,   -10,   -10,    -7,   -10
+      -4,    -4,    -1
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     1,     4,     5,    14,     6,     7,     8,    17,    15
+       0,     2,     3
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -647,37 +564,31 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-       2,     9,    10,    11,    13,    12,     3,    18,    20,    19,
-       0,    16
+       1,     4,     5,     0,     6
 };
 
 static const yytype_int8 yycheck[] =
 {
-       0,    10,     5,     4,     3,     7,     6,    11,     3,    16,
-      -1,     9
+       3,     0,     4,    -1,     5
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
    state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,    13,     0,     6,    14,    15,    17,    18,    19,    10,
-       5,     4,     7,     3,    16,    21,     9,    20,    11,    20,
-       3
+       0,     3,     6,     7,     0,     4,     7
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    12,    13,    13,    14,    15,    16,    17,    18,    19,
-      19,    20,    20,    21
+       0,     5,     6,     7,     7
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     0,     2,     2,     3,     1,     2,     3,     1,
-       0,     2,     0,     3
+       0,     2,     1,     1,     3
 };
 
 
@@ -1140,99 +1051,26 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-  case 4: /* statement: assignment_expression ';'  */
-#line 100 "parser.y"
-                                   {}
-#line 1147 "parser.tab.c"
+  case 2: /* input: expr  */
+#line 19 "parser.y"
+             { root = (yyvsp[0].node); }
+#line 1058 "parser.tab.c"
     break;
 
-  case 5: /* assignment_expression: assignment_lhs ASSIGNMENT_OPERATOR assignment_rhs  */
-#line 104 "parser.y"
-                                                          {
-		TypeInfo *type = (yyvsp[-2].variable)->typeinfo;
-		
-		LLVMTypeRef llvm_type;
-		if (strcmp(type->type_size, "int") == 0) {
-			llvm_type = LLVMInt32Type();
-		} else if (strcmp(type->type_size, "char") == 0) {
-			llvm_type = LLVMInt8Type();
-		}
-
-		char *variable_name = (yyvsp[-2].variable)->identifier;
-		
-		LLVMValueRef rhs_value = (yyvsp[0].ival);
-		LLVMValueRef variable_pointer = get_symbol(variable_name)->llvm_ref;
-
-		LLVMBuildStore(builder, rhs_value, variable_pointer);
-
-		printf("Variable %s is of type %s %s, pointer level %d. Assigning using %s a value of %d\n", (yyvsp[-2].variable)->identifier, (yyvsp[-2].variable)->typeinfo->signage, (yyvsp[-2].variable)->typeinfo->type_size, (yyvsp[-2].variable)->typeinfo->pointer_depth, (yyvsp[-1].sval), (yyvsp[0].ival));
-	}
-#line 1171 "parser.tab.c"
+  case 3: /* expr: NUMBER  */
+#line 23 "parser.y"
+                              { (yyval.node) = make_number((yyvsp[0].ival)); }
+#line 1064 "parser.tab.c"
     break;
 
-  case 6: /* assignment_rhs: expr  */
-#line 126 "parser.y"
-             { (yyval.ival) = (yyvsp[0].ival); }
-#line 1177 "parser.tab.c"
-    break;
-
-  case 7: /* assignment_lhs: type IDENTIFIER  */
-#line 130 "parser.y"
-                        {
-		Variable *v = malloc(sizeof(Variable));
-		v->identifier = (yyvsp[0].sval);
-		v->typeinfo = (yyvsp[-1].typeinfo);
-		(yyval.variable) = v;
-	}
-#line 1188 "parser.tab.c"
-    break;
-
-  case 8: /* type: optional_signage TYPE_SIZE optional_pointer_chain  */
-#line 139 "parser.y"
-                                                          {
-		TypeInfo *t = malloc(sizeof(TypeInfo));
-		t->signage = (yyvsp[-2].sval);
-		t->type_size = (yyvsp[-1].sval);
-		t->pointer_depth = (yyvsp[0].ival);
-		(yyval.typeinfo) = t;
-	}
-#line 1200 "parser.tab.c"
-    break;
-
-  case 9: /* optional_signage: TYPE_SIGNAGE  */
-#line 149 "parser.y"
-                     { (yyval.sval) = (yyvsp[0].sval); }
-#line 1206 "parser.tab.c"
-    break;
-
-  case 10: /* optional_signage: %empty  */
-#line 150 "parser.y"
-          { (yyval.sval) = "none"; }
-#line 1212 "parser.tab.c"
-    break;
-
-  case 11: /* optional_pointer_chain: '*' optional_pointer_chain  */
-#line 154 "parser.y"
-                                   { (yyval.ival) = (yyvsp[0].ival) + 1; }
-#line 1218 "parser.tab.c"
-    break;
-
-  case 12: /* optional_pointer_chain: %empty  */
-#line 155 "parser.y"
-          { (yyval.ival) = 0; }
-#line 1224 "parser.tab.c"
-    break;
-
-  case 13: /* expr: NUMBER '+' NUMBER  */
-#line 159 "parser.y"
-                          {
-		(yyval.ival) = (yyvsp[-2].ival) + (yyvsp[0].ival);
-	}
-#line 1232 "parser.tab.c"
+  case 4: /* expr: expr '+' expr  */
+#line 24 "parser.y"
+                                { (yyval.node) = make_binary('+', (yyvsp[-2].node), (yyvsp[0].node)); }
+#line 1070 "parser.tab.c"
     break;
 
 
-#line 1236 "parser.tab.c"
+#line 1074 "parser.tab.c"
 
       default: break;
     }
@@ -1425,34 +1263,10 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 164 "parser.y"
+#line 27 "parser.y"
 
 
-int main() {
-	LLVMModuleRef module = LLVMModuleCreateWithName("my_module");
-	LLVMBuilderRef builder = LLVMCreateBuilder();
-	LLVMContextRef context = LLVMGetGlobalContext();
-
-	LLVMTypeRef func_type = LLVMFunctionType(LLVMInt32Type(), NULL, 0, 0);
-	LLVMValueRef func = LLVMAddFunction(module, "main", func_type);
-	LLVMBasicBlockRef entry = LLVMAppendBasicBlock(func, "entry");
-
-	LLVMPositionBuilderAtEnd(builder, entry);
-	LLVMValueRef return_val = LLVMConstInt(LLVMInt32Type(), 42, 0);
-	LLVMBuildRet(builder, return_val);
-	
-	char *ir_string = LLVMPrintModuleToString(module);
-	printf("%s\n", ir_string);
-
-	LLVMDisposeMessage(ir_string);
-	LLVMDisposeBuilder(builder);
-	LLVMDisposeModule(module);
-
-	return yyparse();
-}
-
-int yyerror(const char *s) {
-	fprintf(stderr, "Error: %s\n", s);
+int yyerror(const char* s) {
+	fprintf(stderr, "Parse error: %s\n", s);
 	return 1;
 }
-

@@ -1,11 +1,13 @@
 # Makefile
 
 # Output binary name
-TARGET = myparser
+TARGET = minCC
 
 # Source files
 PARSER = parser.y
 LEXER = lexer.l
+AST_C = ast.c
+MAIN_C = main.c
 
 # Generated files
 PARSER_C = parser.tab.c
@@ -21,8 +23,8 @@ LDFLAGS = `llvm-config --ldflags --libs core` -lfl
 all: $(TARGET)
 
 # Build final binary
-$(TARGET): $(PARSER_C) $(LEXER_C)
-	$(CC) $(CFLAGS) -o $(TARGET) $(PARSER_C) $(LEXER_C) $(LDFLAGS)
+$(TARGET): $(PARSER_C) $(LEXER_C) $(AST_C) $(MAIN_C)
+	$(CC) $(CFLAGS) -o $(TARGET) $(PARSER_C) $(LEXER_C) $(AST_C) $(MAIN_C) $(LDFLAGS)
 
 # Generate parser source/header
 $(PARSER_C) $(PARSER_H): $(PARSER)

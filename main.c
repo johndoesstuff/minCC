@@ -19,6 +19,8 @@ LLVMValueRef generate(ASTNode* node) {
 					 LLVMValueRef right = generate(node->binary.right);
 					 if (node->binary.op == '+') {
 						 return LLVMBuildAdd(builder, left, right, "addtmp");
+					 } else if (node->binary.op == '-') {
+						 return LLVMBuildSub(builder, left, right, "subtmp");
 					 }
 				 }
 	}

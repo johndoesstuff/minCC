@@ -22,6 +22,7 @@ input:
 expr:
 	NUMBER                { $$ = make_number($1); }
 	| expr '+' expr         { $$ = make_binary('+', $1, $3); }
+	| expr '-' expr         { $$ = make_binary('-', $1, $3); }
 ;
 
 %%

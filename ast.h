@@ -1,7 +1,10 @@
 #ifndef AST_H
 #define AST_H
 
+#define INITIAL_CAPACITY 10
+
 typedef enum {
+	AST_PROGRAM,
 	AST_NUMBER,
 	AST_BINARY,
 	AST_UNARY,
@@ -27,6 +30,11 @@ typedef struct ASTNode {
 			char op;
 			struct ASTNode* left;
 		} unary;
+		struct {
+			struct ASTNode** statements;
+			int count;
+			int capacity;
+		} program;
 	};
 } ASTNode;
 

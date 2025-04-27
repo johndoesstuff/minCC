@@ -13,12 +13,17 @@ ASTNode* root;
 
 %token <ival> NUMBER
 %token <sval> IDENTIFIER
-%type <node> mag term factor expr
+%type <node> mag term factor expr statement
 
 %%
 
 input:
-	expr		{ root = $1; }
+			{ root = make_program(); }
+	| input statement	{ append_statement(root, $2); }
+;
+
+statement:
+	expr ';'	{ $$ = $1; }
 ;
 
 expr:
@@ -41,6 +46,7 @@ term:
 factor:
 	'(' mag ')'	{ $$ = $2; }
 	| '-' factor	{ $$ = make_unary('-', $2); }
+	| IDENTIFIER	{ $$ = make_identifier($1); }
 	| NUMBER	{ $$ = make_number($1); }
 ;
 

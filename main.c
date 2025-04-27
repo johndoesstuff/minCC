@@ -14,6 +14,12 @@ LLVMBuilderRef builder;
 
 LLVMValueRef generate(ASTNode* node) {
 	switch (node->type) {
+		case AST_PROGRAM: {
+					for (int i = 0; i < node->program.count; i++) {
+						generate(node->program.statements[i]);
+					}
+					return NULL;
+				}
 		case AST_NUMBER:
 			return LLVMConstInt(LLVMInt32Type(), node->value, 0);
 		case AST_BINARY: {
@@ -39,6 +45,10 @@ LLVMValueRef generate(ASTNode* node) {
 					LLVMValueRef value = generate(node->assign.right);
 					LLVMValueRef var = create_variable(node->assign.identifier);
 					return LLVMBuildStore(builder, value, var);
+				}
+		case AST_IDENTIFIER: {
+					LLVMValueRef ptr = lookup_variable("x");
+					return LLVMBuildLoad2(builder, LLVMInt32Type(), ptr, "loadtmp");
 				}
 	}
 	return NULL;

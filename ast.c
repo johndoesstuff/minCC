@@ -1,6 +1,28 @@
 #include <stdlib.h>
 #include "ast.h"
 
+ASTNode* make_program() {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_PROGRAM;
+	node->program.statements = malloc(INITIAL_CAPACITY * sizeof(ASTNode*));
+	node->program.count = 0;
+	node->program.capacity = INITIAL_CAPACITY;
+	return node;
+}
+
+void append_statement(ASTNode* program_node, ASTNode* statement) {
+	if (program_node->type != AST_PROGRAM) {
+		return;
+	}
+
+	if (program_node->program.count == program_node->program.capacity) {
+		program_node->program.capacity *= 2;
+		program_node->program.statements = realloc(program_node->program.statements, program_node->program.capacity * sizeof(ASTNode*));
+	}
+
+	program_node->program.statements[program_node->program.count++] = statement;
+}
+
 ASTNode* make_number(int value) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_NUMBER;

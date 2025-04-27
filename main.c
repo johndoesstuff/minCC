@@ -21,6 +21,10 @@ LLVMValueRef generate(ASTNode* node) {
 						 return LLVMBuildAdd(builder, left, right, "addtmp");
 					 } else if (node->binary.op == '-') {
 						 return LLVMBuildSub(builder, left, right, "subtmp");
+					 } else if (node->binary.op == '*') {
+						 return LLVMBuildMul(builder, left, right, "multmp");
+					 } else if (node->binary.op == '/') {
+						 return LLVMBuildSDiv(builder, left, right, "divtmp");
 					 }
 				 }
 	}

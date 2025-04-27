@@ -11,18 +11,24 @@ ASTNode* root;
 }
 
 %token <ival> NUMBER
-%type <node> expr
+%type <node> mag term
 
 %%
 
 input:
-	expr { root = $1; }
+	mag		{ root = $1; }
 ;
 
-expr:
-	NUMBER                { $$ = make_number($1); }
-	| expr '+' expr         { $$ = make_binary('+', $1, $3); }
-	| expr '-' expr         { $$ = make_binary('-', $1, $3); }
+mag:
+	mag '+' term	{ $$ = make_binary('+', $1, $3); }
+	| mag '-' term	{ $$ = make_binary('-', $1, $3); }
+	| term		{ $$ = $1; }
+;
+
+term:
+	term '*' term	{ $$ = make_binary('*', $1, $3); }
+	| term '/' term	{ $$ = make_binary('/', $1, $3); }
+	| NUMBER	{ $$ = make_number($1); }
 ;
 
 %%

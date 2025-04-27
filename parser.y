@@ -11,7 +11,7 @@ ASTNode* root;
 }
 
 %token <ival> NUMBER
-%type <node> mag term
+%type <node> mag term factor
 
 %%
 
@@ -28,6 +28,12 @@ mag:
 term:
 	term '*' term	{ $$ = make_binary('*', $1, $3); }
 	| term '/' term	{ $$ = make_binary('/', $1, $3); }
+	| factor	{ $$ = $1; }
+;
+
+factor:
+	'(' mag ')'	{ $$ = $2; }
+	| '-' factor	{ $$ = make_unary('-', $2); }
 	| NUMBER	{ $$ = make_number($1); }
 ;
 

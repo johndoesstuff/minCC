@@ -16,3 +16,11 @@ ASTNode* make_binary(char op, ASTNode* left, ASTNode* right) {
 	node->binary.right = right;
 	return node;
 }
+
+ASTNode* make_unary(char op, ASTNode* left) {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_UNARY;
+	node->binary.op = op;
+	node->binary.left = left;
+	return node;
+}

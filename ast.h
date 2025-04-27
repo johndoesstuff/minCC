@@ -3,7 +3,8 @@
 
 typedef enum {
 	AST_NUMBER,
-	AST_BINARY
+	AST_BINARY,
+	AST_UNARY,
 } ASTNodeType;
 
 typedef struct ASTNode {
@@ -15,10 +16,15 @@ typedef struct ASTNode {
 			struct ASTNode* left;
 			struct ASTNode* right;
 		} binary;
+		struct {
+			char op;
+			struct ASTNode* left;
+		} unary;
 	};
 } ASTNode;
 
 ASTNode* make_number(int value);
 ASTNode* make_binary(char op, ASTNode* left, ASTNode* right);
+ASTNode* make_unary(char op, ASTNode* left);
 
 #endif

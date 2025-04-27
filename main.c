@@ -27,6 +27,12 @@ LLVMValueRef generate(ASTNode* node) {
 						 return LLVMBuildSDiv(builder, left, right, "divtmp");
 					 }
 				 }
+		case AST_UNARY: {
+					LLVMValueRef left = generate(node->unary.left);
+					if (node->unary.op == '-') {
+						return LLVMBuildSub(builder, LLVMConstInt(LLVMInt32Type(), 0, 0), left, "subtmp");
+					}
+				}
 	}
 	return NULL;
 }

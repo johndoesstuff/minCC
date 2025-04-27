@@ -1,7 +1,9 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "ast.h"
 
 ASTNode* make_program() {
+	printf("trying to make program node");
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_PROGRAM;
 	node->program.statements = malloc(INITIAL_CAPACITY * sizeof(ASTNode*));
@@ -11,6 +13,11 @@ ASTNode* make_program() {
 }
 
 void append_statement(ASTNode* program_node, ASTNode* statement) {
+	printf(":3");
+	if (program_node == NULL) {
+		printf("null program node");
+		return;
+	}
 	if (program_node->type != AST_PROGRAM) {
 		return;
 	}
@@ -24,6 +31,7 @@ void append_statement(ASTNode* program_node, ASTNode* statement) {
 }
 
 ASTNode* make_number(int value) {
+	printf("make number");
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_NUMBER;
 	node->value = value;
@@ -38,6 +46,7 @@ ASTNode* make_identifier(char* identifier) {
 }
 
 ASTNode* make_assign(char* identifier, ASTNode* right) {
+	printf("make assign");
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_ASSIGN;
 	node->assign.identifier = identifier;

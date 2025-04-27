@@ -13,8 +13,13 @@ extern ASTNode* root;
 LLVMBuilderRef builder;
 
 LLVMValueRef generate(ASTNode* node) {
+	if (node == NULL) {
+		fprintf(stderr, "trying to generate null node??");
+		return NULL;
+	}
 	switch (node->type) {
 		case AST_PROGRAM: {
+					printf("program..");
 					for (int i = 0; i < node->program.count; i++) {
 						generate(node->program.statements[i]);
 					}
@@ -55,6 +60,7 @@ LLVMValueRef generate(ASTNode* node) {
 }
 
 int main() {
+	printf("mainn");
 	LLVMModuleRef module = LLVMModuleCreateWithName("tiny");
 	builder = LLVMCreateBuilder();
 

@@ -17,7 +17,7 @@ LEXER_C = lex.yy.c
 
 # Compiler
 CC = gcc
-CFLAGS = `llvm-config --cflags` -Wno-implicit-function-declaration -Wall
+CFLAGS = `llvm-config --cflags` -Wno-implicit-function-declaration -Wall -g
 LDFLAGS = `llvm-config --ldflags --libs core` -lfl
 
 # Default target

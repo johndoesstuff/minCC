@@ -8,6 +8,21 @@ ASTNode* make_number(int value) {
 	return node;
 }
 
+ASTNode* make_identifier(char* identifier) {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_IDENTIFIER;
+	node->identifier = identifier;
+	return node;
+}
+
+ASTNode* make_assign(char* identifier, ASTNode* right) {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_ASSIGN;
+	node->assign.identifier = identifier;
+	node->assign.right = right;
+	return node;
+}
+
 ASTNode* make_binary(char op, ASTNode* left, ASTNode* right) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_BINARY;

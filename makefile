@@ -7,6 +7,7 @@ TARGET = minCC
 PARSER = parser.y
 LEXER = lexer.l
 AST_C = ast.c
+SYMBOL_TABLE_C = symbol_table.c
 MAIN_C = main.c
 
 # Generated files
@@ -24,7 +25,7 @@ all: $(TARGET)
 
 # Build final binary
 $(TARGET): $(PARSER_C) $(LEXER_C) $(AST_C) $(MAIN_C)
-	$(CC) $(CFLAGS) -o $(TARGET) $(PARSER_C) $(LEXER_C) $(AST_C) $(MAIN_C) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(PARSER_C) $(LEXER_C) $(AST_C) $(SYMBOL_TABLE_C) $(MAIN_C) $(LDFLAGS)
 
 # Generate parser source/header
 $(PARSER_C) $(PARSER_H): $(PARSER)

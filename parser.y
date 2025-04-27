@@ -7,16 +7,23 @@ ASTNode* root;
 
 %union {
 	int ival;
+	char* sval;
 	struct ASTNode* node;
 }
 
 %token <ival> NUMBER
-%type <node> mag term factor
+%token <sval> IDENTIFIER
+%type <node> mag term factor expr
 
 %%
 
 input:
-	mag		{ root = $1; }
+	expr		{ root = $1; }
+;
+
+expr:
+	IDENTIFIER '=' expr	{ $$ = make_assign($1, $3); }
+	| mag		{ $$ = $1; }
 ;
 
 mag:
@@ -26,8 +33,8 @@ mag:
 ;
 
 term:
-	term '*' term	{ $$ = make_binary('*', $1, $3); }
-	| term '/' term	{ $$ = make_binary('/', $1, $3); }
+	term '*' factor	{ $$ = make_binary('*', $1, $3); }
+	| term '/' factor	{ $$ = make_binary('/', $1, $3); }
 	| factor	{ $$ = $1; }
 ;
 

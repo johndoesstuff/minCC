@@ -3,7 +3,9 @@
 #include <llvm-c/Target.h>
 #include <llvm-c/Analysis.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "ast.h"
+#include "symbol_table.h"
 
 extern int yyparse();
 extern ASTNode* root;
@@ -32,6 +34,11 @@ LLVMValueRef generate(ASTNode* node) {
 					if (node->unary.op == '-') {
 						return LLVMBuildSub(builder, LLVMConstInt(LLVMInt32Type(), 0, 0), left, "subtmp");
 					}
+				}
+		case AST_ASSIGN: {
+					LLVMValueRef value = generate(node->assign.right);
+					LLVMValueRef var = create_variable(node->assign.identifier);
+					return LLVMBuildStore(builder, value, var);
 				}
 	}
 	return NULL;

@@ -10,6 +10,7 @@ typedef enum {
 	AST_UNARY,
 	AST_IDENTIFIER,
 	AST_ASSIGN,
+	AST_RETURN,
 } ASTNodeType;
 
 typedef struct ASTNode {
@@ -35,6 +36,9 @@ typedef struct ASTNode {
 			int count;
 			int capacity;
 		} program;
+		struct {
+			struct ASTNode* value;
+		} retrn;
 	};
 } ASTNode;
 
@@ -45,5 +49,6 @@ ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right);
 ASTNode* make_unary(char* op, ASTNode* left);
 ASTNode* make_program();
 void append_statement(ASTNode* program_node, ASTNode* statement);
+ASTNode* make_return(ASTNode* value);
 
 #endif

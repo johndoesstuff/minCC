@@ -5,13 +5,14 @@
 
 %%
 
-[0-9]+      { yylval.ival = atoi(yytext); return NUMBER; }
+[0-9]+		{ yylval.ival = atoi(yytext); return NUMBER; }
+"return"	{ return RETURN; }
 [a-zA-Z_][a-zA-Z0-9_]*	{ yylval.sval = strdup(yytext); return IDENTIFIER; }
-"+"         { return '+'; }
-"-"         { return '-'; }
-"*"         { return '*'; }
-"/"         { return '/'; }
-[ \t\n]+    ; // ignore whitespace
-.           { return yytext[0]; }
+"+"		{ return '+'; }
+"-"		{ return '-'; }
+"*"		{ return '*'; }
+"/"		{ return '/'; }
+[ \t\n]+	; // ignore whitespace
+.		{ return yytext[0]; }
 
 %%

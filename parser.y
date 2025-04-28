@@ -13,7 +13,12 @@ ASTNode* root;
 
 %token <ival> NUMBER
 %token <sval> IDENTIFIER
+%token RETURN
 %type <node> mag term factor expr statement
+
+%left '+' '-'
+%left '*' '/'
+%nonassoc RETURN
 
 %%
 
@@ -24,6 +29,7 @@ input:
 
 statement:
 	expr ';'	{ $$ = $1; }
+	| RETURN expr ';'	{ $$ = make_return($2); }
 ;
 
 expr:

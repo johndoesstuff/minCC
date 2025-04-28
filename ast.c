@@ -66,3 +66,10 @@ ASTNode* make_unary(char* op, ASTNode* left) {
 	node->binary.left = left;
 	return node;
 }
+
+ASTNode* make_return(ASTNode* value) {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_RETURN;
+	node->retrn.value = value;
+	return node;
+}

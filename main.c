@@ -52,8 +52,12 @@ LLVMValueRef generate(ASTNode* node) {
 					return LLVMBuildStore(builder, value, var);
 				}
 		case AST_IDENTIFIER: {
-					LLVMValueRef ptr = lookup_variable("x");
+					LLVMValueRef ptr = lookup_variable(node->identifier);
 					return LLVMBuildLoad2(builder, LLVMInt32Type(), ptr, "loadtmp");
+				}
+		case AST_RETURN: {
+					LLVMValueRef value = generate(node->retrn.value);
+					return LLVMBuildRet(builder, value);
 				}
 	}
 	return NULL;

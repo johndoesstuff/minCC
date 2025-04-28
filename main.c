@@ -4,6 +4,7 @@
 #include <llvm-c/Analysis.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "ast.h"
 #include "symbol_table.h"
 
@@ -19,7 +20,6 @@ LLVMValueRef generate(ASTNode* node) {
 	}
 	switch (node->type) {
 		case AST_PROGRAM: {
-					printf("program..");
 					for (int i = 0; i < node->program.count; i++) {
 						generate(node->program.statements[i]);
 					}
@@ -30,19 +30,19 @@ LLVMValueRef generate(ASTNode* node) {
 		case AST_BINARY: {
 					 LLVMValueRef left = generate(node->binary.left);
 					 LLVMValueRef right = generate(node->binary.right);
-					 if (node->binary.op == '+') {
+					 if (strcmp(node->binary.op, "+") == 0) {
 						 return LLVMBuildAdd(builder, left, right, "addtmp");
-					 } else if (node->binary.op == '-') {
+					 } else if (strcmp(node->binary.op, "-") == 0) {
 						 return LLVMBuildSub(builder, left, right, "subtmp");
-					 } else if (node->binary.op == '*') {
+					 } else if (strcmp(node->binary.op, "*") == 0) {
 						 return LLVMBuildMul(builder, left, right, "multmp");
-					 } else if (node->binary.op == '/') {
+					 } else if (strcmp(node->binary.op, "/") == 0) {
 						 return LLVMBuildSDiv(builder, left, right, "divtmp");
 					 }
 				 }
 		case AST_UNARY: {
 					LLVMValueRef left = generate(node->unary.left);
-					if (node->unary.op == '-') {
+					if (strcmp(node->unary.op, "-") == 0) {
 						return LLVMBuildSub(builder, LLVMConstInt(LLVMInt32Type(), 0, 0), left, "subtmp");
 					}
 				}
@@ -60,7 +60,6 @@ LLVMValueRef generate(ASTNode* node) {
 }
 
 int main() {
-	printf("mainn");
 	LLVMModuleRef module = LLVMModuleCreateWithName("tiny");
 	builder = LLVMCreateBuilder();
 

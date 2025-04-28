@@ -22,12 +22,12 @@ typedef struct ASTNode {
 			struct ASTNode* right;
 		} assign;
 		struct {
-			char op;
+			char* op;
 			struct ASTNode* left;
 			struct ASTNode* right;
 		} binary;
 		struct {
-			char op;
+			char* op;
 			struct ASTNode* left;
 		} unary;
 		struct {
@@ -41,8 +41,8 @@ typedef struct ASTNode {
 ASTNode* make_number(int value);
 ASTNode* make_identifier(char* identifier);
 ASTNode* make_assign(char* identifier, ASTNode* right);
-ASTNode* make_binary(char op, ASTNode* left, ASTNode* right);
-ASTNode* make_unary(char op, ASTNode* left);
+ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right);
+ASTNode* make_unary(char* op, ASTNode* left);
 ASTNode* make_program();
 void append_statement(ASTNode* program_node, ASTNode* statement);
 

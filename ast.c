@@ -3,7 +3,6 @@
 #include "ast.h"
 
 ASTNode* make_program() {
-	printf("trying to make program node");
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_PROGRAM;
 	node->program.statements = malloc(INITIAL_CAPACITY * sizeof(ASTNode*));
@@ -13,7 +12,6 @@ ASTNode* make_program() {
 }
 
 void append_statement(ASTNode* program_node, ASTNode* statement) {
-	printf(":3");
 	if (program_node == NULL) {
 		printf("null program node");
 		return;
@@ -31,7 +29,6 @@ void append_statement(ASTNode* program_node, ASTNode* statement) {
 }
 
 ASTNode* make_number(int value) {
-	printf("make number");
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_NUMBER;
 	node->value = value;
@@ -46,7 +43,6 @@ ASTNode* make_identifier(char* identifier) {
 }
 
 ASTNode* make_assign(char* identifier, ASTNode* right) {
-	printf("make assign");
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_ASSIGN;
 	node->assign.identifier = identifier;
@@ -54,7 +50,7 @@ ASTNode* make_assign(char* identifier, ASTNode* right) {
 	return node;
 }
 
-ASTNode* make_binary(char op, ASTNode* left, ASTNode* right) {
+ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_BINARY;
 	node->binary.op = op;
@@ -63,7 +59,7 @@ ASTNode* make_binary(char op, ASTNode* left, ASTNode* right) {
 	return node;
 }
 
-ASTNode* make_unary(char op, ASTNode* left) {
+ASTNode* make_unary(char* op, ASTNode* left) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_UNARY;
 	node->binary.op = op;

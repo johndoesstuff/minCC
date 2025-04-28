@@ -1111,13 +1111,13 @@ yyreduce:
 
   case 7: /* mag: mag '+' term  */
 #line 35 "parser.y"
-                        { (yyval.node) = make_binary('+', (yyvsp[-2].node), (yyvsp[0].node)); }
+                        { (yyval.node) = make_binary("+", (yyvsp[-2].node), (yyvsp[0].node)); }
 #line 1116 "parser.tab.c"
     break;
 
   case 8: /* mag: mag '-' term  */
 #line 36 "parser.y"
-                        { (yyval.node) = make_binary('-', (yyvsp[-2].node), (yyvsp[0].node)); }
+                        { (yyval.node) = make_binary("-", (yyvsp[-2].node), (yyvsp[0].node)); }
 #line 1122 "parser.tab.c"
     break;
 
@@ -1129,13 +1129,13 @@ yyreduce:
 
   case 10: /* term: term '*' factor  */
 #line 41 "parser.y"
-                        { (yyval.node) = make_binary('*', (yyvsp[-2].node), (yyvsp[0].node)); }
+                        { (yyval.node) = make_binary("*", (yyvsp[-2].node), (yyvsp[0].node)); }
 #line 1134 "parser.tab.c"
     break;
 
   case 11: /* term: term '/' factor  */
 #line 42 "parser.y"
-                                { (yyval.node) = make_binary('/', (yyvsp[-2].node), (yyvsp[0].node)); }
+                                { (yyval.node) = make_binary("/", (yyvsp[-2].node), (yyvsp[0].node)); }
 #line 1140 "parser.tab.c"
     break;
 
@@ -1153,7 +1153,7 @@ yyreduce:
 
   case 14: /* factor: '-' factor  */
 #line 48 "parser.y"
-                        { (yyval.node) = make_unary('-', (yyvsp[0].node)); }
+                        { (yyval.node) = make_unary("-", (yyvsp[0].node)); }
 #line 1158 "parser.tab.c"
     break;
 

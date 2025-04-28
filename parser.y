@@ -14,6 +14,8 @@ ASTNode* root;
 %token <ival> NUMBER
 %token <sval> IDENTIFIER
 %token RETURN
+%token TRUE
+%token FALSE
 %token <sval> COMPARE
 %type <node> rvalue mag term factor expr statement
 

@@ -13,8 +13,14 @@ typedef enum {
 	AST_RETURN,
 } ASTNodeType;
 
+typedef enum {
+	TYPE_INT,
+	TYPE_BOOL,
+} valueType;
+
 typedef struct ASTNode {
 	ASTNodeType type;
+	valueType valueType;
 	union {
 		int value; // for AST_NUMBER
 		char* identifier; // for AST_IDENTIFIER

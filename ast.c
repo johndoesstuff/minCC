@@ -31,6 +31,7 @@ void append_statement(ASTNode* program_node, ASTNode* statement) {
 ASTNode* make_number(int value) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_NUMBER;
+	node->valueType = TYPE_INT;
 	node->value = value;
 	return node;
 }
@@ -45,6 +46,7 @@ ASTNode* make_identifier(char* identifier) {
 ASTNode* make_assign(char* identifier, ASTNode* right) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_ASSIGN;
+	node->valueType = right->valueType;
 	node->assign.identifier = identifier;
 	node->assign.right = right;
 	return node;

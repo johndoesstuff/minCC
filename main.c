@@ -38,6 +38,18 @@ LLVMValueRef generate(ASTNode* node) {
 						 return LLVMBuildMul(builder, left, right, "multmp");
 					 } else if (strcmp(node->binary.op, "/") == 0) {
 						 return LLVMBuildSDiv(builder, left, right, "divtmp");
+					 } else if (strcmp(node->binary.op, "==") == 0) {
+						 return LLVMBuildICmp(builder, LLVMIntEQ, left, right, "cmptmp");
+					 } else if (strcmp(node->binary.op, "!=") == 0) {
+						 return LLVMBuildICmp(builder, LLVMIntNE, left, right, "cmptmp");
+					 } else if (strcmp(node->binary.op, "<") == 0) {
+						 return LLVMBuildICmp(builder, LLVMIntSLT, left, right, "cmptmp");
+					 } else if (strcmp(node->binary.op, ">") == 0) {
+						 return LLVMBuildICmp(builder, LLVMIntSGT, left, right, "cmptmp");
+					 } else if (strcmp(node->binary.op, "<=") == 0) {
+						 return LLVMBuildICmp(builder, LLVMIntSLE, left, right, "cmptmp");
+					 } else if (strcmp(node->binary.op, ">=") == 0) {
+						 return LLVMBuildICmp(builder, LLVMIntSGE, left, right, "cmptmp");
 					 }
 				 }
 		case AST_UNARY: {

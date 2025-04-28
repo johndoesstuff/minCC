@@ -14,7 +14,8 @@ ASTNode* root;
 %token <ival> NUMBER
 %token <sval> IDENTIFIER
 %token RETURN
-%type <node> mag term factor expr statement
+%token <sval> COMPARE
+%type <node> rvalue mag term factor expr statement
 
 %left '+' '-'
 %left '*' '/'
@@ -34,7 +35,12 @@ statement:
 
 expr:
 	IDENTIFIER '=' expr	{ $$ = make_assign($1, $3); }
-	| mag		{ $$ = $1; }
+	| rvalue		{ $$ = $1; }
+;
+
+rvalue:
+	rvalue COMPARE mag	{ $$ = make_binary($2, $1, $3); }
+	| mag			{ $$ = $1; }
 ;
 
 mag:
@@ -50,7 +56,7 @@ term:
 ;
 
 factor:
-	'(' mag ')'	{ $$ = $2; }
+	'(' rvalue ')'	{ $$ = $2; }
 	| '-' factor	{ $$ = make_unary("-", $2); }
 	| IDENTIFIER	{ $$ = make_identifier($1); }
 	| NUMBER	{ $$ = make_number($1); }

@@ -56,7 +56,8 @@ extern int yydebug;
     YYUNDEF = 257,                 /* "invalid token"  */
     NUMBER = 258,                  /* NUMBER  */
     IDENTIFIER = 259,              /* IDENTIFIER  */
-    RETURN = 260                   /* RETURN  */
+    RETURN = 260,                  /* RETURN  */
+    COMPARE = 261                  /* COMPARE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -71,7 +72,7 @@ union YYSTYPE
 	char* sval;
 	struct ASTNode* node;
 
-#line 75 "parser.tab.h"
+#line 76 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

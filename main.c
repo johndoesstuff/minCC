@@ -75,10 +75,11 @@ int main() {
 	yyparse();
 
 	LLVMValueRef result = generate(root);
-	LLVMBuildRet(builder, result);
+	//LLVMBuildRet(builder, result);
 
 	char* ir = LLVMPrintModuleToString(module);
 	printf("%s", ir);
+	LLVMPrintModuleToFile(module, "output.ll", NULL);
 	LLVMDisposeMessage(ir);
 	LLVMDisposeBuilder(builder);
 	LLVMDisposeModule(module);

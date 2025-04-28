@@ -2,37 +2,31 @@
 #include <stdlib.h>
 #include <string.h>
 #include "symbol_table.h"
+#include "ast.h"
 
 VarEntry* variables = NULL;
 
-LLVMValueRef lookup_variable(const char* name) {
+VarEntry* lookup_variable(const char* name) {
 	for (VarEntry* var = variables; var != NULL; var = var->next) {
-		if (strcmp(var->name, name) == 0)
-			return var->value;
+		if (strcmp(var->name, name) == 0) {
+			return var;
+		}
 	}
 	fprintf(stderr, "Unknown variable: %s\n", name);
 	exit(1);
 }
 
-LLVMValueRef create_variable(const char* name) {
+VarEntry* create_variable(const char* name, valueType type) {
 	extern LLVMBuilderRef builder;
 	LLVMValueRef alloc = LLVMBuildAlloca(builder, LLVMInt32Type(), name);
 
 	VarEntry* entry = malloc(sizeof(VarEntry));
 	entry->name = strdup(name);
+	entry->valueType = type;
 	entry->value = alloc;
 	entry->next = variables;
 	variables = entry;
-	return alloc;
-}
-
-LLVMValueRef lookup_or_create_variable(const char* name) {
-	VarEntry* var;
-	for (var = variables; var != NULL; var = var->next) {
-		if (strcmp(var->name, name) == 0)
-			return var->value;
-	}
-	return create_variable(name);
+	return entry;
 }
 
 void free_symbol_table() {

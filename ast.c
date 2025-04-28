@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "ast.h"
+#include "types.h"
+#include "symbol_table.h"
 
 ASTNode* make_program() {
 	ASTNode* node = malloc(sizeof(ASTNode));
@@ -39,6 +41,7 @@ ASTNode* make_number(int value) {
 ASTNode* make_identifier(char* identifier) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_IDENTIFIER;
+	node->valueType = lookup_variable(identifier)->valueType;
 	node->identifier = identifier;
 	return node;
 }
@@ -55,6 +58,10 @@ ASTNode* make_assign(char* identifier, ASTNode* right) {
 ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_BINARY;
+	node->valueType = TYPE_INT;
+	if (is_boolean_operator(op)) {
+		node->valueType = TYPE_BOOL;
+	}
 	node->binary.op = op;
 	node->binary.left = left;
 	node->binary.right = right;
@@ -64,6 +71,7 @@ ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right) {
 ASTNode* make_unary(char* op, ASTNode* left) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_UNARY;
+	node->valueType = TYPE_INT;
 	node->binary.op = op;
 	node->binary.left = left;
 	return node;
@@ -72,6 +80,7 @@ ASTNode* make_unary(char* op, ASTNode* left) {
 ASTNode* make_return(ASTNode* value) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_RETURN;
+	node->valueType = value->valueType;
 	node->retrn.value = value;
 	return node;
 }

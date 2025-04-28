@@ -30,6 +30,10 @@ LLVMValueRef generate(ASTNode* node) {
 		case AST_BINARY: {
 					 LLVMValueRef left = generate(node->binary.left);
 					 LLVMValueRef right = generate(node->binary.right);
+					 if (node->binary.left->valueType != node->binary.right->valueType) {
+					 	fprintf(stderr, "type mismatch!!\n");
+						exit(1);
+					 }
 					 if (strcmp(node->binary.op, "+") == 0) {
 						 return LLVMBuildAdd(builder, left, right, "addtmp");
 					 } else if (strcmp(node->binary.op, "-") == 0) {
@@ -60,11 +64,11 @@ LLVMValueRef generate(ASTNode* node) {
 				}
 		case AST_ASSIGN: {
 					LLVMValueRef value = generate(node->assign.right);
-					LLVMValueRef var = create_variable(node->assign.identifier);
+					LLVMValueRef var = create_variable(node->assign.identifier, node->assign.right->valueType)->value;
 					return LLVMBuildStore(builder, value, var);
 				}
 		case AST_IDENTIFIER: {
-					LLVMValueRef ptr = lookup_variable(node->identifier);
+					LLVMValueRef ptr = lookup_variable(node->identifier)->value;
 					return LLVMBuildLoad2(builder, LLVMInt32Type(), ptr, "loadtmp");
 				}
 		case AST_RETURN: {

@@ -2,18 +2,19 @@
 #define SYMBOL_TABLE_H
 
 #include <llvm-c/Core.h>
+#include "ast.h"
 
 typedef struct VarEntry {
 	char* name;
 	LLVMValueRef value;
+	valueType valueType;
 	struct VarEntry* next;
 } VarEntry;
 
 extern VarEntry* variables;
 
-LLVMValueRef lookup_variable(const char* name);
-LLVMValueRef create_variable(const char* name);
-LLVMValueRef lookup_or_create_variable(const char* name);
+VarEntry* lookup_variable(const char* name);
+VarEntry* create_variable(const char* name, valueType type);
 
 void free_symbol_table();
 

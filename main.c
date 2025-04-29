@@ -64,30 +64,25 @@ LLVMValueRef generate(ASTNode* node) {
 					}
 				}
 		case AST_DECLARE: {
-					if (lookup_variable(node->declare.identifier)) {
-						fprintf(stderr, "Variable %s has already been declared\n", node->declare.identifier);
-						exit(1);
-					}
-					valueType vtype = get_value_type(node->declare.type);
-					LLVMTypeRef type = get_llvm_type(vtype);
-					VarEntry* var = create_variable(node->declare.identifier, vtype);
-					LLVMValueRef alloca = var->value;
-
 					if (node->declare.right) {
-						if (node->declare.right->valueType != var->valueType) {
-							fprintf(stderr, "Type mismatch when declaring variable %s, expected %d but recieved %d\n", node->declare.identifier, node->declare.right->valueType, var->valueType);
-						}
 						LLVMValueRef value = generate(node->declare.right);
+						VarEntry* var = lookup_variable(node->declare.identifier);
 						LLVMBuildStore(builder, value, var->value);
 					}
 					return NULL;
 				}
 		case AST_ASSIGN: {
+					VarEntry* var = lookup_variable(node->assign.identifier);
 					LLVMValueRef value = generate(node->assign.right);
+					return LLVMBuildStore(builder, value, var->value);
 				}
 		case AST_IDENTIFIER: {
-					LLVMValueRef ptr = lookup_variable(node->identifier)->value;
-					return LLVMBuildLoad2(builder, LLVMInt32Type(), ptr, "loadtmp");
+					VarEntry* var = lookup_variable(node->identifier);
+					if (!var) {
+						fprintf(stderr, "Trying to access undeclared variable %s\n", node->identifier);
+						exit(1);
+					}
+					return LLVMBuildLoad2(builder, get_llvm_type(var->valueType), var->value, "loadtmp");
 				}
 		case AST_RETURN: {
 					LLVMValueRef value = generate(node->retrn.value);

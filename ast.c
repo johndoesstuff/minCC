@@ -41,12 +41,28 @@ ASTNode* make_number(int value) {
 ASTNode* make_identifier(char* identifier) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_IDENTIFIER;
+	VarEntry* var = lookup_variable(identifier);
+	if (!var) {
+		fprintf(stderr, "Could not find variable %s\n", identifier);
+		exit(1);
+	}
 	node->valueType = lookup_variable(identifier)->valueType;
 	node->identifier = identifier;
 	return node;
 }
 
 ASTNode* make_assign(char* identifier, ASTNode* right) {
+	VarEntry* var = lookup_variable(identifier);
+	if (!var) {
+		fprintf(stderr, "Assignment to undeclared variable %s\n", identifier);
+		exit(1);
+	}
+
+	if (right->valueType != var->valueType) {
+		fprintf(stderr, "Type mismatch in assignment to %s: expected %d, got %d\n", identifier, var->valueType, right->valueType);
+		exit(1);
+	}
+
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_ASSIGN;
 	node->valueType = right->valueType;
@@ -56,12 +72,24 @@ ASTNode* make_assign(char* identifier, ASTNode* right) {
 }
 
 ASTNode* make_declare(char* type, char* identifier, ASTNode* right) {
+	if (lookup_variable(identifier)) {
+		fprintf(stderr, "Variable %s already declared\n", identifier);
+		exit(1);
+	}
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_DECLARE;
 	node->valueType = right->valueType;
 	node->declare.identifier = identifier;
 	node->declare.right = right;
 	node->declare.type = type;
+
+	create_variable(identifier, node->valueType);
+
+	if (right && right->valueType != node->valueType) {
+		fprintf(stderr, "Type mismatch in declaration of %s: expected %d, got %d\n", identifier, node->valueType, right->valueType);
+		exit(1);
+	}
+
 	return node;
 }
 

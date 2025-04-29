@@ -3,5 +3,5 @@ source_filename = "tiny"
 
 define i32 @main() {
 entry:
-  ret i1 true
+  ret i1 false
 }

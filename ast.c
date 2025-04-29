@@ -84,3 +84,19 @@ ASTNode* make_return(ASTNode* value) {
 	node->retrn.value = value;
 	return node;
 }
+
+ASTNode* make_true() {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_BOOL;
+	node->valueType = TYPE_BOOL;
+	node->value = 1;
+	return node;
+}
+
+ASTNode* make_false() {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_BOOL;
+	node->valueType = TYPE_BOOL;
+	node->value = 0;
+	return node;
+}

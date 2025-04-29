@@ -11,6 +11,7 @@ typedef enum {
 	AST_IDENTIFIER,
 	AST_ASSIGN,
 	AST_RETURN,
+	AST_BOOL,
 } ASTNodeType;
 
 typedef enum {
@@ -56,5 +57,7 @@ ASTNode* make_unary(char* op, ASTNode* left);
 ASTNode* make_program();
 void append_statement(ASTNode* program_node, ASTNode* statement);
 ASTNode* make_return(ASTNode* value);
+ASTNode* make_true();
+ASTNode* make_false();
 
 #endif

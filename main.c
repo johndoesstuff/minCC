@@ -75,6 +75,9 @@ LLVMValueRef generate(ASTNode* node) {
 					LLVMValueRef value = generate(node->retrn.value);
 					return LLVMBuildRet(builder, value);
 				}
+		case AST_BOOL: {
+					return LLVMConstInt(LLVMInt1Type(), node->value, 0);
+			       }
 	}
 	return NULL;
 }

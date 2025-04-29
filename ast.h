@@ -12,6 +12,7 @@ typedef enum {
 	AST_ASSIGN,
 	AST_RETURN,
 	AST_BOOL,
+	AST_DECLARE,
 } ASTNodeType;
 
 typedef enum {
@@ -29,6 +30,11 @@ typedef struct ASTNode {
 			char* identifier;
 			struct ASTNode* right;
 		} assign;
+		struct {
+			char* type;
+			char* identifier;
+			struct ASTNode* right;
+		} declare;
 		struct {
 			char* op;
 			struct ASTNode* left;
@@ -52,6 +58,7 @@ typedef struct ASTNode {
 ASTNode* make_number(int value);
 ASTNode* make_identifier(char* identifier);
 ASTNode* make_assign(char* identifier, ASTNode* right);
+ASTNode* make_declare(char* type, char* identifier, ASTNode* right);
 ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right);
 ASTNode* make_unary(char* op, ASTNode* left);
 ASTNode* make_program();

@@ -3,6 +3,7 @@
 #include <string.h>
 #include "symbol_table.h"
 #include "ast.h"
+#include "types.h"
 
 VarEntry* variables = NULL;
 
@@ -12,13 +13,12 @@ VarEntry* lookup_variable(const char* name) {
 			return var;
 		}
 	}
-	fprintf(stderr, "Unknown variable: %s\n", name);
-	exit(1);
+	return NULL;
 }
 
 VarEntry* create_variable(const char* name, valueType type) {
 	extern LLVMBuilderRef builder;
-	LLVMValueRef alloc = LLVMBuildAlloca(builder, LLVMInt32Type(), name);
+	LLVMValueRef alloc = LLVMBuildAlloca(builder, get_llvm_type(type), name);
 
 	VarEntry* entry = malloc(sizeof(VarEntry));
 	entry->name = strdup(name);

@@ -17,7 +17,8 @@ ASTNode* root;
 %token TRUE
 %token FALSE
 %token <sval> COMPARE
-%type <node> rvalue mag term factor expr statement
+%token <sval> TYPE
+%type <node> declare rvalue mag term factor expr statement
 
 %left '+' '-'
 %left '*' '/'
@@ -31,8 +32,14 @@ input:
 ;
 
 statement:
-	expr ';'	{ $$ = $1; }
+	declare ';'	{ $$ = $1; }
+	| expr ';'	{ $$ = $1; }
 	| RETURN expr ';'	{ $$ = make_return($2); }
+;
+
+declare:
+	TYPE IDENTIFIER '=' expr	{ $$ = make_declare($1, $2, $4); }
+	| TYPE IDENTIFIER		{ $$ = make_declare($1, $2, NULL); }
 ;
 
 expr:

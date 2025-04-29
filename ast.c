@@ -55,6 +55,16 @@ ASTNode* make_assign(char* identifier, ASTNode* right) {
 	return node;
 }
 
+ASTNode* make_declare(char* type, char* identifier, ASTNode* right) {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_DECLARE;
+	node->valueType = right->valueType;
+	node->declare.identifier = identifier;
+	node->declare.right = right;
+	node->declare.type = type;
+	return node;
+}
+
 ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_BINARY;

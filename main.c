@@ -7,6 +7,7 @@
 #include <string.h>
 #include "ast.h"
 #include "symbol_table.h"
+#include "types.h"
 
 extern int yyparse();
 extern ASTNode* root;
@@ -62,10 +63,27 @@ LLVMValueRef generate(ASTNode* node) {
 						return LLVMBuildSub(builder, LLVMConstInt(LLVMInt32Type(), 0, 0), left, "subtmp");
 					}
 				}
+		case AST_DECLARE: {
+					if (lookup_variable(node->declare.identifier)) {
+						fprintf(stderr, "Variable %s has already been declared\n", node->declare.identifier);
+						exit(1);
+					}
+					valueType vtype = get_value_type(node->declare.type);
+					LLVMTypeRef type = get_llvm_type(vtype);
+					VarEntry* var = create_variable(node->declare.identifier, vtype);
+					LLVMValueRef alloca = var->value;
+
+					if (node->declare.right) {
+						if (node->declare.right->valueType != var->valueType) {
+							fprintf(stderr, "Type mismatch when declaring variable %s, expected %d but recieved %d\n", node->declare.identifier, node->declare.right->valueType, var->valueType);
+						}
+						LLVMValueRef value = generate(node->declare.right);
+						LLVMBuildStore(builder, value, var->value);
+					}
+					return NULL;
+				}
 		case AST_ASSIGN: {
 					LLVMValueRef value = generate(node->assign.right);
-					LLVMValueRef var = create_variable(node->assign.identifier, node->assign.right->valueType)->value;
-					return LLVMBuildStore(builder, value, var);
 				}
 		case AST_IDENTIFIER: {
 					LLVMValueRef ptr = lookup_variable(node->identifier)->value;

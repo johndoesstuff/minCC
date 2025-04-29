@@ -59,7 +59,8 @@ extern int yydebug;
     RETURN = 260,                  /* RETURN  */
     TRUE = 261,                    /* TRUE  */
     FALSE = 262,                   /* FALSE  */
-    COMPARE = 263                  /* COMPARE  */
+    COMPARE = 263,                 /* COMPARE  */
+    TYPE = 264                     /* TYPE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -74,7 +75,7 @@ union YYSTYPE
 	char* sval;
 	struct ASTNode* node;
 
-#line 78 "parser.tab.h"
+#line 79 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

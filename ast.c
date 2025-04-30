@@ -33,7 +33,7 @@ void append_statement(ASTNode* program_node, ASTNode* statement) {
 ASTNode* make_number(int value) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_NUMBER;
-	node->valueType = TYPE_INT;
+	node->valueType = make_type(TYPE_INT, 0);
 	node->value = value;
 	return node;
 }
@@ -58,8 +58,8 @@ ASTNode* make_assign(char* identifier, ASTNode* right) {
 		exit(1);
 	}
 
-	if (right->valueType != var->valueType) {
-		fprintf(stderr, "Type mismatch in assignment to %s: expected %d, got %d\n", identifier, var->valueType, right->valueType);
+	if (type_cmp(right->valueType, var->valueType) != 0) {
+		fprintf(stderr, "Type mismatch in assignment of %s: expected %s, got %s\n", identifier, type_to_str(var->valueType), type_to_str(right->valueType));
 		exit(1);
 	}
 
@@ -71,7 +71,7 @@ ASTNode* make_assign(char* identifier, ASTNode* right) {
 	return node;
 }
 
-ASTNode* make_declare(char* type, char* identifier, ASTNode* right) {
+ASTNode* make_declare(Type* type, char* identifier, ASTNode* right) {
 	if (lookup_variable(identifier)) {
 		fprintf(stderr, "Variable %s already declared\n", identifier);
 		exit(1);
@@ -85,8 +85,8 @@ ASTNode* make_declare(char* type, char* identifier, ASTNode* right) {
 
 	create_variable(identifier, node->valueType);
 
-	if (right && right->valueType != node->valueType) {
-		fprintf(stderr, "Type mismatch in declaration of %s: expected %d, got %d\n", identifier, node->valueType, right->valueType);
+	if (right && type_cmp(right->valueType, node->valueType) != 0) {
+		fprintf(stderr, "Type mismatch in declaration of %s: expected %s, got %s\n", identifier, type_to_str(node->valueType), type_to_str(right->valueType));
 		exit(1);
 	}
 
@@ -96,9 +96,9 @@ ASTNode* make_declare(char* type, char* identifier, ASTNode* right) {
 ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_BINARY;
-	node->valueType = TYPE_INT;
+	node->valueType = make_type(TYPE_INT, 0);
 	if (is_boolean_operator(op)) {
-		node->valueType = TYPE_BOOL;
+		node->valueType = make_type(TYPE_BOOL, 0);
 	}
 	node->binary.op = op;
 	node->binary.left = left;
@@ -109,7 +109,7 @@ ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right) {
 ASTNode* make_unary(char* op, ASTNode* left) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_UNARY;
-	node->valueType = TYPE_INT;
+	node->valueType = make_type(TYPE_INT, 0);
 	node->binary.op = op;
 	node->binary.left = left;
 	return node;
@@ -143,7 +143,7 @@ ASTNode* make_if(ASTNode* conditional, ASTNode* then_branch, ASTNode* else_branc
 ASTNode* make_true() {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_BOOL;
-	node->valueType = TYPE_BOOL;
+	node->valueType = make_type(TYPE_BOOL, 0);
 	node->value = 1;
 	return node;
 }
@@ -151,7 +151,7 @@ ASTNode* make_true() {
 ASTNode* make_false() {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_BOOL;
-	node->valueType = TYPE_BOOL;
+	node->valueType = make_type(TYPE_BOOL, 0);
 	node->value = 0;
 	return node;
 }

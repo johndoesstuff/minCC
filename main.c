@@ -13,6 +13,7 @@ extern int yyparse();
 extern ASTNode* root;
 
 LLVMBuilderRef builder;
+LLVMContextRef context;
 
 LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 	if (node == NULL) {
@@ -21,76 +22,87 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 	}
 	switch (node->type) {
 		case AST_PROGRAM: {
-					for (int i = 0; i < node->program.count; i++) {
-						generate(node->program.statements[i], function);
-					}
-					return NULL;
-				}
+					  for (int i = 0; i < node->program.count; i++) {
+						  generate(node->program.statements[i], function);
+					  }
+					  return NULL;
+				  }
 		case AST_NUMBER:
-			return LLVMConstInt(LLVMInt32Type(), node->value, 0);
+				  return LLVMConstInt(LLVMInt32TypeInContext(context), node->value, 0);
 		case AST_BINARY: {
 					 LLVMValueRef left = generate(node->binary.left, function);
 					 LLVMValueRef right = generate(node->binary.right, function);
-					 if (node->binary.left->valueType != node->binary.right->valueType) {
-					 	fprintf(stderr, "type mismatch!!\n");
-						exit(1);
+					 if (type_cmp(node->binary.left->valueType, node->binary.right->valueType) != 0) {
+						 fprintf(stderr, "type mismatch!!\n");
+						 exit(1);
 					 }
 					 if (strcmp(node->binary.op, "+") == 0) {
+						 node->valueType = make_type(TYPE_INT, 0);
 						 return LLVMBuildAdd(builder, left, right, "addtmp");
 					 } else if (strcmp(node->binary.op, "-") == 0) {
+						 node->valueType = make_type(TYPE_INT, 0);
 						 return LLVMBuildSub(builder, left, right, "subtmp");
 					 } else if (strcmp(node->binary.op, "*") == 0) {
+						 node->valueType = make_type(TYPE_INT, 0);
 						 return LLVMBuildMul(builder, left, right, "multmp");
 					 } else if (strcmp(node->binary.op, "/") == 0) {
+						 node->valueType = make_type(TYPE_INT, 0);
 						 return LLVMBuildSDiv(builder, left, right, "divtmp");
 					 } else if (strcmp(node->binary.op, "==") == 0) {
+						 node->valueType = make_type(TYPE_BOOL, 0);
 						 return LLVMBuildICmp(builder, LLVMIntEQ, left, right, "cmptmp");
 					 } else if (strcmp(node->binary.op, "!=") == 0) {
+						 node->valueType = make_type(TYPE_BOOL, 0);
 						 return LLVMBuildICmp(builder, LLVMIntNE, left, right, "cmptmp");
 					 } else if (strcmp(node->binary.op, "<") == 0) {
+						 node->valueType = make_type(TYPE_BOOL, 0);
 						 return LLVMBuildICmp(builder, LLVMIntSLT, left, right, "cmptmp");
 					 } else if (strcmp(node->binary.op, ">") == 0) {
+						 node->valueType = make_type(TYPE_BOOL, 0);
 						 return LLVMBuildICmp(builder, LLVMIntSGT, left, right, "cmptmp");
 					 } else if (strcmp(node->binary.op, "<=") == 0) {
+						 node->valueType = make_type(TYPE_BOOL, 0);
 						 return LLVMBuildICmp(builder, LLVMIntSLE, left, right, "cmptmp");
 					 } else if (strcmp(node->binary.op, ">=") == 0) {
+						 node->valueType = make_type(TYPE_BOOL, 0);
 						 return LLVMBuildICmp(builder, LLVMIntSGE, left, right, "cmptmp");
 					 }
 				 }
 		case AST_UNARY: {
 					LLVMValueRef left = generate(node->unary.left, function);
 					if (strcmp(node->unary.op, "-") == 0) {
-						return LLVMBuildSub(builder, LLVMConstInt(LLVMInt32Type(), 0, 0), left, "subtmp");
+						node->valueType = make_type(TYPE_INT, 0);
+						return LLVMBuildSub(builder, LLVMConstInt(LLVMInt32TypeInContext(context), 0, 0), left, "subtmp");
 					}
 				}
 		case AST_DECLARE: {
-					if (node->declare.right) {
-						LLVMValueRef value = generate(node->declare.right, function);
-						VarEntry* var = lookup_variable(node->declare.identifier);
-						LLVMBuildStore(builder, value, var->value);
-					}
-					return NULL;
-				}
+					  if (node->declare.right) {
+						  LLVMValueRef value = generate(node->declare.right, function);
+						  VarEntry* var = lookup_variable(node->declare.identifier);
+						  LLVMBuildStore(builder, value, var->value);
+					  }
+					  return NULL;
+				  }
 		case AST_ASSIGN: {
-					VarEntry* var = lookup_variable(node->assign.identifier);
-					LLVMValueRef value = generate(node->assign.right, function);
-					return LLVMBuildStore(builder, value, var->value);
-				}
+					 VarEntry* var = lookup_variable(node->assign.identifier);
+					 LLVMValueRef value = generate(node->assign.right, function);
+					 return LLVMBuildStore(builder, value, var->value);
+				 }
 		case AST_IDENTIFIER: {
-					VarEntry* var = lookup_variable(node->identifier);
-					if (!var) {
-						fprintf(stderr, "Trying to access undeclared variable %s\n", node->identifier);
-						exit(1);
-					}
-					return LLVMBuildLoad2(builder, get_llvm_type(var->valueType), var->value, "loadtmp");
-				}
+					     VarEntry* var = lookup_variable(node->identifier);
+					     if (!var) {
+						     fprintf(stderr, "Trying to access undeclared variable %s\n", node->identifier);
+						     exit(1);
+					     }
+					     return LLVMBuildLoad2(builder, get_llvm_type(var->valueType, context), var->value, "loadtmp");
+				     }
 		case AST_RETURN: {
-					LLVMValueRef value = generate(node->return_stm.value, function);
-					return LLVMBuildRet(builder, value);
-				}
+					 LLVMValueRef value = generate(node->return_stm.value, function);
+					 return LLVMBuildRet(builder, value);
+				 }
 		case AST_BOOL: {
-					return LLVMConstInt(LLVMInt1Type(), node->value, 0);
-				}
+				       return LLVMConstInt(LLVMInt1TypeInContext(context), node->value, 0);
+			       }
 		case AST_WHILE: {
 					LLVMBasicBlockRef condBB = LLVMAppendBasicBlock(function, "while.cond");
 					LLVMBasicBlockRef bodyBB = LLVMAppendBasicBlock(function, "while.body");
@@ -110,41 +122,42 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 					return NULL;
 				}
 		case AST_IF: {
-					LLVMBasicBlockRef thenBB = LLVMAppendBasicBlock(function, "if.then");
-					LLVMBasicBlockRef elseBB = node->if_stm.else_branch
-						? LLVMAppendBasicBlock(function, "if.else")
-						: NULL;
-					LLVMBasicBlockRef endBB  = LLVMAppendBasicBlock(function, "if.end");
+				     LLVMBasicBlockRef thenBB = LLVMAppendBasicBlock(function, "if.then");
+				     LLVMBasicBlockRef elseBB = node->if_stm.else_branch
+					     ? LLVMAppendBasicBlock(function, "if.else")
+					     : NULL;
+				     LLVMBasicBlockRef endBB  = LLVMAppendBasicBlock(function, "if.end");
 
-					LLVMValueRef cond = generate(node->if_stm.conditional, function);
-					if (elseBB) {
-						LLVMBuildCondBr(builder, cond, thenBB, elseBB);
-					} else {
-						LLVMBuildCondBr(builder, cond, thenBB, endBB);
-					}
+				     LLVMValueRef cond = generate(node->if_stm.conditional, function);
+				     if (elseBB) {
+					     LLVMBuildCondBr(builder, cond, thenBB, elseBB);
+				     } else {
+					     LLVMBuildCondBr(builder, cond, thenBB, endBB);
+				     }
 
-					LLVMPositionBuilderAtEnd(builder, thenBB);
-					generate(node->if_stm.then_branch, function);
-					LLVMBuildBr(builder, endBB);
+				     LLVMPositionBuilderAtEnd(builder, thenBB);
+				     generate(node->if_stm.then_branch, function);
+				     LLVMBuildBr(builder, endBB);
 
-					if (elseBB) {
-						LLVMPositionBuilderAtEnd(builder, elseBB);
-						generate(node->if_stm.else_branch, function);
-						if (!LLVMGetBasicBlockTerminator(elseBB)) {
-							LLVMBuildBr(builder, endBB);
-						}
-					}
+				     if (elseBB) {
+					     LLVMPositionBuilderAtEnd(builder, elseBB);
+					     generate(node->if_stm.else_branch, function);
+					     if (!LLVMGetBasicBlockTerminator(elseBB)) {
+						     LLVMBuildBr(builder, endBB);
+					     }
+				     }
 
-					LLVMPositionBuilderAtEnd(builder, endBB);
-					return NULL;
-				}
+				     LLVMPositionBuilderAtEnd(builder, endBB);
+				     return NULL;
+			     }
 	}
 	return NULL;
 }
 
 int main() {
-	LLVMModuleRef module = LLVMModuleCreateWithName("tiny");
-	builder = LLVMCreateBuilder();
+	context = LLVMContextCreate();
+	LLVMModuleRef module = LLVMModuleCreateWithNameInContext("tiny", context);
+	builder = LLVMCreateBuilderInContext(context);
 
 	LLVMTypeRef funcType = LLVMFunctionType(LLVMInt32Type(), NULL, 0, 0);
 	LLVMValueRef main_function = LLVMAddFunction(module, "main", funcType);

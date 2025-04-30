@@ -16,9 +16,10 @@ VarEntry* lookup_variable(const char* name) {
 	return NULL;
 }
 
-VarEntry* create_variable(const char* name, valueType type) {
+VarEntry* create_variable(const char* name, Type* type) {
+	extern LLVMContextRef context;
 	extern LLVMBuilderRef builder;
-	LLVMValueRef alloc = LLVMBuildAlloca(builder, get_llvm_type(type), name);
+	LLVMValueRef alloc = LLVMBuildAlloca(builder, get_llvm_type(type, context), name);
 
 	VarEntry* entry = malloc(sizeof(VarEntry));
 	entry->name = strdup(name);

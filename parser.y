@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include "ast.h"
+#include "types.h"
 
 ASTNode* root;
 %}
@@ -9,6 +10,7 @@ ASTNode* root;
 	int ival;
 	char* sval;
 	struct ASTNode* node;
+	struct Type* type;
 }
 
 %token <ival> NUMBER
@@ -20,7 +22,9 @@ ASTNode* root;
 %token TRUE
 %token FALSE
 %token <sval> COMPARE
-%token <sval> TYPE
+%token <sval> BASE_TYPE
+%type <ival> none_or_more_pointers
+%type <type> type
 %type <node> else_clause declare rvalue mag term factor expr statement input
 
 %left '+' '-'
@@ -53,8 +57,17 @@ else_clause:
 ;
 
 declare:
-	TYPE IDENTIFIER '=' expr	{ $$ = make_declare($1, $2, $4); }
-	| TYPE IDENTIFIER		{ $$ = make_declare($1, $2, NULL); }
+	type IDENTIFIER '=' expr	{ $$ = make_declare($1, $2, $4); }
+	| type IDENTIFIER		{ $$ = make_declare($1, $2, NULL); }
+;
+
+type:
+	BASE_TYPE none_or_more_pointers	{ $$ = make_type(get_base_type($1), $2); }
+;
+
+none_or_more_pointers:
+	{ $$ = 0; }
+	| none_or_more_pointers '*'	{ $$ = $1 + 1; }
 ;
 
 expr:

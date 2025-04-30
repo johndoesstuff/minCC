@@ -2,10 +2,23 @@
 #define TYPES_H
 
 #include <llvm-c/Core.h>
-#include "ast.h"
+
+typedef enum {
+        TYPE_INT,
+        TYPE_BOOL,
+        TYPE_VOID,
+} BaseType;
+
+typedef struct Type {
+	BaseType baseType;
+	int pointerDepth;
+} Type;
 
 int is_boolean_operator(char* op);
-LLVMTypeRef get_llvm_type(valueType type);
-valueType get_value_type(char* type);
+int type_cmp(Type* a, Type* b);
+LLVMTypeRef get_llvm_type(Type* type, LLVMContextRef context);
+BaseType get_base_type(char* type);
+Type* make_type(BaseType base, int pointerDepth);
+char* type_to_str(Type* type);
 
 #endif

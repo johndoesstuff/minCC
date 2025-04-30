@@ -1,6 +1,7 @@
 #ifndef AST_H
 #define AST_H
 
+#include "types.h"
 #define INITIAL_CAPACITY 10
 
 typedef enum {
@@ -17,15 +18,9 @@ typedef enum {
 	AST_IF,
 } ASTNodeType;
 
-typedef enum {
-	TYPE_INT,
-	TYPE_BOOL,
-	TYPE_NULL,
-} valueType;
-
 typedef struct ASTNode {
 	ASTNodeType type;
-	valueType valueType;
+	Type* valueType;
 	union {
 		int value; // for AST_NUMBER
 		char* identifier; // for AST_IDENTIFIER
@@ -34,7 +29,7 @@ typedef struct ASTNode {
 			struct ASTNode* right;
 		} assign;
 		struct {
-			char* type;
+			Type* type;
 			char* identifier;
 			struct ASTNode* right;
 		} declare;
@@ -70,7 +65,7 @@ typedef struct ASTNode {
 ASTNode* make_number(int value);
 ASTNode* make_identifier(char* identifier);
 ASTNode* make_assign(char* identifier, ASTNode* right);
-ASTNode* make_declare(char* type, char* identifier, ASTNode* right);
+ASTNode* make_declare(Type* type, char* identifier, ASTNode* right);
 ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right);
 ASTNode* make_unary(char* op, ASTNode* left);
 ASTNode* make_program();

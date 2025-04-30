@@ -7,14 +7,14 @@
 typedef struct VarEntry {
 	char* name;
 	LLVMValueRef value;
-	valueType valueType;
+	Type* valueType;
 	struct VarEntry* next;
 } VarEntry;
 
 extern VarEntry* variables;
 
 VarEntry* lookup_variable(const char* name);
-VarEntry* create_variable(const char* name, valueType type);
+VarEntry* create_variable(const char* name, Type* type);
 
 void free_symbol_table();
 

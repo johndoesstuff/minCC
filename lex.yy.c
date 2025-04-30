@@ -793,7 +793,7 @@ YY_RULE_SETUP
 case 8:
 YY_RULE_SETUP
 #line 15 "lexer.l"
-{ yylval.sval = strdup(yytext); return TYPE; }
+{ yylval.sval = strdup(yytext); return BASE_TYPE; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP

@@ -63,7 +63,7 @@ extern int yydebug;
     TRUE = 264,                    /* TRUE  */
     FALSE = 265,                   /* FALSE  */
     COMPARE = 266,                 /* COMPARE  */
-    TYPE = 267                     /* TYPE  */
+    BASE_TYPE = 267                /* BASE_TYPE  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -72,13 +72,14 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 8 "parser.y"
+#line 9 "parser.y"
 
 	int ival;
 	char* sval;
 	struct ASTNode* node;
+	struct Type* type;
 
-#line 82 "parser.tab.h"
+#line 83 "parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

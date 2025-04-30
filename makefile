@@ -25,7 +25,7 @@ LDFLAGS = `llvm-config --ldflags --libs core` -lfl
 all: $(TARGET)
 
 # Build final binary
-$(TARGET): $(PARSER_C) $(LEXER_C) $(AST_C) $(MAIN_C)
+$(TARGET): $(PARSER_C) $(PARSER_H) $(LEXER_C) $(LEXER) $(AST_C) $(SYMBOL_TABLE_C) $(TYPES_C) $(MAIN_C)
 	$(CC) $(CFLAGS) -o $(TARGET) $(PARSER_C) $(LEXER_C) $(AST_C) $(SYMBOL_TABLE_C) $(TYPES_C) $(MAIN_C) $(LDFLAGS)
 
 # Generate parser source/header

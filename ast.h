@@ -13,11 +13,14 @@ typedef enum {
 	AST_RETURN,
 	AST_BOOL,
 	AST_DECLARE,
+	AST_WHILE,
+	AST_IF,
 } ASTNodeType;
 
 typedef enum {
 	TYPE_INT,
 	TYPE_BOOL,
+	TYPE_NULL,
 } valueType;
 
 typedef struct ASTNode {
@@ -50,8 +53,17 @@ typedef struct ASTNode {
 			int capacity;
 		} program;
 		struct {
+			struct ASTNode* conditional;
+			struct ASTNode* statements;
+		} while_stm;
+		struct {
+			struct ASTNode* conditional;
+			struct ASTNode* then_branch;
+			struct ASTNode* else_branch;
+		} if_stm;
+		struct {
 			struct ASTNode* value;
-		} retrn;
+		} return_stm;
 	};
 } ASTNode;
 
@@ -64,6 +76,8 @@ ASTNode* make_unary(char* op, ASTNode* left);
 ASTNode* make_program();
 void append_statement(ASTNode* program_node, ASTNode* statement);
 ASTNode* make_return(ASTNode* value);
+ASTNode* make_while(ASTNode* conditional, ASTNode* statements);
+ASTNode* make_if(ASTNode* conditional, ASTNode* then_branch, ASTNode* else_branch);
 ASTNode* make_true();
 ASTNode* make_false();
 

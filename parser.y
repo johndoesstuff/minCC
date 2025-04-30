@@ -14,11 +14,14 @@ ASTNode* root;
 %token <ival> NUMBER
 %token <sval> IDENTIFIER
 %token RETURN
+%token WHILE
+%token IF
+%token ELSE
 %token TRUE
 %token FALSE
 %token <sval> COMPARE
 %token <sval> TYPE
-%type <node> declare rvalue mag term factor expr statement
+%type <node> else_clause declare rvalue mag term factor expr statement input
 
 %left '+' '-'
 %left '*' '/'
@@ -26,15 +29,27 @@ ASTNode* root;
 
 %%
 
+program:
+	input	{ root = $1; }
+;
+
 input:
-			{ root = make_program(); }
-	| input statement	{ append_statement(root, $2); }
+			{ $$ = make_program(); }
+	| input statement	{ append_statement($1, $2); $$ = $1; }
 ;
 
 statement:
 	declare ';'	{ $$ = $1; }
 	| expr ';'	{ $$ = $1; }
 	| RETURN expr ';'	{ $$ = make_return($2); }
+	| WHILE '(' expr ')' '{' input '}'	{ $$ = make_while($3, $6); }
+	| IF '(' expr ')' '{' input '}' else_clause	{ $$ = make_if($3, $6, $8); }
+;
+
+else_clause:
+			{ $$ = NULL; }
+	| ELSE '{' input '}'	{ $$ = $3; }
+	| ELSE IF '(' expr ')' '{' input '}' else_clause	{ $$ = make_if($4, $7, $9); }
 ;
 
 declare:

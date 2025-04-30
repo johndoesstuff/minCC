@@ -7,6 +7,9 @@
 
 [0-9]+		{ yylval.ival = atoi(yytext); return NUMBER; }
 "return"	{ return RETURN; }
+"while"		{ return WHILE; }
+"if"		{ return IF; }
+"else"		{ return ELSE; }
 "true"		{ return TRUE; }
 "false"		{ return FALSE; }
 ("int"|"bool")	{ yylval.sval = strdup(yytext); return TYPE; }
@@ -16,6 +19,7 @@
 "-"		{ return '-'; }
 "*"		{ return '*'; }
 "/"		{ return '/'; }
+\/\/.*		;
 [ \t\n]+	; // ignore whitespace
 .		{ return yytext[0]; }
 

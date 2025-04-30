@@ -119,7 +119,24 @@ ASTNode* make_return(ASTNode* value) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_RETURN;
 	node->valueType = value->valueType;
-	node->retrn.value = value;
+	node->return_stm.value = value;
+	return node;
+}
+
+ASTNode* make_while(ASTNode* conditional, ASTNode* statements) {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_WHILE;
+	node->while_stm.conditional = conditional;
+	node->while_stm.statements = statements;
+	return node;
+}
+
+ASTNode* make_if(ASTNode* conditional, ASTNode* then_branch, ASTNode* else_branch) {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_IF;
+	node->if_stm.conditional = conditional;
+	node->if_stm.then_branch = then_branch;
+	node->if_stm.else_branch = else_branch;
 	return node;
 }
 

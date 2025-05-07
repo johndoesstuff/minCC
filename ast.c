@@ -3,6 +3,7 @@
 #include "ast.h"
 #include "types.h"
 #include "symbol_table.h"
+#include "error.h"
 
 ASTNode* make_program(YYLTYPE loc) {
 	ASTNode* node = malloc(sizeof(ASTNode));
@@ -46,7 +47,10 @@ ASTNode* make_identifier(char* identifier, YYLTYPE loc) {
 	node->loc = loc;
 	VarEntry* var = lookup_variable(identifier);
 	if (!var) {
-		fprintf(stderr, "Could not find variable %s\n", identifier);
+		char *msg;
+                asprintf(&msg, "Trying to access undeclared variable '%s'", identifier);
+                yyerror(&loc, msg);
+                free(msg);
 		exit(1);
 	}
 	node->valueType = lookup_variable(identifier)->valueType;
@@ -57,12 +61,18 @@ ASTNode* make_identifier(char* identifier, YYLTYPE loc) {
 ASTNode* make_assign(char* identifier, ASTNode* right, YYLTYPE loc) {
 	VarEntry* var = lookup_variable(identifier);
 	if (!var) {
-		fprintf(stderr, "Assignment to undeclared variable %s\n", identifier);
+		char *msg;
+                asprintf(&msg, "Assignment to undeclared variable '%s'", identifier);
+                yyerror(&loc, msg);
+		free(msg);
 		exit(1);
 	}
 
 	if (type_cmp(right->valueType, var->valueType) != 0) {
-		fprintf(stderr, "Type mismatch in assignment of %s: expected %s, got %s\n", identifier, type_to_str(var->valueType), type_to_str(right->valueType));
+		char *msg;
+                asprintf(&msg, "Type mismatch in assignment of '%s': expected %s, got %s", identifier, type_to_str(var->valueType), type_to_str(right->valueType));
+                yyerror(&loc, msg);
+		free(msg);
 		exit(1);
 	}
 
@@ -77,7 +87,10 @@ ASTNode* make_assign(char* identifier, ASTNode* right, YYLTYPE loc) {
 
 ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc) {
 	if (lookup_variable(identifier)) {
-		fprintf(stderr, "Variable %s already declared\n", identifier);
+		char *msg;
+                asprintf(&msg, "Variable '%s' already declared", identifier);
+                yyerror(&loc, msg);
+		free(msg);
 		exit(1);
 	}
 	ASTNode* node = malloc(sizeof(ASTNode));
@@ -91,7 +104,10 @@ ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc)
 	create_variable(identifier, node->valueType);
 
 	if (right && type_cmp(right->valueType, node->valueType) != 0) {
-		fprintf(stderr, "Type mismatch in declaration of %s: expected %s, got %s\n", identifier, type_to_str(node->valueType), type_to_str(right->valueType));
+		char *msg;
+                asprintf(&msg, "Type mismatch in assignment of '%s': expected %s, got %s", identifier, type_to_str(node->valueType), type_to_str(right->valueType));
+                yyerror(&node->loc, msg);
+		free(msg);
 		exit(1);
 	}
 

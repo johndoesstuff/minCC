@@ -8,6 +8,7 @@
 #include "ast.h"
 #include "symbol_table.h"
 #include "types.h"
+#include "error.h"
 
 extern int yyparse();
 extern ASTNode* root;
@@ -91,7 +92,10 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 		case AST_IDENTIFIER: {
 					     VarEntry* var = lookup_variable(node->identifier);
 					     if (!var) {
-						     fprintf(stderr, "Trying to access undeclared variable %s\n", node->identifier);
+						     char *msg;
+						     asprintf(&msg, "Trying to access undeclared variable '%s'", node->identifier);
+						     yyerror(&node->loc, msg);
+						     free(msg);
 						     exit(1);
 					     }
 					     return LLVMBuildLoad2(builder, get_llvm_type(var->valueType, context), var->value, "loadtmp");

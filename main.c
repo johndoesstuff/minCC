@@ -173,9 +173,10 @@ int main() {
 	LLVMBasicBlockRef entry = LLVMAppendBasicBlock(main_function, "entry");
 	LLVMPositionBuilderAtEnd(builder, entry);
 
+	enter_scope();
+
 	yyparse();
 
-	enter_scope();
 	LLVMValueRef result = generate(root, main_function);
 	//LLVMBuildRet(builder, result);
 

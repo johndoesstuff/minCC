@@ -27,11 +27,11 @@ VarEntry* create_variable(const char* name, Type* type) {
 	entry->name = strdup(name);
 	entry->valueType = type;
 	entry->value = alloc;
-	entry->next = current_scope->variables;
 	if (!current_scope) {
 		fprintf(stderr, "null scope, something has gone horrifically wrong!!");
 		exit(1);
 	}
+	entry->next = current_scope->variables;
 	current_scope->variables = entry;
 	return entry;
 }

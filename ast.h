@@ -22,6 +22,7 @@ typedef enum {
 typedef struct ASTNode {
 	ASTNodeType type;
 	Type* valueType;
+	YYLTYPE loc;
 	union {
 		int value; // for AST_NUMBER
 		char* identifier; // for AST_IDENTIFIER
@@ -63,18 +64,18 @@ typedef struct ASTNode {
 	};
 } ASTNode;
 
-ASTNode* make_number(int value);
-ASTNode* make_identifier(char* identifier);
-ASTNode* make_assign(char* identifier, ASTNode* right);
+ASTNode* make_number(int value, YYLTYPE loc);
+ASTNode* make_identifier(char* identifier, YYLTYPE loc);
+ASTNode* make_assign(char* identifier, ASTNode* right, YYLTYPE loc);
 ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc);
-ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right);
-ASTNode* make_unary(char* op, ASTNode* left);
-ASTNode* make_program();
+ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right, YYLTYPE loc);
+ASTNode* make_unary(char* op, ASTNode* left, YYLTYPE loc);
+ASTNode* make_program(YYLTYPE loc);
 void append_statement(ASTNode* program_node, ASTNode* statement);
-ASTNode* make_return(ASTNode* value);
-ASTNode* make_while(ASTNode* conditional, ASTNode* statements);
-ASTNode* make_if(ASTNode* conditional, ASTNode* then_branch, ASTNode* else_branch);
-ASTNode* make_true();
-ASTNode* make_false();
+ASTNode* make_return(ASTNode* value, YYLTYPE loc);
+ASTNode* make_while(ASTNode* conditional, ASTNode* statements, YYLTYPE loc);
+ASTNode* make_if(ASTNode* conditional, ASTNode* then_branch, ASTNode* else_branch, YYLTYPE loc);
+ASTNode* make_true(YYLTYPE loc);
+ASTNode* make_false(YYLTYPE loc);
 
 #endif

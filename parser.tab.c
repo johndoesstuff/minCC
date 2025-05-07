@@ -1545,7 +1545,7 @@ yyreduce:
 
   case 3: /* input: %empty  */
 #line 45 "parser.y"
-                        { (yyval.node) = make_program(); }
+                        { (yyval.node) = make_program((yyloc)); }
 #line 1550 "parser.tab.c"
     break;
 
@@ -1569,19 +1569,19 @@ yyreduce:
 
   case 7: /* statement: RETURN expr ';'  */
 #line 52 "parser.y"
-                                { (yyval.node) = make_return((yyvsp[-1].node)); }
+                                { (yyval.node) = make_return((yyvsp[-1].node), (yyloc)); }
 #line 1574 "parser.tab.c"
     break;
 
   case 8: /* statement: WHILE '(' expr ')' '{' input '}'  */
 #line 53 "parser.y"
-                                                { (yyval.node) = make_while((yyvsp[-4].node), (yyvsp[-1].node)); }
+                                                { (yyval.node) = make_while((yyvsp[-4].node), (yyvsp[-1].node), (yyloc)); }
 #line 1580 "parser.tab.c"
     break;
 
   case 9: /* statement: IF '(' expr ')' '{' input '}' else_clause  */
 #line 54 "parser.y"
-                                                        { (yyval.node) = make_if((yyvsp[-5].node), (yyvsp[-2].node), (yyvsp[0].node)); }
+                                                        { (yyval.node) = make_if((yyvsp[-5].node), (yyvsp[-2].node), (yyvsp[0].node), (yyloc)); }
 #line 1586 "parser.tab.c"
     break;
 
@@ -1599,19 +1599,19 @@ yyreduce:
 
   case 12: /* else_clause: ELSE IF '(' expr ')' '{' input '}' else_clause  */
 #line 60 "parser.y"
-                                                                { (yyval.node) = make_if((yyvsp[-5].node), (yyvsp[-2].node), (yyvsp[0].node)); }
+                                                                { (yyval.node) = make_if((yyvsp[-5].node), (yyvsp[-2].node), (yyvsp[0].node), (yyloc)); }
 #line 1604 "parser.tab.c"
     break;
 
   case 13: /* declare: type IDENTIFIER '=' expr  */
 #line 64 "parser.y"
-                                        { (yyval.node) = make_declare((yyvsp[-3].type), (yyvsp[-2].sval), (yyvsp[0].node), yylloc); }
+                                        { (yyval.node) = make_declare((yyvsp[-3].type), (yyvsp[-2].sval), (yyvsp[0].node), (yyloc)); }
 #line 1610 "parser.tab.c"
     break;
 
   case 14: /* declare: type IDENTIFIER  */
 #line 65 "parser.y"
-                                        { (yyval.node) = make_declare((yyvsp[-1].type), (yyvsp[0].sval), NULL, yylloc); }
+                                        { (yyval.node) = make_declare((yyvsp[-1].type), (yyvsp[0].sval), NULL, (yyloc)); }
 #line 1616 "parser.tab.c"
     break;
 
@@ -1635,7 +1635,7 @@ yyreduce:
 
   case 18: /* expr: IDENTIFIER '=' expr  */
 #line 78 "parser.y"
-                                { (yyval.node) = make_assign((yyvsp[-2].sval), (yyvsp[0].node)); }
+                                { (yyval.node) = make_assign((yyvsp[-2].sval), (yyvsp[0].node), (yyloc)); }
 #line 1640 "parser.tab.c"
     break;
 
@@ -1647,7 +1647,7 @@ yyreduce:
 
   case 20: /* rvalue: rvalue COMPARE mag  */
 #line 83 "parser.y"
-                                { (yyval.node) = make_binary((yyvsp[-1].sval), (yyvsp[-2].node), (yyvsp[0].node)); }
+                                { (yyval.node) = make_binary((yyvsp[-1].sval), (yyvsp[-2].node), (yyvsp[0].node), (yyloc)); }
 #line 1652 "parser.tab.c"
     break;
 
@@ -1659,25 +1659,25 @@ yyreduce:
 
   case 22: /* mag: mag '+' term  */
 #line 88 "parser.y"
-                        { (yyval.node) = make_binary("+", (yyvsp[-2].node), (yyvsp[0].node)); }
+                        { (yyval.node) = make_binary("+", (yyvsp[-2].node), (yyvsp[0].node), (yyloc)); }
 #line 1664 "parser.tab.c"
     break;
 
   case 23: /* mag: mag '-' term  */
 #line 89 "parser.y"
-                        { (yyval.node) = make_binary("-", (yyvsp[-2].node), (yyvsp[0].node)); }
+                        { (yyval.node) = make_binary("-", (yyvsp[-2].node), (yyvsp[0].node), (yyloc)); }
 #line 1670 "parser.tab.c"
     break;
 
   case 24: /* mag: TRUE  */
 #line 90 "parser.y"
-                                { (yyval.node) = make_true(); }
+                                { (yyval.node) = make_true((yyloc)); }
 #line 1676 "parser.tab.c"
     break;
 
   case 25: /* mag: FALSE  */
 #line 91 "parser.y"
-                                { (yyval.node) = make_false(); }
+                                { (yyval.node) = make_false((yyloc)); }
 #line 1682 "parser.tab.c"
     break;
 
@@ -1689,13 +1689,13 @@ yyreduce:
 
   case 27: /* term: term '*' factor  */
 #line 96 "parser.y"
-                        { (yyval.node) = make_binary("*", (yyvsp[-2].node), (yyvsp[0].node)); }
+                        { (yyval.node) = make_binary("*", (yyvsp[-2].node), (yyvsp[0].node), (yyloc)); }
 #line 1694 "parser.tab.c"
     break;
 
   case 28: /* term: term '/' factor  */
 #line 97 "parser.y"
-                                { (yyval.node) = make_binary("/", (yyvsp[-2].node), (yyvsp[0].node)); }
+                                { (yyval.node) = make_binary("/", (yyvsp[-2].node), (yyvsp[0].node), (yyloc)); }
 #line 1700 "parser.tab.c"
     break;
 
@@ -1713,19 +1713,19 @@ yyreduce:
 
   case 31: /* factor: '-' factor  */
 #line 103 "parser.y"
-                        { (yyval.node) = make_unary("-", (yyvsp[0].node)); }
+                        { (yyval.node) = make_unary("-", (yyvsp[0].node), (yyloc)); }
 #line 1718 "parser.tab.c"
     break;
 
   case 32: /* factor: IDENTIFIER  */
 #line 104 "parser.y"
-                        { (yyval.node) = make_identifier((yyvsp[0].sval)); }
+                        { (yyval.node) = make_identifier((yyvsp[0].sval), (yyloc)); }
 #line 1724 "parser.tab.c"
     break;
 
   case 33: /* factor: NUMBER  */
 #line 105 "parser.y"
-                        { (yyval.node) = make_number((yyvsp[0].ival)); }
+                        { (yyval.node) = make_number((yyvsp[0].ival), (yyloc)); }
 #line 1730 "parser.tab.c"
     break;
 

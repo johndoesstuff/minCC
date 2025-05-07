@@ -23,9 +23,11 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 	}
 	switch (node->type) {
 		case AST_PROGRAM: {
+					  enter_scope();
 					  for (int i = 0; i < node->program.count; i++) {
 						  generate(node->program.statements[i], function);
 					  }
+					  exit_scope();
 					  return NULL;
 				  }
 		case AST_NUMBER:
@@ -34,7 +36,7 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 					 LLVMValueRef left = generate(node->binary.left, function);
 					 LLVMValueRef right = generate(node->binary.right, function);
 					 if (type_cmp(node->binary.left->valueType, node->binary.right->valueType) != 0) {
-						 fprintf(stderr, "type mismatch!!\n");
+						 yyerror(&node->loc, "Type mismatch");
 						 exit(1);
 					 }
 					 if (strcmp(node->binary.op, "+") == 0) {
@@ -49,6 +51,9 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 					 } else if (strcmp(node->binary.op, "/") == 0) {
 						 node->valueType = make_type(TYPE_INT, 0);
 						 return LLVMBuildSDiv(builder, left, right, "divtmp");
+					 } else if (strcmp(node->binary.op, "%") == 0) {
+						 node->valueType = make_type(TYPE_INT, 0);
+						 return LLVMBuildSRem(builder, left, right, "modtmp");
 					 } else if (strcmp(node->binary.op, "==") == 0) {
 						 node->valueType = make_type(TYPE_BOOL, 0);
 						 return LLVMBuildICmp(builder, LLVMIntEQ, left, right, "cmptmp");
@@ -170,6 +175,7 @@ int main() {
 
 	yyparse();
 
+	enter_scope();
 	LLVMValueRef result = generate(root, main_function);
 	//LLVMBuildRet(builder, result);
 

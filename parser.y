@@ -95,6 +95,7 @@ mag:
 term:
 	term '*' factor	{ $$ = make_binary("*", $1, $3, @$); }
 	| term '/' factor	{ $$ = make_binary("/", $1, $3, @$); }
+	| term '%' factor	{ $$ = make_binary("%", $1, $3, @$); }
 	| factor	{ $$ = $1; }
 ;
 

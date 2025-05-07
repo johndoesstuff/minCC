@@ -71,7 +71,7 @@ ASTNode* make_assign(char* identifier, ASTNode* right) {
 	return node;
 }
 
-ASTNode* make_declare(Type* type, char* identifier, ASTNode* right) {
+ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc) {
 	if (lookup_variable(identifier)) {
 		fprintf(stderr, "Variable %s already declared\n", identifier);
 		exit(1);

@@ -2,6 +2,7 @@
 #define AST_H
 
 #include "types.h"
+#include "parser.tab.h"
 #define INITIAL_CAPACITY 10
 
 typedef enum {
@@ -65,7 +66,7 @@ typedef struct ASTNode {
 ASTNode* make_number(int value);
 ASTNode* make_identifier(char* identifier);
 ASTNode* make_assign(char* identifier, ASTNode* right);
-ASTNode* make_declare(Type* type, char* identifier, ASTNode* right);
+ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc);
 ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right);
 ASTNode* make_unary(char* op, ASTNode* left);
 ASTNode* make_program();

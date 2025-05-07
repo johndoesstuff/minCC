@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
 #include "ast.h"
 #include "types.h"
 
@@ -30,6 +31,9 @@ ASTNode* root;
 %left '+' '-'
 %left '*' '/'
 %nonassoc RETURN
+%define parse.error verbose
+%define api.pure full
+%locations
 
 %%
 
@@ -57,8 +61,8 @@ else_clause:
 ;
 
 declare:
-	type IDENTIFIER '=' expr	{ $$ = make_declare($1, $2, $4); }
-	| type IDENTIFIER		{ $$ = make_declare($1, $2, NULL); }
+	type IDENTIFIER '=' expr	{ $$ = make_declare($1, $2, $4, yylloc); }
+	| type IDENTIFIER		{ $$ = make_declare($1, $2, NULL, yylloc); }
 ;
 
 type:
@@ -103,7 +107,10 @@ factor:
 
 %%
 
-int yyerror(const char* s) {
-	fprintf(stderr, "Parse error: %s\n", s);
+
+int yyerror(YYLTYPE* yylloc, const char *msg) {
+	fprintf(stderr, "Parse error at line %d, column %d: %s\n",
+		yylloc->first_line, yylloc->first_column, msg);
+	exit(1);
 	return 1;
 }

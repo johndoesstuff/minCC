@@ -1,8 +1,8 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include "ast.h"
-#include "types.h"
+#include "../inc/ast.h"
+#include "../inc/types.h"
 
 ASTNode* root;
 %}

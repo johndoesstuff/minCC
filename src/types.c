@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "types.h"
-#include "ast.h"
+#include "../inc/types.h"
+#include "../inc/ast.h"
 
 int is_boolean_operator(char* op) {
 	return strcmp(op, "==") == 0 ||

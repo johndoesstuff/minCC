@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "semantic_table.h"
+#include "../inc/semantic_table.h"
 
 SemScope* sem_current_scope = NULL;
 

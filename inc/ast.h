@@ -2,7 +2,7 @@
 #define AST_H
 
 #include "types.h"
-#include "parser.tab.h"
+#include "../build/parser.tab.h"
 #define INITIAL_CAPACITY 10
 
 typedef enum {

@@ -1,7 +1,7 @@
 #ifndef ERROR_H
 #define ERROR_H
 
-#include "parser.tab.h"  // for YYLTYPE
+#include "../build/parser.tab.h"  // for YYLTYPE
 
 int yyerror(YYLTYPE *loc, const char *msg);
 

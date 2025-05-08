@@ -5,11 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ast.h"
-#include "codegen_table.h"
-#include "semantic_table.h"
-#include "types.h"
-#include "error.h"
+#include "../inc/ast.h"
+#include "../inc/codegen_table.h"
+#include "../inc/semantic_table.h"
+#include "../inc/types.h"
+#include "../inc/error.h"
 
 extern int yyparse();
 extern ASTNode* root;

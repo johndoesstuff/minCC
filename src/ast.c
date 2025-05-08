@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "ast.h"
-#include "types.h"
-#include "semantic_table.h"
-#include "error.h"
+#include "../inc/ast.h"
+#include "../inc/types.h"
+#include "../inc/semantic_table.h"
+#include "../inc/error.h"
 
 ASTNode* make_program(YYLTYPE loc) {
 	ASTNode* node = malloc(sizeof(ASTNode));

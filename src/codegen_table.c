@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "codegen_table.h"
+#include "../inc/codegen_table.h"
 
 CodegenScope* codegen_current_scope = NULL;
 

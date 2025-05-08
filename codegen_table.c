@@ -17,9 +17,6 @@ CodegenEntry* codegen_lookup_variable(const char* name) {
 }
 
 CodegenEntry* codegen_create_variable(const char* name, LLVMValueRef value, LLVMTypeRef type) {
-	extern LLVMContextRef context;
-	extern LLVMBuilderRef builder;
-
 	CodegenEntry* entry = malloc(sizeof(CodegenEntry));
 	entry->name = strdup(name);
 	entry->value = value;

@@ -31,6 +31,9 @@ LLVMTypeRef get_llvm_type(Type* type, LLVMContextRef context) {
 		case TYPE_BOOL:
 			base = LLVMInt1TypeInContext(context);
 			break;
+		case TYPE_CHAR:
+			base = LLVMInt8TypeInContext(context);
+			break;
 		default:
 			base = LLVMVoidTypeInContext(context);
 			break;
@@ -55,6 +58,8 @@ BaseType get_base_type(char* type) {
 		return TYPE_INT;
 	} else if (strcmp(type, "bool") == 0) {
 		return TYPE_BOOL;
+	} else if (strcmp(type, "char") == 0) {
+		return TYPE_CHAR;
 	} else {
 		fprintf(stderr, "unknown type??\n");
 		exit(1);

@@ -6,6 +6,7 @@
 typedef enum {
         TYPE_INT,
         TYPE_BOOL,
+	TYPE_CHAR,
         TYPE_VOID,
 } BaseType;
 

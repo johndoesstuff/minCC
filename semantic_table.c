@@ -17,9 +17,6 @@ SemEntry* sem_lookup_variable(const char* name) {
 }
 
 SemEntry* sem_create_variable(const char* name, Type* type) {
-        extern LLVMContextRef context;
-        extern LLVMBuilderRef builder;
-
         SemEntry* entry = malloc(sizeof(SemEntry));
         entry->name = strdup(name);
         entry->type = type;

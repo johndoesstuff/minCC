@@ -88,7 +88,7 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 						  LLVMTypeRef llvm_type = get_llvm_type(node->declare.type, context);
 						  LLVMValueRef alloc = LLVMBuildAlloca(builder, llvm_type, node->declare.identifier);
 
-						  CodegenEntry* var = codegen_create_variable(node->declare.identifier, alloc, llvm_type);
+						  codegen_create_variable(node->declare.identifier, alloc, llvm_type);
 						  LLVMBuildStore(builder, value, alloc);
 					  }
 					  return NULL;
@@ -182,8 +182,8 @@ int main() {
 	sem_exit_scope();
 
 	codegen_enter_scope();
-	LLVMValueRef result = generate(root, main_function);
-	//LLVMBuildRet(builder, result);
+	generate(root, main_function);
+	codegen_exit_scope();
 
 	char* ir = LLVMPrintModuleToString(module);
 	//printf("%s", ir);

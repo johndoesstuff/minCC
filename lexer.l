@@ -33,7 +33,7 @@ YY_DECL;
 ")"		{ return ')'; }
 "{"		{ return '{'; }
 "}"		{ return '}'; }
-("int"|"bool")	{ yylval->sval = strdup(yytext); return BASE_TYPE; }
+("int"|"bool"|"char")	{ yylval->sval = strdup(yytext); return BASE_TYPE; }
 ("=="|"<"|">"|"<="|">="|"!=")		{ yylval->sval = strdup(yytext); return COMPARE; }
 [a-zA-Z_][a-zA-Z0-9_]*	{ yylval->sval = strdup(yytext); return IDENTIFIER; }
 "+"		{ return '+'; }

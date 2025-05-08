@@ -103,13 +103,13 @@ ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc)
 
 	sem_create_variable(identifier, node->valueType);
 
-	if (right && type_cmp(right->valueType, node->valueType) != 0) {
+	/*if (right && type_cmp(right->valueType, type) != 0) {
 		char *msg;
-                asprintf(&msg, "Type mismatch in assignment of '%s': expected %s, got %s", identifier, type_to_str(node->valueType), type_to_str(right->valueType));
+                asprintf(&msg, "Type mismatch in assignment of '%s': expected %s, got %s", identifier, type_to_str(type), type_to_str(right->valueType));
                 yyerror(&node->loc, msg);
 		free(msg);
 		exit(1);
-	}
+	}*/
 
 	return node;
 }

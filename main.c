@@ -89,6 +89,7 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 						  LLVMValueRef alloc = LLVMBuildAlloca(builder, llvm_type, node->declare.identifier);
 
 						  codegen_create_variable(node->declare.identifier, alloc, llvm_type);
+						  value = cast_to(value, llvm_type, 1);
 						  LLVMBuildStore(builder, value, alloc);
 					  }
 					  return NULL;
@@ -96,6 +97,7 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 		case AST_ASSIGN: {
 					 CodegenEntry* var = codegen_lookup_variable(node->assign.identifier);
 					 LLVMValueRef value = generate(node->assign.right, function);
+					 value = cast_to(value, var->type, 1);
 					 return LLVMBuildStore(builder, value, var->value);
 				 }
 		case AST_IDENTIFIER: {

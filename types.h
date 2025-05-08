@@ -21,5 +21,6 @@ LLVMTypeRef get_llvm_type(Type* type, LLVMContextRef context);
 BaseType get_base_type(char* type);
 Type* make_type(BaseType base, int pointerDepth);
 char* type_to_str(Type* type);
+LLVMValueRef cast_to(LLVMValueRef value, LLVMTypeRef target_type, int is_signed);
 
 #endif

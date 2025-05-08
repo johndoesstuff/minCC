@@ -71,6 +71,7 @@ char* type_to_str(Type* type) {
 	switch (type->baseType) {
 		case TYPE_INT:  base = "int"; break;
 		case TYPE_BOOL: base = "bool"; break;
+		case TYPE_CHAR: base = "char"; break;
 		case TYPE_VOID: base = "void"; break;
 		default:        base = "unknown"; break;
 	}
@@ -85,3 +86,27 @@ char* type_to_str(Type* type) {
 
 	return result;
 }
+
+LLVMValueRef cast_to(LLVMValueRef value, LLVMTypeRef target_type, int is_signed) {
+	extern LLVMBuilderRef builder;
+
+	LLVMTypeRef current_type = LLVMTypeOf(value);
+	if (current_type == target_type) return value;
+
+	if (LLVMGetTypeKind(current_type) == LLVMIntegerTypeKind && LLVMGetTypeKind(target_type) == LLVMIntegerTypeKind) {
+
+		unsigned current_bits = LLVMGetIntTypeWidth(current_type);
+		unsigned target_bits = LLVMGetIntTypeWidth(target_type);
+
+		if (current_bits < target_bits) {
+			return is_signed
+				? LLVMBuildSExt(builder, value, target_type, "sext")
+				: LLVMBuildZExt(builder, value, target_type, "zext");
+		} else if (current_bits > target_bits) {
+			return LLVMBuildTrunc(builder, value, target_type, "trunc");
+		}
+	}
+
+	return value;
+}
+

@@ -68,13 +68,13 @@ ASTNode* make_assign(char* identifier, ASTNode* right, YYLTYPE loc) {
 		exit(1);
 	}
 
-	if (type_cmp(right->valueType, var->type) != 0) {
+	/*if (type_cmp(right->valueType, var->type) != 0) {
 		char *msg;
                 asprintf(&msg, "Type mismatch in assignment of '%s': expected %s, got %s", identifier, type_to_str(var->type), type_to_str(right->valueType));
                 yyerror(&loc, msg);
 		free(msg);
 		exit(1);
-	}
+	}*/
 
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_ASSIGN;
@@ -96,7 +96,7 @@ ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc)
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_DECLARE;
 	node->loc = loc;
-	node->valueType = right->valueType;
+	node->valueType = type;
 	node->declare.identifier = identifier;
 	node->declare.right = right;
 	node->declare.type = type;

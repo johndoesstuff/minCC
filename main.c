@@ -6,7 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "ast.h"
-#include "symbol_table.h"
+#include "codegen_table.h"
+#include "semantic_table.h"
 #include "types.h"
 #include "error.h"
 
@@ -23,11 +24,11 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 	}
 	switch (node->type) {
 		case AST_PROGRAM: {
-					  enter_scope();
+					  codegen_enter_scope();
 					  for (int i = 0; i < node->program.count; i++) {
 						  generate(node->program.statements[i], function);
 					  }
-					  exit_scope();
+					  codegen_exit_scope();
 					  return NULL;
 				  }
 		case AST_NUMBER:
@@ -84,18 +85,21 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 		case AST_DECLARE: {
 					  if (node->declare.right) {
 						  LLVMValueRef value = generate(node->declare.right, function);
-						  VarEntry* var = lookup_variable(node->declare.identifier);
-						  LLVMBuildStore(builder, value, var->value);
+						  LLVMTypeRef llvm_type = get_llvm_type(node->declare.type, context);
+						  LLVMValueRef alloc = LLVMBuildAlloca(builder, llvm_type, node->declare.identifier);
+
+						  CodegenEntry* var = codegen_create_variable(node->declare.identifier, alloc, llvm_type);
+						  LLVMBuildStore(builder, value, alloc);
 					  }
 					  return NULL;
 				  }
 		case AST_ASSIGN: {
-					 VarEntry* var = lookup_variable(node->assign.identifier);
+					 CodegenEntry* var = codegen_lookup_variable(node->assign.identifier);
 					 LLVMValueRef value = generate(node->assign.right, function);
 					 return LLVMBuildStore(builder, value, var->value);
 				 }
 		case AST_IDENTIFIER: {
-					     VarEntry* var = lookup_variable(node->identifier);
+					     CodegenEntry* var = codegen_lookup_variable(node->identifier);
 					     if (!var) {
 						     char *msg;
 						     asprintf(&msg, "Trying to access undeclared variable '%s'", node->identifier);
@@ -103,7 +107,7 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 						     free(msg);
 						     exit(1);
 					     }
-					     return LLVMBuildLoad2(builder, get_llvm_type(var->valueType, context), var->value, "loadtmp");
+					     return LLVMBuildLoad2(builder, var->type, var->value, "loadtmp");
 				     }
 		case AST_RETURN: {
 					 LLVMValueRef value = generate(node->return_stm.value, function);
@@ -173,10 +177,11 @@ int main() {
 	LLVMBasicBlockRef entry = LLVMAppendBasicBlock(main_function, "entry");
 	LLVMPositionBuilderAtEnd(builder, entry);
 
-	enter_scope();
-
+	sem_enter_scope();
 	yyparse();
+	sem_exit_scope();
 
+	codegen_enter_scope();
 	LLVMValueRef result = generate(root, main_function);
 	//LLVMBuildRet(builder, result);
 

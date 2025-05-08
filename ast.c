@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "ast.h"
 #include "types.h"
-#include "symbol_table.h"
+#include "semantic_table.h"
 #include "error.h"
 
 ASTNode* make_program(YYLTYPE loc) {
@@ -45,7 +45,7 @@ ASTNode* make_identifier(char* identifier, YYLTYPE loc) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_IDENTIFIER;
 	node->loc = loc;
-	VarEntry* var = lookup_variable(identifier);
+	SemEntry* var = sem_lookup_variable(identifier);
 	if (!var) {
 		char *msg;
                 asprintf(&msg, "Trying to access undeclared variable '%s'", identifier);
@@ -53,13 +53,13 @@ ASTNode* make_identifier(char* identifier, YYLTYPE loc) {
                 free(msg);
 		exit(1);
 	}
-	node->valueType = lookup_variable(identifier)->valueType;
+	node->valueType = sem_lookup_variable(identifier)->type;
 	node->identifier = identifier;
 	return node;
 }
 
 ASTNode* make_assign(char* identifier, ASTNode* right, YYLTYPE loc) {
-	VarEntry* var = lookup_variable(identifier);
+	SemEntry* var = sem_lookup_variable(identifier);
 	if (!var) {
 		char *msg;
                 asprintf(&msg, "Assignment to undeclared variable '%s'", identifier);
@@ -68,9 +68,9 @@ ASTNode* make_assign(char* identifier, ASTNode* right, YYLTYPE loc) {
 		exit(1);
 	}
 
-	if (type_cmp(right->valueType, var->valueType) != 0) {
+	if (type_cmp(right->valueType, var->type) != 0) {
 		char *msg;
-                asprintf(&msg, "Type mismatch in assignment of '%s': expected %s, got %s", identifier, type_to_str(var->valueType), type_to_str(right->valueType));
+                asprintf(&msg, "Type mismatch in assignment of '%s': expected %s, got %s", identifier, type_to_str(var->type), type_to_str(right->valueType));
                 yyerror(&loc, msg);
 		free(msg);
 		exit(1);
@@ -86,7 +86,7 @@ ASTNode* make_assign(char* identifier, ASTNode* right, YYLTYPE loc) {
 }
 
 ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc) {
-	if (lookup_variable(identifier)) {
+	if (sem_lookup_variable(identifier)) {
 		char *msg;
                 asprintf(&msg, "Variable '%s' already declared", identifier);
                 yyerror(&loc, msg);
@@ -101,7 +101,7 @@ ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc)
 	node->declare.right = right;
 	node->declare.type = type;
 
-	create_variable(identifier, node->valueType);
+	sem_create_variable(identifier, node->valueType);
 
 	if (right && type_cmp(right->valueType, node->valueType) != 0) {
 		char *msg;

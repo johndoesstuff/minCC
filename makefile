@@ -31,11 +31,11 @@ $(TARGET): $(PARSER_C) $(PARSER_H) $(LEXER_C) $(LEXER) $(AST_C) $(SEMANTIC_TABLE
 
 # Generate parser source/header
 $(PARSER_C) $(PARSER_H): $(PARSER)
-	bison -d $(PARSER)
+	bison -d $(PARSER) -o $(PARSER_C)
 
 # Generate lexer source
 $(LEXER_C): $(LEXER)
-	flex $(LEXER)
+	flex -o $(LEXER_C) $(LEXER)
 
 # Clean generated files
 clean:

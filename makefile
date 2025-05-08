@@ -4,18 +4,18 @@
 TARGET = minCC
 
 # Source files
-PARSER = parser.y
-LEXER = lexer.l
-AST_C = ast.c
-CODEGEN_TABLE_C = codegen_table.c
-SEMANTIC_TABLE_C = semantic_table.c
-TYPES_C = types.c
-MAIN_C = main.c
+PARSER = src/parser.y
+LEXER = src/lexer.l
+AST_C = src/ast.c
+CODEGEN_TABLE_C = src/codegen_table.c
+SEMANTIC_TABLE_C = src/semantic_table.c
+TYPES_C = src/types.c
+MAIN_C = src/main.c
 
 # Generated files
-PARSER_C = parser.tab.c
-PARSER_H = parser.tab.h
-LEXER_C = lex.yy.c
+PARSER_C = build/parser.tab.c
+PARSER_H = build/parser.tab.h
+LEXER_C = build/lex.yy.c
 
 # Compiler
 CC = gcc

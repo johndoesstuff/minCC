@@ -33,6 +33,8 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 				  }
 		case AST_NUMBER:
 				  return LLVMConstInt(LLVMInt32TypeInContext(context), node->value, 0);
+		case AST_CHARACTER:
+				  return LLVMConstInt(LLVMInt8TypeInContext(context), node->character, 0);
 		case AST_BINARY: {
 					 LLVMValueRef left = generate(node->binary.left, function);
 					 LLVMValueRef right = generate(node->binary.right, function);

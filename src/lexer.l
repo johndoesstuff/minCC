@@ -21,6 +21,7 @@ YY_DECL;
 %%
 
 [0-9]+		{ yylval->ival = atoi(yytext); return NUMBER; }
+'[^']'		{ yylval->cval = yytext[1]; return CHARACTER; }
 "return"	{ return RETURN; }
 "while"		{ return WHILE; }
 "if"		{ return IF; }

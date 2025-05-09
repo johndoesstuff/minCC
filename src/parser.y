@@ -10,12 +10,14 @@ ASTNode* root;
 %union {
 	int ival;
 	char* sval;
+	char cval;
 	struct ASTNode* node;
 	struct Type* type;
 }
 
 %token <ival> NUMBER
 %token <sval> IDENTIFIER
+%token <cval> CHARACTER
 %token RETURN
 %token WHILE
 %token IF
@@ -104,6 +106,7 @@ factor:
 	| '-' factor	{ $$ = make_unary("-", $2, @$); }
 	| IDENTIFIER	{ $$ = make_identifier($1, @$); }
 	| NUMBER	{ $$ = make_number($1, @$); }
+	| CHARACTER	{ $$ = make_character($1, @$); }
 ;
 
 %%

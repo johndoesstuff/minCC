@@ -41,6 +41,15 @@ ASTNode* make_number(int value, YYLTYPE loc) {
 	return node;
 }
 
+ASTNode* make_character(char character, YYLTYPE loc) {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_CHARACTER;
+	node->loc = loc;
+	node->valueType = make_type(TYPE_CHAR, 0);
+	node->character = character;
+	return node;
+}
+
 ASTNode* make_identifier(char* identifier, YYLTYPE loc) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_IDENTIFIER;

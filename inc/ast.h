@@ -8,6 +8,7 @@
 typedef enum {
 	AST_PROGRAM,
 	AST_NUMBER,
+	AST_CHARACTER,
 	AST_BINARY,
 	AST_UNARY,
 	AST_IDENTIFIER,
@@ -26,6 +27,7 @@ typedef struct ASTNode {
 	union {
 		int value; // for AST_NUMBER
 		char* identifier; // for AST_IDENTIFIER
+		char character; // for AST_CHARACTER
 		struct {
 			char* identifier;
 			struct ASTNode* right;
@@ -65,6 +67,7 @@ typedef struct ASTNode {
 } ASTNode;
 
 ASTNode* make_number(int value, YYLTYPE loc);
+ASTNode* make_character(char character, YYLTYPE loc);
 ASTNode* make_identifier(char* identifier, YYLTYPE loc);
 ASTNode* make_assign(char* identifier, ASTNode* right, YYLTYPE loc);
 ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc);

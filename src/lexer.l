@@ -20,6 +20,7 @@ YY_DECL;
 
 %%
 
+([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?|[0-9]+[eE][-+]?[0-9]+)	{ yylval->fval = atof(yytext); return FLOAT; }
 [0-9]+		{ yylval->ival = atoi(yytext); return NUMBER; }
 '[^']'		{ yylval->cval = yytext[1]; return CHARACTER; }
 \"[^"]*\"		{ yytext[yyleng - 1] = '\0'; yylval->sval = strdup(yytext + 1); return STRING; }
@@ -35,7 +36,7 @@ YY_DECL;
 ")"		{ return ')'; }
 "{"		{ return '{'; }
 "}"		{ return '}'; }
-("int"|"bool"|"char")	{ yylval->sval = strdup(yytext); return BASE_TYPE; }
+("int"|"bool"|"char"|"float")	{ yylval->sval = strdup(yytext); return BASE_TYPE; }
 ("=="|"<"|">"|"<="|">="|"!=")		{ yylval->sval = strdup(yytext); return COMPARE; }
 [a-zA-Z_][a-zA-Z0-9_]*	{ yylval->sval = strdup(yytext); return IDENTIFIER; }
 "+"		{ return '+'; }

@@ -34,9 +34,12 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 				  }
 		case AST_NUMBER:
 				  return LLVMConstInt(LLVMInt32TypeInContext(context), node->value, 0);
+		case AST_FLOAT:
+				  return LLVMConstReal(LLVMFloatTypeInContext(context), node->floatValue);
 		case AST_CHARACTER:
 				  return LLVMConstInt(LLVMInt8TypeInContext(context), node->character, 0);
 		case AST_STRING: {
+					//prepare string storage
 				 	static int string_id = 0;
 					char global_name[64];
 					snprintf(global_name, sizeof(global_name), ".str.%d", string_id++);
@@ -52,7 +55,8 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 
 					LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(context), 0, 0);
 					LLVMValueRef indices[] = { zero, zero };
-	
+
+					//return pointer
 					LLVMValueRef gep = LLVMBuildInBoundsGEP2(builder,
 							str_type,     // type of the global string (array type)
 							global_str,   // the pointer to GEP from
@@ -62,55 +66,114 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 					return gep;
 				 }
 		case AST_BINARY: {
+					 //generate both sides
 					 LLVMValueRef left = generate(node->binary.left, function);
 					 LLVMValueRef right = generate(node->binary.right, function);
+
+					 //prepare type coercion
 					 LLVMTypeRef l_type = get_llvm_type(node->binary.left->valueType, context);
 					 LLVMTypeRef r_type = get_llvm_type(node->binary.right->valueType, context);
-					 if (l_type != r_type) {
-						 /*yyerror(&node->loc, "Type mismatch");
-						 exit(1);*/
-						 unsigned int l_width = LLVMGetIntTypeWidth(l_type);
-						 unsigned int r_width = LLVMGetIntTypeWidth(r_type);
 
-						 if (l_width >= r_width) {
-						 	right = cast_to(right, l_type, 1);
+					 //check float
+					 int l_is_float = LLVMGetTypeKind(l_type) == LLVMFloatTypeKind || LLVMGetTypeKind(l_type) == LLVMDoubleTypeKind;
+					 int r_is_float = LLVMGetTypeKind(r_type) == LLVMFloatTypeKind || LLVMGetTypeKind(r_type) == LLVMDoubleTypeKind;
+
+					 //type coercion
+					 if (l_type != r_type) {
+
+						 //check floats
+						 if (l_is_float && r_is_float) {
+						 	//do nothing until i implement doubles
+						 } else if (l_is_float && !r_is_float) {
+						 	right = LLVMBuildSIToFP(builder, right, l_type, "sitofp_tmp");
+						 } else if (!l_is_float && r_is_float) {
+						 	left = LLVMBuildSIToFP(builder, left, r_type, "sitofp_tmp");
 						 } else {
-						 	left = cast_to(left, r_type, 1);
+							 //match largest int
+							 unsigned int l_width = LLVMGetIntTypeWidth(l_type);
+							 unsigned int r_width = LLVMGetIntTypeWidth(r_type);
+
+							 if (l_width >= r_width) {
+								right = cast_to(right, l_type, 1);
+							 } else {
+								left = cast_to(left, r_type, 1);
+							 }
 						 }
 					 }
-					 if (strcmp(node->binary.op, "+") == 0) {
-						 node->valueType = make_type(TYPE_INT, 0);
-						 return LLVMBuildAdd(builder, left, right, "addtmp");
-					 } else if (strcmp(node->binary.op, "-") == 0) {
-						 node->valueType = make_type(TYPE_INT, 0);
-						 return LLVMBuildSub(builder, left, right, "subtmp");
-					 } else if (strcmp(node->binary.op, "*") == 0) {
-						 node->valueType = make_type(TYPE_INT, 0);
-						 return LLVMBuildMul(builder, left, right, "multmp");
-					 } else if (strcmp(node->binary.op, "/") == 0) {
-						 node->valueType = make_type(TYPE_INT, 0);
-						 return LLVMBuildSDiv(builder, left, right, "divtmp");
-					 } else if (strcmp(node->binary.op, "%") == 0) {
-						 node->valueType = make_type(TYPE_INT, 0);
-						 return LLVMBuildSRem(builder, left, right, "modtmp");
-					 } else if (strcmp(node->binary.op, "==") == 0) {
-						 node->valueType = make_type(TYPE_BOOL, 0);
-						 return LLVMBuildICmp(builder, LLVMIntEQ, left, right, "cmptmp");
-					 } else if (strcmp(node->binary.op, "!=") == 0) {
-						 node->valueType = make_type(TYPE_BOOL, 0);
-						 return LLVMBuildICmp(builder, LLVMIntNE, left, right, "cmptmp");
-					 } else if (strcmp(node->binary.op, "<") == 0) {
-						 node->valueType = make_type(TYPE_BOOL, 0);
-						 return LLVMBuildICmp(builder, LLVMIntSLT, left, right, "cmptmp");
-					 } else if (strcmp(node->binary.op, ">") == 0) {
-						 node->valueType = make_type(TYPE_BOOL, 0);
-						 return LLVMBuildICmp(builder, LLVMIntSGT, left, right, "cmptmp");
-					 } else if (strcmp(node->binary.op, "<=") == 0) {
-						 node->valueType = make_type(TYPE_BOOL, 0);
-						 return LLVMBuildICmp(builder, LLVMIntSLE, left, right, "cmptmp");
-					 } else if (strcmp(node->binary.op, ">=") == 0) {
-						 node->valueType = make_type(TYPE_BOOL, 0);
-						 return LLVMBuildICmp(builder, LLVMIntSGE, left, right, "cmptmp");
+
+					 if (l_is_float) {
+						 if (strcmp(node->binary.op, "+") == 0) {
+							 node->valueType = make_type(TYPE_FLOAT, 0);
+							 return LLVMBuildFAdd(builder, left, right, "faddtmp");
+						 } else if (strcmp(node->binary.op, "-") == 0) {
+							 node->valueType = make_type(TYPE_FLOAT, 0);
+							 return LLVMBuildFSub(builder, left, right, "fsubtmp");
+						 } else if (strcmp(node->binary.op, "*") == 0) {
+							 node->valueType = make_type(TYPE_FLOAT, 0);
+							 return LLVMBuildFMul(builder, left, right, "fmultmp");
+						 } else if (strcmp(node->binary.op, "/") == 0) {
+							 node->valueType = make_type(TYPE_FLOAT, 0);
+							 return LLVMBuildFDiv(builder, left, right, "fdivtmp");
+						 } else if (strcmp(node->binary.op, "%") == 0) {
+							 char *msg;
+							 asprintf(&msg, "Invalid float operator: %s", node->binary.op);
+							 yyerror(&node->loc, msg);
+							 free(msg);
+							 exit(1);
+						 } else if (strcmp(node->binary.op, "==") == 0) {
+							 node->valueType = make_type(TYPE_BOOL, 0);
+							 return LLVMBuildFCmp(builder, LLVMRealOEQ, left, right, "cmptmp");
+						 } else if (strcmp(node->binary.op, "!=") == 0) {
+							 node->valueType = make_type(TYPE_BOOL, 0);
+							 return LLVMBuildFCmp(builder, LLVMRealONE, left, right, "cmptmp");
+						 } else if (strcmp(node->binary.op, "<") == 0) {
+							 node->valueType = make_type(TYPE_BOOL, 0);
+							 return LLVMBuildFCmp(builder, LLVMRealOLT, left, right, "cmptmp");
+						 } else if (strcmp(node->binary.op, ">") == 0) {
+							 node->valueType = make_type(TYPE_BOOL, 0);
+							 return LLVMBuildFCmp(builder, LLVMRealOGT, left, right, "cmptmp");
+						 } else if (strcmp(node->binary.op, "<=") == 0) {
+							 node->valueType = make_type(TYPE_BOOL, 0);
+							 return LLVMBuildFCmp(builder, LLVMRealOLE, left, right, "cmptmp");
+						 } else if (strcmp(node->binary.op, ">=") == 0) {
+							 node->valueType = make_type(TYPE_BOOL, 0);
+							 return LLVMBuildFCmp(builder, LLVMRealOGE, left, right, "cmptmp");
+						 }
+					 } else {
+						 if (strcmp(node->binary.op, "+") == 0) {
+							 node->valueType = make_type(TYPE_INT, 0);
+							 return LLVMBuildAdd(builder, left, right, "addtmp");
+						 } else if (strcmp(node->binary.op, "-") == 0) {
+							 node->valueType = make_type(TYPE_INT, 0);
+							 return LLVMBuildSub(builder, left, right, "subtmp");
+						 } else if (strcmp(node->binary.op, "*") == 0) {
+							 node->valueType = make_type(TYPE_INT, 0);
+							 return LLVMBuildMul(builder, left, right, "multmp");
+						 } else if (strcmp(node->binary.op, "/") == 0) {
+							 node->valueType = make_type(TYPE_INT, 0);
+							 return LLVMBuildSDiv(builder, left, right, "divtmp");
+						 } else if (strcmp(node->binary.op, "%") == 0) {
+							 node->valueType = make_type(TYPE_INT, 0);
+							 return LLVMBuildSRem(builder, left, right, "modtmp");
+						 } else if (strcmp(node->binary.op, "==") == 0) {
+							 node->valueType = make_type(TYPE_BOOL, 0);
+							 return LLVMBuildICmp(builder, LLVMIntEQ, left, right, "cmptmp");
+						 } else if (strcmp(node->binary.op, "!=") == 0) {
+							 node->valueType = make_type(TYPE_BOOL, 0);
+							 return LLVMBuildICmp(builder, LLVMIntNE, left, right, "cmptmp");
+						 } else if (strcmp(node->binary.op, "<") == 0) {
+							 node->valueType = make_type(TYPE_BOOL, 0);
+							 return LLVMBuildICmp(builder, LLVMIntSLT, left, right, "cmptmp");
+						 } else if (strcmp(node->binary.op, ">") == 0) {
+							 node->valueType = make_type(TYPE_BOOL, 0);
+							 return LLVMBuildICmp(builder, LLVMIntSGT, left, right, "cmptmp");
+						 } else if (strcmp(node->binary.op, "<=") == 0) {
+							 node->valueType = make_type(TYPE_BOOL, 0);
+							 return LLVMBuildICmp(builder, LLVMIntSLE, left, right, "cmptmp");
+						 } else if (strcmp(node->binary.op, ">=") == 0) {
+							 node->valueType = make_type(TYPE_BOOL, 0);
+							 return LLVMBuildICmp(builder, LLVMIntSGE, left, right, "cmptmp");
+						 }
 					 }
 				 }
 		case AST_UNARY: {

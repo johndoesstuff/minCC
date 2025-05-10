@@ -34,6 +34,9 @@ LLVMTypeRef get_llvm_type(Type* type, LLVMContextRef context) {
 		case TYPE_CHAR:
 			base = LLVMInt8TypeInContext(context);
 			break;
+		case TYPE_FLOAT:
+			base = LLVMFloatTypeInContext(context);
+			break;
 		default:
 			base = LLVMVoidTypeInContext(context);
 			break;
@@ -60,6 +63,8 @@ BaseType get_base_type(char* type) {
 		return TYPE_BOOL;
 	} else if (strcmp(type, "char") == 0) {
 		return TYPE_CHAR;
+	} else if (strcmp(type, "float") == 0) {
+		return TYPE_FLOAT;
 	} else {
 		fprintf(stderr, "unknown type??\n");
 		exit(1);
@@ -72,6 +77,7 @@ char* type_to_str(Type* type) {
 		case TYPE_INT:  base = "int"; break;
 		case TYPE_BOOL: base = "bool"; break;
 		case TYPE_CHAR: base = "char"; break;
+		case TYPE_FLOAT: base = "float"; break;
 		case TYPE_VOID: base = "void"; break;
 		default:        base = "unknown"; break;
 	}

@@ -57,15 +57,16 @@ extern int yydebug;
     NUMBER = 258,                  /* NUMBER  */
     IDENTIFIER = 259,              /* IDENTIFIER  */
     CHARACTER = 260,               /* CHARACTER  */
-    RETURN = 261,                  /* RETURN  */
-    WHILE = 262,                   /* WHILE  */
-    IF = 263,                      /* IF  */
-    ELSE = 264,                    /* ELSE  */
-    TRUE = 265,                    /* TRUE  */
-    FALSE = 266,                   /* FALSE  */
-    COMPARE = 267,                 /* COMPARE  */
-    BASE_TYPE = 268,               /* BASE_TYPE  */
-    STRING = 269                   /* STRING  */
+    FLOAT = 261,                   /* FLOAT  */
+    RETURN = 262,                  /* RETURN  */
+    WHILE = 263,                   /* WHILE  */
+    IF = 264,                      /* IF  */
+    ELSE = 265,                    /* ELSE  */
+    TRUE = 266,                    /* TRUE  */
+    FALSE = 267,                   /* FALSE  */
+    COMPARE = 268,                 /* COMPARE  */
+    BASE_TYPE = 269,               /* BASE_TYPE  */
+    STRING = 270                   /* STRING  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -79,10 +80,11 @@ union YYSTYPE
 	int ival;
 	char* sval;
 	char cval;
+	float fval;
 	struct ASTNode* node;
 	struct Type* type;
 
-#line 86 "build/parser.tab.h"
+#line 88 "build/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

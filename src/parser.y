@@ -11,6 +11,7 @@ ASTNode* root;
 	int ival;
 	char* sval;
 	char cval;
+	float fval;
 	struct ASTNode* node;
 	struct Type* type;
 }
@@ -18,6 +19,7 @@ ASTNode* root;
 %token <ival> NUMBER
 %token <sval> IDENTIFIER
 %token <cval> CHARACTER
+%token <fval> FLOAT
 %token RETURN
 %token WHILE
 %token IF
@@ -109,6 +111,7 @@ factor:
 	| NUMBER	{ $$ = make_number($1, @$); }
 	| CHARACTER	{ $$ = make_character($1, @$); }
 	| STRING	{ $$ = make_string($1, @$); }
+	| FLOAT		{ $$ = make_float($1, @$); }
 ;
 
 %%

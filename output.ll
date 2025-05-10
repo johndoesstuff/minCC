@@ -1,21 +1,20 @@
 ; ModuleID = 'global'
 source_filename = "global"
 
-@.str.0 = private constant [12 x i8] c"hello world\00"
-
 define i32 @main() {
 entry:
-  %test1 = alloca i8, align 1
-  store i8 91, ptr %test1, align 1
-  store i8 96, ptr %test1, align 1
-  %test2 = alloca i8, align 1
-  store i8 98, ptr %test2, align 1
-  %loadtmp = load i8, ptr %test2, align 1
-  %sext = sext i8 %loadtmp to i32
-  %addtmp = add i32 %sext, 5
-  %trunc = trunc i32 %addtmp to i8
-  store i8 %trunc, ptr %test2, align 1
-  %test3 = alloca ptr, align 8
-  store ptr @.str.0, ptr %test3, align 8
+  %a = alloca float, align 4
+  store float 0x3FDA3D70A0000000, ptr %a, align 4
+  %b = alloca float, align 4
+  store float 0x3F847AE140000000, ptr %b, align 4
+  %loadtmp = load float, ptr %a, align 4
+  %loadtmp1 = load float, ptr %b, align 4
+  %faddtmp = fadd float %loadtmp, %loadtmp1
+  %c = alloca float, align 4
+  store float %faddtmp, ptr %c, align 4
+  %loadtmp2 = load float, ptr %c, align 4
+  %loadtmp3 = load float, ptr %c, align 4
+  %fmultmp = fmul float %loadtmp2, %loadtmp3
+  store float %fmultmp, ptr %c, align 4
   ret i32 0
 }

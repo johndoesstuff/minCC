@@ -14,7 +14,7 @@ int is_boolean_operator(char* op) {
 		strcmp(op, ">=") == 0;
 }
 
-int type_cmp(Type* a, Type* b) {
+int ast_type_cmp(Type* a, Type* b) {
 	if (!a || !b) {
 		fprintf(stderr, "trying to compare non existant types");
 		exit(1);

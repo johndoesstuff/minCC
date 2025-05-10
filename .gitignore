@@ -1,5 +1,9 @@
 *.swp
 minCC
+build/lex.yy.c
+build/parser.tab.c
+build/parser.tab.h
+output.ll
 
 # Prerequisites
 *.d

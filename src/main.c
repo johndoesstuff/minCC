@@ -38,9 +38,19 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 		case AST_BINARY: {
 					 LLVMValueRef left = generate(node->binary.left, function);
 					 LLVMValueRef right = generate(node->binary.right, function);
-					 if (type_cmp(node->binary.left->valueType, node->binary.right->valueType) != 0) {
-						 yyerror(&node->loc, "Type mismatch");
-						 exit(1);
+					 LLVMTypeRef l_type = get_llvm_type(node->binary.left->valueType, context);
+					 LLVMTypeRef r_type = get_llvm_type(node->binary.right->valueType, context);
+					 if (l_type != r_type) {
+						 /*yyerror(&node->loc, "Type mismatch");
+						 exit(1);*/
+						 unsigned int l_width = LLVMGetIntTypeWidth(l_type);
+						 unsigned int r_width = LLVMGetIntTypeWidth(r_type);
+
+						 if (l_width >= r_width) {
+						 	right = cast_to(right, l_type, 1);
+						 } else {
+						 	left = cast_to(left, r_type, 1);
+						 }
 					 }
 					 if (strcmp(node->binary.op, "+") == 0) {
 						 node->valueType = make_type(TYPE_INT, 0);

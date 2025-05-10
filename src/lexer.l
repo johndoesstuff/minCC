@@ -22,6 +22,7 @@ YY_DECL;
 
 [0-9]+		{ yylval->ival = atoi(yytext); return NUMBER; }
 '[^']'		{ yylval->cval = yytext[1]; return CHARACTER; }
+\"[^"]*\"		{ yytext[yyleng - 1] = '\0'; yylval->sval = strdup(yytext + 1); return STRING; }
 "return"	{ return RETURN; }
 "while"		{ return WHILE; }
 "if"		{ return IF; }

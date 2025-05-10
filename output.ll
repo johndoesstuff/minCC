@@ -1,5 +1,7 @@
-; ModuleID = 'tiny'
-source_filename = "tiny"
+; ModuleID = 'global'
+source_filename = "global"
+
+@.str.0 = private constant [12 x i8] c"hello world\00"
 
 define i32 @main() {
 entry:
@@ -13,5 +15,7 @@ entry:
   %addtmp = add i32 %sext, 5
   %trunc = trunc i32 %addtmp to i8
   store i8 %trunc, ptr %test2, align 1
+  %test3 = alloca ptr, align 8
+  store ptr @.str.0, ptr %test3, align 8
   ret i32 0
 }

@@ -26,6 +26,7 @@ ASTNode* root;
 %token FALSE
 %token <sval> COMPARE
 %token <sval> BASE_TYPE
+%token <sval> STRING
 %type <ival> none_or_more_pointers
 %type <type> type
 %type <node> else_clause declare rvalue mag term factor expr statement input
@@ -107,6 +108,7 @@ factor:
 	| IDENTIFIER	{ $$ = make_identifier($1, @$); }
 	| NUMBER	{ $$ = make_number($1, @$); }
 	| CHARACTER	{ $$ = make_character($1, @$); }
+	| STRING	{ $$ = make_string($1, @$); }
 ;
 
 %%

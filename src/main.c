@@ -16,6 +16,7 @@ extern ASTNode* root;
 
 LLVMBuilderRef builder;
 LLVMContextRef context;
+LLVMModuleRef module;
 
 LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 	if (node == NULL) {
@@ -35,6 +36,31 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 				  return LLVMConstInt(LLVMInt32TypeInContext(context), node->value, 0);
 		case AST_CHARACTER:
 				  return LLVMConstInt(LLVMInt8TypeInContext(context), node->character, 0);
+		case AST_STRING: {
+				 	static int string_id = 0;
+					char global_name[64];
+					snprintf(global_name, sizeof(global_name), ".str.%d", string_id++);
+
+					char *str = node->stringValue;
+					size_t len = strlen(str) + 1;
+
+					LLVMTypeRef str_type = LLVMArrayType(LLVMInt8TypeInContext(context), len);
+					LLVMValueRef global_str = LLVMAddGlobal(module, str_type, global_name);
+					LLVMSetLinkage(global_str, LLVMPrivateLinkage);
+					LLVMSetGlobalConstant(global_str, 1);
+					LLVMSetInitializer(global_str, LLVMConstStringInContext(context, str, len, 1));
+
+					LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(context), 0, 0);
+					LLVMValueRef indices[] = { zero, zero };
+	
+					LLVMValueRef gep = LLVMBuildInBoundsGEP2(builder,
+							str_type,     // type of the global string (array type)
+							global_str,   // the pointer to GEP from
+							indices,      // index list
+							2,            // number of indices
+							"strptr");    // name
+					return gep;
+				 }
 		case AST_BINARY: {
 					 LLVMValueRef left = generate(node->binary.left, function);
 					 LLVMValueRef right = generate(node->binary.right, function);
@@ -183,7 +209,7 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 
 int main() {
 	context = LLVMContextCreate();
-	LLVMModuleRef module = LLVMModuleCreateWithNameInContext("tiny", context);
+	module = LLVMModuleCreateWithNameInContext("global", context);
 	builder = LLVMCreateBuilderInContext(context);
 
 	LLVMTypeRef funcType = LLVMFunctionType(LLVMInt32Type(), NULL, 0, 0);

@@ -32,6 +32,31 @@ void append_statement(ASTNode* program_node, ASTNode* statement) {
 	program_node->program.statements[program_node->program.count++] = statement;
 }
 
+Argument* make_argument(Type* type, char* identifier, YYLTYPE loc) {
+	Argument* arg = malloc(sizeof(Argument));
+	arg->type = type;
+	arg->identifier = identifier;
+	arg->loc = loc;
+	arg->next = NULL;
+	return arg;
+}
+
+void append_argument(Argument* arguments, Argument* argument, YYLTYPE loc) {
+	if (argument == NULL) {
+		printf("null argument");
+		return;
+	}
+	if (arguments == NULL) {
+		return;
+	}
+	
+	Argument* current = arguments;
+	while (current->next) {
+		current = current->next;
+	}
+	current->next = argument;
+}
+
 ASTNode* make_number(int value, YYLTYPE loc) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_NUMBER;
@@ -128,7 +153,7 @@ ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc)
 	node->declare.right = right;
 	node->declare.type = type;
 
-	sem_create_variable(identifier, node->valueType);
+	sem_create_variable(identifier, type);
 
 	/*if (right && type_cmp(right->valueType, type) != 0) {
 		char *msg;
@@ -137,6 +162,27 @@ ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc)
 		free(msg);
 		exit(1);
 	}*/
+
+	return node;
+}
+
+ASTNode* make_function(Type* type, char* identifier, Argument* arguments, ASTNode* body, YYLTYPE loc) {
+	if (sem_lookup_function(identifier)) {
+		char *msg;
+                asprintf(&msg, "Function '%s' already declared", identifier);
+                yyerror(&loc, msg);
+		free(msg);
+		exit(1);
+	}
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_FUNCTION;
+	node->loc = loc;
+	node->function.identifier = identifier;
+	node->function.body = body;
+	node->function.type = type;
+	node->function.arguments = arguments;
+	
+	sem_create_function(identifier, type);
 
 	return node;
 }

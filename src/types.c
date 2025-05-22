@@ -93,8 +93,8 @@ char* type_to_str(Type* type) {
 	return result;
 }
 
-LLVMValueRef cast_to(LLVMValueRef value, LLVMTypeRef target_type, int is_signed) {
-	extern LLVMBuilderRef builder;
+LLVMValueRef cast_to(LLVMValueRef value, LLVMTypeRef target_type, int is_signed, CodegenContext* cg) {
+	LLVMBuilderRef builder = cg->builder;
 
 	LLVMTypeRef current_type = LLVMTypeOf(value);
 	if (current_type == target_type) return value;
@@ -116,3 +116,18 @@ LLVMValueRef cast_to(LLVMValueRef value, LLVMTypeRef target_type, int is_signed)
 	return value;
 }
 
+int count_arguments(Argument* args) {
+	printf("counting arguments\n");
+	int count = 0;
+	if (args == NULL) {
+		printf("args is null\n");
+		return count;
+	}
+
+	Argument* current = args;
+	while (current) {
+		count++;
+		current = current->next;
+	}
+	return count;
+}

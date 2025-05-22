@@ -44,6 +44,7 @@ YY_DECL;
 "*"		{ return '*'; }
 "/"		{ return '/'; }
 "%"		{ return '%'; }
+","		{ return ','; }
 \/\/.*		;
 \n      { yycolumn = 1; yylineno++; }
 [ \t]+	; // ignore whitespace

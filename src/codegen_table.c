@@ -5,10 +5,10 @@
 
 CodegenScope* codegen_current_scope = NULL;
 
-CodegenEntry* codegen_lookup_variable(const char* name) {
+CodegenEntry* codegen_lookup(const char* name, CodeEntryKind entryKind) {
 	for (CodegenScope* scope = codegen_current_scope; scope != NULL; scope = scope->next) {
 		for (CodegenEntry* var = scope->variables; var != NULL; var = var->next) {
-			if (strcmp(var->name, name) == 0) {
+			if (strcmp(var->name, name) == 0 && var->entryKind == entryKind) {
 				return var;
 			}
 		}
@@ -16,10 +16,19 @@ CodegenEntry* codegen_lookup_variable(const char* name) {
 	return NULL;
 }
 
-CodegenEntry* codegen_create_variable(const char* name, LLVMValueRef value, LLVMTypeRef type) {
+CodegenEntry* codegen_lookup_variable(const char* name) {
+	return codegen_lookup(name, CODE_ENTRY_VAR);
+}
+
+CodegenEntry* codegen_lookup_function(const char* name) {
+	return codegen_lookup(name, CODE_ENTRY_FUNC);
+}
+
+CodegenEntry* codegen_create(const char* name, LLVMValueRef value, LLVMTypeRef type, CodeEntryKind entryKind) {
 	CodegenEntry* entry = malloc(sizeof(CodegenEntry));
 	entry->name = strdup(name);
 	entry->value = value;
+	entry->entryKind = entryKind;
 	entry->type = type;
 	if (!codegen_current_scope) {
 		fprintf(stderr, "null scope, something has gone horrifically wrong!!");
@@ -28,6 +37,14 @@ CodegenEntry* codegen_create_variable(const char* name, LLVMValueRef value, LLVM
 	entry->next = codegen_current_scope->variables;
 	codegen_current_scope->variables = entry;
 	return entry;
+}
+
+CodegenEntry* codegen_create_variable(const char* name, LLVMValueRef value, LLVMTypeRef type) {
+	return codegen_create(name, value, type, CODE_ENTRY_VAR);
+}
+
+CodegenEntry* codegen_create_function(const char* name, LLVMValueRef value, LLVMTypeRef type) {
+	return codegen_create(name, value, type, CODE_ENTRY_FUNC);
 }
 
 void codegen_enter_scope() {

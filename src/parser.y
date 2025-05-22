@@ -14,6 +14,7 @@ ASTNode* root;
 	float fval;
 	struct ASTNode* node;
 	struct Type* type;
+	struct Argument* argument;
 }
 
 %token <ival> NUMBER
@@ -32,6 +33,7 @@ ASTNode* root;
 %type <ival> none_or_more_pointers
 %type <type> type
 %type <node> else_clause declare rvalue mag term factor expr statement input
+%type <argument> argument_list
 
 %left '+' '-'
 %left '*' '/'
@@ -57,6 +59,7 @@ statement:
 	| RETURN expr ';'	{ $$ = make_return($2, @$); }
 	| WHILE '(' expr ')' '{' input '}'	{ $$ = make_while($3, $6, @$); }
 	| IF '(' expr ')' '{' input '}' else_clause	{ $$ = make_if($3, $6, $8, @$); }
+	| type IDENTIFIER '(' argument_list ')' '{' input '}'	{ $$ = make_function($1, $2, $4, $7, @$); }
 ;
 
 else_clause:
@@ -68,6 +71,12 @@ else_clause:
 declare:
 	type IDENTIFIER '=' expr	{ $$ = make_declare($1, $2, $4, @$); }
 	| type IDENTIFIER		{ $$ = make_declare($1, $2, NULL, @$); }
+;
+
+argument_list:
+	{ $$ = NULL; }
+	| type IDENTIFIER		{$$ = make_argument($1, $2, @$); }
+	| argument_list ',' type IDENTIFIER	{ append_argument($1, make_argument($3, $4, @$), @$); $$ = $1; }
 ;
 
 type:

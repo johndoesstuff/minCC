@@ -83,8 +83,9 @@ union YYSTYPE
 	float fval;
 	struct ASTNode* node;
 	struct Type* type;
+	struct Argument* argument;
 
-#line 88 "build/parser.tab.h"
+#line 89 "build/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

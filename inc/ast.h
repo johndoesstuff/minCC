@@ -20,6 +20,7 @@ typedef enum {
 	AST_DECLARE,
 	AST_WHILE,
 	AST_IF,
+	AST_FUNCTION,
 } ASTNodeType;
 
 typedef struct ASTNode {
@@ -67,24 +68,44 @@ typedef struct ASTNode {
 		struct {
 			struct ASTNode* value;
 		} return_stm;
+		struct {
+			Type* type;
+			char* identifier;
+			Argument* arguments;
+			struct ASTNode* body;
+		} function;
 	};
 } ASTNode;
 
+//primitives
 ASTNode* make_number(int value, YYLTYPE loc);
 ASTNode* make_float(float value, YYLTYPE loc);
 ASTNode* make_character(char character, YYLTYPE loc);
 ASTNode* make_string(char* string, YYLTYPE loc);
+ASTNode* make_true(YYLTYPE loc);
+ASTNode* make_false(YYLTYPE loc);
+
+//arguments / identifiers
 ASTNode* make_identifier(char* identifier, YYLTYPE loc);
-ASTNode* make_assign(char* identifier, ASTNode* right, YYLTYPE loc);
-ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc);
+Argument* make_argument(Type* type, char* identifier, YYLTYPE loc);
+void append_argument(Argument* arguments, Argument* argument, YYLTYPE loc);
+
+//operators
 ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right, YYLTYPE loc);
 ASTNode* make_unary(char* op, ASTNode* left, YYLTYPE loc);
-ASTNode* make_program(YYLTYPE loc);
-void append_statement(ASTNode* program_node, ASTNode* statement);
+
+//variables
+ASTNode* make_assign(char* identifier, ASTNode* right, YYLTYPE loc);
+ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc);
+ASTNode* make_function(Type* type, char* identifier, Argument* arguments, ASTNode* body, YYLTYPE loc);
+
+//control flow
 ASTNode* make_return(ASTNode* value, YYLTYPE loc);
 ASTNode* make_while(ASTNode* conditional, ASTNode* statements, YYLTYPE loc);
 ASTNode* make_if(ASTNode* conditional, ASTNode* then_branch, ASTNode* else_branch, YYLTYPE loc);
-ASTNode* make_true(YYLTYPE loc);
-ASTNode* make_false(YYLTYPE loc);
+
+//program
+ASTNode* make_program(YYLTYPE loc);
+void append_statement(ASTNode* program_node, ASTNode* statement);
 
 #endif

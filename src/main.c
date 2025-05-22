@@ -14,11 +14,7 @@
 extern int yyparse();
 extern ASTNode* root;
 
-LLVMBuilderRef builder;
-LLVMContextRef context;
-LLVMModuleRef module;
-
-LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
+LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 	if (node == NULL) {
 		fprintf(stderr, "trying to generate null node??");
 		return NULL;
@@ -27,17 +23,17 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 		case AST_PROGRAM: {
 					  codegen_enter_scope();
 					  for (int i = 0; i < node->program.count; i++) {
-						  generate(node->program.statements[i], function);
+						  generate(node->program.statements[i], cg);
 					  }
 					  codegen_exit_scope();
 					  return NULL;
 				  }
 		case AST_NUMBER:
-				  return LLVMConstInt(LLVMInt32TypeInContext(context), node->value, 0);
+				  return LLVMConstInt(LLVMInt32TypeInContext(cg->context), node->value, 0);
 		case AST_FLOAT:
-				  return LLVMConstReal(LLVMFloatTypeInContext(context), node->floatValue);
+				  return LLVMConstReal(LLVMFloatTypeInContext(cg->context), node->floatValue);
 		case AST_CHARACTER:
-				  return LLVMConstInt(LLVMInt8TypeInContext(context), node->character, 0);
+				  return LLVMConstInt(LLVMInt8TypeInContext(cg->context), node->character, 0);
 		case AST_STRING: {
 					//prepare string storage
 				 	static int string_id = 0;
@@ -47,17 +43,17 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 					char *str = node->stringValue;
 					size_t len = strlen(str) + 1;
 
-					LLVMTypeRef str_type = LLVMArrayType(LLVMInt8TypeInContext(context), len);
-					LLVMValueRef global_str = LLVMAddGlobal(module, str_type, global_name);
+					LLVMTypeRef str_type = LLVMArrayType(LLVMInt8TypeInContext(cg->context), len);
+					LLVMValueRef global_str = LLVMAddGlobal(cg->module, str_type, global_name);
 					LLVMSetLinkage(global_str, LLVMPrivateLinkage);
 					LLVMSetGlobalConstant(global_str, 1);
-					LLVMSetInitializer(global_str, LLVMConstStringInContext(context, str, len, 1));
+					LLVMSetInitializer(global_str, LLVMConstStringInContext(cg->context, str, len, 1));
 
-					LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(context), 0, 0);
+					LLVMValueRef zero = LLVMConstInt(LLVMInt32TypeInContext(cg->context), 0, 0);
 					LLVMValueRef indices[] = { zero, zero };
 
 					//return pointer
-					LLVMValueRef gep = LLVMBuildInBoundsGEP2(builder,
+					LLVMValueRef gep = LLVMBuildInBoundsGEP2(cg->builder,
 							str_type,     // type of the global string (array type)
 							global_str,   // the pointer to GEP from
 							indices,      // index list
@@ -67,12 +63,12 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 				 }
 		case AST_BINARY: {
 					 //generate both sides
-					 LLVMValueRef left = generate(node->binary.left, function);
-					 LLVMValueRef right = generate(node->binary.right, function);
+					 LLVMValueRef left = generate(node->binary.left, cg);
+					 LLVMValueRef right = generate(node->binary.right, cg);
 
 					 //prepare type coercion
-					 LLVMTypeRef l_type = get_llvm_type(node->binary.left->valueType, context);
-					 LLVMTypeRef r_type = get_llvm_type(node->binary.right->valueType, context);
+					 LLVMTypeRef l_type = get_llvm_type(node->binary.left->valueType, cg->context);
+					 LLVMTypeRef r_type = get_llvm_type(node->binary.right->valueType, cg->context);
 
 					 //check float
 					 int l_is_float = LLVMGetTypeKind(l_type) == LLVMFloatTypeKind || LLVMGetTypeKind(l_type) == LLVMDoubleTypeKind;
@@ -85,18 +81,18 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 						 if (l_is_float && r_is_float) {
 						 	//do nothing until i implement doubles
 						 } else if (l_is_float && !r_is_float) {
-						 	right = LLVMBuildSIToFP(builder, right, l_type, "sitofp_tmp");
+						 	right = LLVMBuildSIToFP(cg->builder, right, l_type, "sitofp_tmp");
 						 } else if (!l_is_float && r_is_float) {
-						 	left = LLVMBuildSIToFP(builder, left, r_type, "sitofp_tmp");
+						 	left = LLVMBuildSIToFP(cg->builder, left, r_type, "sitofp_tmp");
 						 } else {
 							 //match largest int
 							 unsigned int l_width = LLVMGetIntTypeWidth(l_type);
 							 unsigned int r_width = LLVMGetIntTypeWidth(r_type);
 
 							 if (l_width >= r_width) {
-								right = cast_to(right, l_type, 1);
+								right = cast_to(right, l_type, 1, cg);
 							 } else {
-								left = cast_to(left, r_type, 1);
+								left = cast_to(left, r_type, 1, cg);
 							 }
 						 }
 					 }
@@ -104,16 +100,16 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 					 if (l_is_float) {
 						 if (strcmp(node->binary.op, "+") == 0) {
 							 node->valueType = make_type(TYPE_FLOAT, 0);
-							 return LLVMBuildFAdd(builder, left, right, "faddtmp");
+							 return LLVMBuildFAdd(cg->builder, left, right, "faddtmp");
 						 } else if (strcmp(node->binary.op, "-") == 0) {
 							 node->valueType = make_type(TYPE_FLOAT, 0);
-							 return LLVMBuildFSub(builder, left, right, "fsubtmp");
+							 return LLVMBuildFSub(cg->builder, left, right, "fsubtmp");
 						 } else if (strcmp(node->binary.op, "*") == 0) {
 							 node->valueType = make_type(TYPE_FLOAT, 0);
-							 return LLVMBuildFMul(builder, left, right, "fmultmp");
+							 return LLVMBuildFMul(cg->builder, left, right, "fmultmp");
 						 } else if (strcmp(node->binary.op, "/") == 0) {
 							 node->valueType = make_type(TYPE_FLOAT, 0);
-							 return LLVMBuildFDiv(builder, left, right, "fdivtmp");
+							 return LLVMBuildFDiv(cg->builder, left, right, "fdivtmp");
 						 } else if (strcmp(node->binary.op, "%") == 0) {
 							 char *msg;
 							 asprintf(&msg, "Invalid float operator: %s", node->binary.op);
@@ -122,84 +118,139 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 							 exit(1);
 						 } else if (strcmp(node->binary.op, "==") == 0) {
 							 node->valueType = make_type(TYPE_BOOL, 0);
-							 return LLVMBuildFCmp(builder, LLVMRealOEQ, left, right, "cmptmp");
+							 return LLVMBuildFCmp(cg->builder, LLVMRealOEQ, left, right, "cmptmp");
 						 } else if (strcmp(node->binary.op, "!=") == 0) {
 							 node->valueType = make_type(TYPE_BOOL, 0);
-							 return LLVMBuildFCmp(builder, LLVMRealONE, left, right, "cmptmp");
+							 return LLVMBuildFCmp(cg->builder, LLVMRealONE, left, right, "cmptmp");
 						 } else if (strcmp(node->binary.op, "<") == 0) {
 							 node->valueType = make_type(TYPE_BOOL, 0);
-							 return LLVMBuildFCmp(builder, LLVMRealOLT, left, right, "cmptmp");
+							 return LLVMBuildFCmp(cg->builder, LLVMRealOLT, left, right, "cmptmp");
 						 } else if (strcmp(node->binary.op, ">") == 0) {
 							 node->valueType = make_type(TYPE_BOOL, 0);
-							 return LLVMBuildFCmp(builder, LLVMRealOGT, left, right, "cmptmp");
+							 return LLVMBuildFCmp(cg->builder, LLVMRealOGT, left, right, "cmptmp");
 						 } else if (strcmp(node->binary.op, "<=") == 0) {
 							 node->valueType = make_type(TYPE_BOOL, 0);
-							 return LLVMBuildFCmp(builder, LLVMRealOLE, left, right, "cmptmp");
+							 return LLVMBuildFCmp(cg->builder, LLVMRealOLE, left, right, "cmptmp");
 						 } else if (strcmp(node->binary.op, ">=") == 0) {
 							 node->valueType = make_type(TYPE_BOOL, 0);
-							 return LLVMBuildFCmp(builder, LLVMRealOGE, left, right, "cmptmp");
+							 return LLVMBuildFCmp(cg->builder, LLVMRealOGE, left, right, "cmptmp");
 						 }
 					 } else {
 						 if (strcmp(node->binary.op, "+") == 0) {
 							 node->valueType = make_type(TYPE_INT, 0);
-							 return LLVMBuildAdd(builder, left, right, "addtmp");
+							 return LLVMBuildAdd(cg->builder, left, right, "addtmp");
 						 } else if (strcmp(node->binary.op, "-") == 0) {
 							 node->valueType = make_type(TYPE_INT, 0);
-							 return LLVMBuildSub(builder, left, right, "subtmp");
+							 return LLVMBuildSub(cg->builder, left, right, "subtmp");
 						 } else if (strcmp(node->binary.op, "*") == 0) {
 							 node->valueType = make_type(TYPE_INT, 0);
-							 return LLVMBuildMul(builder, left, right, "multmp");
+							 return LLVMBuildMul(cg->builder, left, right, "multmp");
 						 } else if (strcmp(node->binary.op, "/") == 0) {
 							 node->valueType = make_type(TYPE_INT, 0);
-							 return LLVMBuildSDiv(builder, left, right, "divtmp");
+							 return LLVMBuildSDiv(cg->builder, left, right, "divtmp");
 						 } else if (strcmp(node->binary.op, "%") == 0) {
 							 node->valueType = make_type(TYPE_INT, 0);
-							 return LLVMBuildSRem(builder, left, right, "modtmp");
+							 return LLVMBuildSRem(cg->builder, left, right, "modtmp");
 						 } else if (strcmp(node->binary.op, "==") == 0) {
 							 node->valueType = make_type(TYPE_BOOL, 0);
-							 return LLVMBuildICmp(builder, LLVMIntEQ, left, right, "cmptmp");
+							 return LLVMBuildICmp(cg->builder, LLVMIntEQ, left, right, "cmptmp");
 						 } else if (strcmp(node->binary.op, "!=") == 0) {
 							 node->valueType = make_type(TYPE_BOOL, 0);
-							 return LLVMBuildICmp(builder, LLVMIntNE, left, right, "cmptmp");
+							 return LLVMBuildICmp(cg->builder, LLVMIntNE, left, right, "cmptmp");
 						 } else if (strcmp(node->binary.op, "<") == 0) {
 							 node->valueType = make_type(TYPE_BOOL, 0);
-							 return LLVMBuildICmp(builder, LLVMIntSLT, left, right, "cmptmp");
+							 return LLVMBuildICmp(cg->builder, LLVMIntSLT, left, right, "cmptmp");
 						 } else if (strcmp(node->binary.op, ">") == 0) {
 							 node->valueType = make_type(TYPE_BOOL, 0);
-							 return LLVMBuildICmp(builder, LLVMIntSGT, left, right, "cmptmp");
+							 return LLVMBuildICmp(cg->builder, LLVMIntSGT, left, right, "cmptmp");
 						 } else if (strcmp(node->binary.op, "<=") == 0) {
 							 node->valueType = make_type(TYPE_BOOL, 0);
-							 return LLVMBuildICmp(builder, LLVMIntSLE, left, right, "cmptmp");
+							 return LLVMBuildICmp(cg->builder, LLVMIntSLE, left, right, "cmptmp");
 						 } else if (strcmp(node->binary.op, ">=") == 0) {
 							 node->valueType = make_type(TYPE_BOOL, 0);
-							 return LLVMBuildICmp(builder, LLVMIntSGE, left, right, "cmptmp");
+							 return LLVMBuildICmp(cg->builder, LLVMIntSGE, left, right, "cmptmp");
 						 }
 					 }
 				 }
 		case AST_UNARY: {
-					LLVMValueRef left = generate(node->unary.left, function);
+					LLVMValueRef left = generate(node->unary.left, cg);
 					if (strcmp(node->unary.op, "-") == 0) {
 						node->valueType = make_type(TYPE_INT, 0);
-						return LLVMBuildSub(builder, LLVMConstInt(LLVMInt32TypeInContext(context), 0, 0), left, "subtmp");
+						return LLVMBuildSub(cg->builder, LLVMConstInt(LLVMInt32TypeInContext(cg->context), 0, 0), left, "subtmp");
 					}
+				}
+		case AST_FUNCTION: {
+					codegen_enter_scope();
+
+					LLVMTypeRef return_type = get_llvm_type(node->function.type, cg->context);
+					
+					int arg_count = count_arguments(node->function.arguments);
+					LLVMTypeRef* param_types = malloc(sizeof(LLVMTypeRef) * arg_count);
+
+					Argument* arg = node->function.arguments;
+					for (int i = 0; i < arg_count; i++) {
+						param_types[i] = get_llvm_type(arg->type, cg->context);
+						arg = arg->next;
+					}
+
+					LLVMTypeRef func_type = LLVMFunctionType(return_type, param_types, arg_count, 0);
+
+					LLVMValueRef llvm_func = LLVMAddFunction(cg->module, node->function.identifier, func_type);
+					LLVMSetLinkage(llvm_func, LLVMExternalLinkage);
+
+					LLVMBasicBlockRef entry = LLVMAppendBasicBlockInContext(cg->context, llvm_func, "entry");
+					LLVMBuilderRef builder = LLVMCreateBuilderInContext(cg->context);
+					LLVMPositionBuilderAtEnd(builder, entry);
+
+					CodegenContext* new_cg = malloc(sizeof(CodegenContext));
+					new_cg->builder = builder;
+					new_cg->function = llvm_func;
+					new_cg->module = cg->module;
+					new_cg->context = cg->context;
+
+					arg = node->function.arguments;
+					printf("%d arguments in function\n", arg_count);
+
+					for (int i = 0; i < arg_count; i++) {
+						LLVMValueRef param = LLVMGetParam(llvm_func, i);
+						LLVMSetValueName(param, arg->identifier);
+
+						LLVMValueRef alloc = LLVMBuildAlloca(new_cg->builder, param_types[i], arg->identifier);
+						LLVMBuildStore(new_cg->builder, param, alloc);
+
+						codegen_create_variable(arg->identifier, alloc, param_types[i]);
+
+						arg = arg->next;
+					}
+					
+					generate(node->function.body, new_cg);
+
+					if (return_type == LLVMVoidTypeInContext(cg->context)) {
+						LLVMBuildRetVoid(builder);
+					}
+
+					LLVMDisposeBuilder(builder);
+					free(new_cg);
+					codegen_exit_scope();
+					return NULL;
 				}
 		case AST_DECLARE: {
 					  if (node->declare.right) {
-						  LLVMValueRef value = generate(node->declare.right, function);
-						  LLVMTypeRef llvm_type = get_llvm_type(node->declare.type, context);
-						  LLVMValueRef alloc = LLVMBuildAlloca(builder, llvm_type, node->declare.identifier);
+						  LLVMValueRef value = generate(node->declare.right, cg);
+						  LLVMTypeRef llvm_type = get_llvm_type(node->declare.type, cg->context);
+						  LLVMValueRef alloc = LLVMBuildAlloca(cg->builder, llvm_type, node->declare.identifier);
 
 						  codegen_create_variable(node->declare.identifier, alloc, llvm_type);
-						  value = cast_to(value, llvm_type, 1);
-						  LLVMBuildStore(builder, value, alloc);
+						  value = cast_to(value, llvm_type, 1, cg);
+						  LLVMBuildStore(cg->builder, value, alloc);
 					  }
 					  return NULL;
 				  }
 		case AST_ASSIGN: {
 					 CodegenEntry* var = codegen_lookup_variable(node->assign.identifier);
-					 LLVMValueRef value = generate(node->assign.right, function);
-					 value = cast_to(value, var->type, 1);
-					 return LLVMBuildStore(builder, value, var->value);
+					 LLVMValueRef value = generate(node->assign.right, cg);
+					 value = cast_to(value, var->type, 1, cg);
+					 return LLVMBuildStore(cg->builder, value, var->value);
 				 }
 		case AST_IDENTIFIER: {
 					     CodegenEntry* var = codegen_lookup_variable(node->identifier);
@@ -210,60 +261,60 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 						     free(msg);
 						     exit(1);
 					     }
-					     return LLVMBuildLoad2(builder, var->type, var->value, "loadtmp");
+					     return LLVMBuildLoad2(cg->builder, var->type, var->value, "loadtmp");
 				     }
 		case AST_RETURN: {
-					 LLVMValueRef value = generate(node->return_stm.value, function);
-					 return LLVMBuildRet(builder, value);
+					 LLVMValueRef value = generate(node->return_stm.value, cg);
+					 return LLVMBuildRet(cg->builder, value);
 				 }
 		case AST_BOOL: {
-				       return LLVMConstInt(LLVMInt1TypeInContext(context), node->value, 0);
+				       return LLVMConstInt(LLVMInt1TypeInContext(cg->context), node->value, 0);
 			       }
 		case AST_WHILE: {
-					LLVMBasicBlockRef condBB = LLVMAppendBasicBlock(function, "while.cond");
-					LLVMBasicBlockRef bodyBB = LLVMAppendBasicBlock(function, "while.body");
-					LLVMBasicBlockRef endBB = LLVMAppendBasicBlock(function, "while.end");
+					LLVMBasicBlockRef condBB = LLVMAppendBasicBlock(cg->function, "while.cond");
+					LLVMBasicBlockRef bodyBB = LLVMAppendBasicBlock(cg->function, "while.body");
+					LLVMBasicBlockRef endBB = LLVMAppendBasicBlock(cg->function, "while.end");
 
-					LLVMBuildBr(builder, condBB);
+					LLVMBuildBr(cg->builder, condBB);
 
-					LLVMPositionBuilderAtEnd(builder, condBB);
-					LLVMValueRef cond = generate(node->while_stm.conditional, function);
-					LLVMBuildCondBr(builder, cond, bodyBB, endBB);
+					LLVMPositionBuilderAtEnd(cg->builder, condBB);
+					LLVMValueRef cond = generate(node->while_stm.conditional, cg);
+					LLVMBuildCondBr(cg->builder, cond, bodyBB, endBB);
 
-					LLVMPositionBuilderAtEnd(builder, bodyBB);
-					generate(node->while_stm.statements, function);
-					LLVMBuildBr(builder, condBB);
+					LLVMPositionBuilderAtEnd(cg->builder, bodyBB);
+					generate(node->while_stm.statements, cg);
+					LLVMBuildBr(cg->builder, condBB);
 
-					LLVMPositionBuilderAtEnd(builder, endBB);
+					LLVMPositionBuilderAtEnd(cg->builder, endBB);
 					return NULL;
 				}
 		case AST_IF: {
-				     LLVMBasicBlockRef thenBB = LLVMAppendBasicBlock(function, "if.then");
+				     LLVMBasicBlockRef thenBB = LLVMAppendBasicBlock(cg->function, "if.then");
 				     LLVMBasicBlockRef elseBB = node->if_stm.else_branch
-					     ? LLVMAppendBasicBlock(function, "if.else")
+					     ? LLVMAppendBasicBlock(cg->function, "if.else")
 					     : NULL;
-				     LLVMBasicBlockRef endBB  = LLVMAppendBasicBlock(function, "if.end");
+				     LLVMBasicBlockRef endBB  = LLVMAppendBasicBlock(cg->function, "if.end");
 
-				     LLVMValueRef cond = generate(node->if_stm.conditional, function);
+				     LLVMValueRef cond = generate(node->if_stm.conditional, cg);
 				     if (elseBB) {
-					     LLVMBuildCondBr(builder, cond, thenBB, elseBB);
+					     LLVMBuildCondBr(cg->builder, cond, thenBB, elseBB);
 				     } else {
-					     LLVMBuildCondBr(builder, cond, thenBB, endBB);
+					     LLVMBuildCondBr(cg->builder, cond, thenBB, endBB);
 				     }
 
-				     LLVMPositionBuilderAtEnd(builder, thenBB);
-				     generate(node->if_stm.then_branch, function);
-				     LLVMBuildBr(builder, endBB);
+				     LLVMPositionBuilderAtEnd(cg->builder, thenBB);
+				     generate(node->if_stm.then_branch, cg);
+				     LLVMBuildBr(cg->builder, endBB);
 
 				     if (elseBB) {
-					     LLVMPositionBuilderAtEnd(builder, elseBB);
-					     generate(node->if_stm.else_branch, function);
+					     LLVMPositionBuilderAtEnd(cg->builder, elseBB);
+					     generate(node->if_stm.else_branch, cg);
 					     if (!LLVMGetBasicBlockTerminator(elseBB)) {
-						     LLVMBuildBr(builder, endBB);
+						     LLVMBuildBr(cg->builder, endBB);
 					     }
 				     }
 
-				     LLVMPositionBuilderAtEnd(builder, endBB);
+				     LLVMPositionBuilderAtEnd(cg->builder, endBB);
 				     return NULL;
 			     }
 	}
@@ -271,9 +322,9 @@ LLVMValueRef generate(ASTNode* node, LLVMValueRef function) {
 }
 
 int main() {
-	context = LLVMContextCreate();
-	module = LLVMModuleCreateWithNameInContext("global", context);
-	builder = LLVMCreateBuilderInContext(context);
+	LLVMContextRef context = LLVMContextCreate();
+	LLVMModuleRef module = LLVMModuleCreateWithNameInContext("global", context);
+	LLVMBuilderRef builder = LLVMCreateBuilderInContext(context);
 
 	LLVMTypeRef funcType = LLVMFunctionType(LLVMInt32Type(), NULL, 0, 0);
 	LLVMValueRef main_function = LLVMAddFunction(module, "main", funcType);
@@ -284,8 +335,14 @@ int main() {
 	yyparse();
 	sem_exit_scope();
 
+	CodegenContext* main_cg = malloc(sizeof(CodegenContext));
+	main_cg->context = context;
+	main_cg->builder = builder;
+	main_cg->module = module;
+	main_cg->function = main_function;
+
 	codegen_enter_scope();
-	generate(root, main_function);
+	generate(root, main_cg);
 	codegen_exit_scope();
 
 	char* ir = LLVMPrintModuleToString(module);

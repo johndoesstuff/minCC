@@ -5,9 +5,15 @@
 #include "ast.h"
 #include "types.h"
 
+typedef enum SemEntryKind {
+	SEM_ENTRY_VAR,
+	SEM_ENTRY_FUNC,
+} SemEntryKind;
+
 typedef struct SemEntry {
 	char* name;
 	Type* type;
+	SemEntryKind entryKind;
 	struct SemEntry* next;
 } SemEntry;
 

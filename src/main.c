@@ -6,10 +6,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../inc/ast.h"
-#include "../inc/codegen_table.h"
 #include "../inc/semantic_table.h"
 #include "../inc/types.h"
 #include "../inc/error.h"
+#include "../inc/native.h"
+#include "../inc/codegen_table.h"
 
 extern int yyparse();
 extern ASTNode* root;
@@ -361,6 +362,7 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 }
 
 int main() {
+	//build codegen context
 	LLVMContextRef context = LLVMContextCreate();
 	LLVMModuleRef module = LLVMModuleCreateWithNameInContext("global", context);
 	LLVMBuilderRef builder = LLVMCreateBuilderInContext(context);
@@ -370,23 +372,33 @@ int main() {
 	LLVMBasicBlockRef entry = LLVMAppendBasicBlock(main_function, "entry");
 	LLVMPositionBuilderAtEnd(builder, entry);
 
-	sem_enter_scope();
-	yyparse();
-	sem_exit_scope();
-
 	CodegenContext* main_cg = malloc(sizeof(CodegenContext));
 	main_cg->context = context;
 	main_cg->builder = builder;
 	main_cg->module = module;
 	main_cg->function = main_function;
 
+	//parse and generate ast
+	sem_enter_scope();
+
+	declare_native_functions_sem();
+	yyparse();
+
+	sem_exit_scope();
+
+	//traverse ast and generate code
 	codegen_enter_scope();
+
+	declare_native_functions_codegen(main_cg);
 	generate(root, main_cg);
+
 	codegen_exit_scope();
 
+	//print generated code
 	char* ir = LLVMPrintModuleToString(module);
-	//printf("%s", ir);
 	LLVMPrintModuleToFile(module, "output.ll", NULL);
+
+	//cleanup
 	LLVMDisposeMessage(ir);
 	LLVMDisposeBuilder(builder);
 	LLVMDisposeModule(module);

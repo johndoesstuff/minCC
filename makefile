@@ -10,6 +10,7 @@ AST_C = src/ast.c
 CODEGEN_TABLE_C = src/codegen_table.c
 SEMANTIC_TABLE_C = src/semantic_table.c
 TYPES_C = src/types.c
+NATIVE_C = src/native.c
 MAIN_C = src/main.c
 
 # Generated files
@@ -26,8 +27,8 @@ LDFLAGS = `llvm-config --ldflags --libs core` -lfl
 all: $(TARGET)
 
 # Build final binary
-$(TARGET): $(PARSER_C) $(PARSER_H) $(LEXER_C) $(LEXER) $(AST_C) $(SEMANTIC_TABLE_C) $(CODEGEN_TABLE_C) $(TYPES_C) $(MAIN_C)
-	$(CC) $(CFLAGS) -o $(TARGET) $(PARSER_C) $(LEXER_C) $(AST_C) $(SEMANTIC_TABLE_C) $(CODEGEN_TABLE_C) $(TYPES_C) $(MAIN_C) $(LDFLAGS)
+$(TARGET): $(PARSER_C) $(PARSER_H) $(LEXER_C) $(LEXER) $(AST_C) $(SEMANTIC_TABLE_C) $(CODEGEN_TABLE_C) $(TYPES_C) $(NATIVE_C) $(MAIN_C)
+	$(CC) $(CFLAGS) -o $(TARGET) $(PARSER_C) $(LEXER_C) $(AST_C) $(SEMANTIC_TABLE_C) $(CODEGEN_TABLE_C) $(TYPES_C) $(NATIVE_C) $(MAIN_C) $(LDFLAGS)
 
 # Generate parser source/header
 $(PARSER_C) $(PARSER_H): $(PARSER)

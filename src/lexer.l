@@ -14,6 +14,32 @@ int yycolumn = 1;
 	yylloc->last_column = yycolumn;                     \
 
 YY_DECL;
+
+char *unescape_string(const char *src) {
+	size_t len = strlen(src);
+	char *dst = malloc(len + 1);
+	char *out = dst;
+
+	for (const char *p = src; *p; p++) {
+		if (*p == '\\') {
+			p++;
+			if (!*p) break;
+			switch (*p) {
+				case 'n': *out++ = '\n'; break;
+				case 't': *out++ = '\t'; break;
+				case '\\': *out++ = '\\'; break;
+				case '"': *out++ = '"'; break;
+				default: *out++ = *p; break;
+			}
+		} else {
+			*out++ = *p;
+		}
+	}
+
+	*out = '\0';
+	return dst;
+}
+
 %}
 
 %option yylineno
@@ -23,7 +49,7 @@ YY_DECL;
 ([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?|[0-9]+[eE][-+]?[0-9]+)	{ yylval->fval = atof(yytext); return FLOAT; }
 [0-9]+		{ yylval->ival = atoi(yytext); return NUMBER; }
 '[^']'		{ yylval->cval = yytext[1]; return CHARACTER; }
-\"[^"]*\"		{ yytext[yyleng - 1] = '\0'; yylval->sval = strdup(yytext + 1); return STRING; }
+\"([^\\\"]|\\.)*\"		{ yytext[yyleng - 1] = '\0'; yylval->sval = unescape_string(yytext + 1); return STRING; }
 "return"	{ return RETURN; }
 "while"		{ return WHILE; }
 "if"		{ return IF; }

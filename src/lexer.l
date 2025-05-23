@@ -40,6 +40,22 @@ char *unescape_string(const char *src) {
 	return dst;
 }
 
+char parse_char_literal(const char *text) {
+	if (text[1] != '\\') {
+		return text[1];
+	}
+
+	switch (text[2]) {
+		case 'n': return '\n';
+		case 't': return '\t';
+		case '0': return '\0';
+		case '\'': return '\'';
+		case '\\': return '\\';
+		default: return text[2];
+	}
+}
+
+
 %}
 
 %option yylineno
@@ -48,7 +64,7 @@ char *unescape_string(const char *src) {
 
 ([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?|[0-9]+[eE][-+]?[0-9]+)	{ yylval->fval = atof(yytext); return FLOAT; }
 [0-9]+		{ yylval->ival = atoi(yytext); return NUMBER; }
-'[^']'		{ yylval->cval = yytext[1]; return CHARACTER; }
+'([^\\']|\\.)' { yylval->cval = parse_char_literal(yytext); return CHARACTER; }
 \"([^\\\"]|\\.)*\"		{ yytext[yyleng - 1] = '\0'; yylval->sval = unescape_string(yytext + 1); return STRING; }
 "return"	{ return RETURN; }
 "while"		{ return WHILE; }

@@ -117,10 +117,8 @@ LLVMValueRef cast_to(LLVMValueRef value, LLVMTypeRef target_type, int is_signed,
 }
 
 int count_arguments(Argument* args) {
-	printf("counting arguments\n");
 	int count = 0;
 	if (args == NULL) {
-		printf("args is null\n");
 		return count;
 	}
 

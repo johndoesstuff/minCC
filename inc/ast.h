@@ -21,6 +21,7 @@ typedef enum {
 	AST_WHILE,
 	AST_IF,
 	AST_FUNCTION,
+	AST_FUNCTION_CALL,
 } ASTNodeType;
 
 typedef struct ASTNode {
@@ -74,8 +75,20 @@ typedef struct ASTNode {
 			Argument* arguments;
 			struct ASTNode* body;
 		} function;
+		struct {
+			char* identifier;
+			struct Parameter* parameters;
+		} function_call;
 	};
 } ASTNode;
+
+typedef struct Parameter {
+        ASTNode* value;
+        YYLTYPE loc;
+        struct Parameter* next;
+} Parameter;
+
+int count_parameters(Parameter* params);
 
 //primitives
 ASTNode* make_number(int value, YYLTYPE loc);
@@ -90,6 +103,9 @@ ASTNode* make_identifier(char* identifier, YYLTYPE loc);
 Argument* make_argument(Type* type, char* identifier, YYLTYPE loc);
 void append_argument(Argument* arguments, Argument* argument, YYLTYPE loc);
 
+Parameter* make_parameter(ASTNode* value, YYLTYPE loc);
+void append_parameter(Parameter* parameters, Parameter* parameter, YYLTYPE loc);
+
 //operators
 ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right, YYLTYPE loc);
 ASTNode* make_unary(char* op, ASTNode* left, YYLTYPE loc);
@@ -98,6 +114,7 @@ ASTNode* make_unary(char* op, ASTNode* left, YYLTYPE loc);
 ASTNode* make_assign(char* identifier, ASTNode* right, YYLTYPE loc);
 ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc);
 ASTNode* make_function(Type* type, char* identifier, Argument* arguments, ASTNode* body, YYLTYPE loc);
+ASTNode* make_function_call(char* identifier, Parameter* parameters, YYLTYPE loc);
 
 //control flow
 ASTNode* make_return(ASTNode* value, YYLTYPE loc);

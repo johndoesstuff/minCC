@@ -38,6 +38,9 @@ Argument* make_argument(Type* type, char* identifier, YYLTYPE loc) {
 	arg->identifier = identifier;
 	arg->loc = loc;
 	arg->next = NULL;
+
+	sem_create_variable(identifier, type);
+
 	return arg;
 }
 
@@ -55,6 +58,30 @@ void append_argument(Argument* arguments, Argument* argument, YYLTYPE loc) {
 		current = current->next;
 	}
 	current->next = argument;
+}
+
+Parameter* make_parameter(ASTNode* value, YYLTYPE loc) {
+	Parameter* parameter = malloc(sizeof(Parameter));
+	parameter->value = value;
+	parameter->loc = loc;
+	parameter->next = NULL;
+	return parameter;
+}
+
+void append_parameter(Parameter* parameters, Parameter* parameter, YYLTYPE loc) {
+	if (parameter == NULL) {
+		printf("null parameter");
+		return;
+	}
+	if (parameters == NULL) {
+		return;
+	}
+	
+	Parameter* current = parameters;
+	while (current->next) {
+		current = current->next;
+	}
+	current->next = parameter;
 }
 
 ASTNode* make_number(int value, YYLTYPE loc) {
@@ -107,6 +134,24 @@ ASTNode* make_identifier(char* identifier, YYLTYPE loc) {
 	}
 	node->valueType = sem_lookup_variable(identifier)->type;
 	node->identifier = identifier;
+	return node;
+}
+
+ASTNode* make_function_call(char* identifier, Parameter* parameters, YYLTYPE loc) {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_FUNCTION_CALL;
+	node->loc = loc;
+	SemEntry* func = sem_lookup_function(identifier);
+	if (!func) {
+		char *msg;
+                asprintf(&msg, "Trying to access undeclared function '%s'", identifier);
+                yyerror(&loc, msg);
+                free(msg);
+		exit(1);
+	}
+	node->valueType = func->type;
+	node->function_call.identifier = identifier;
+	node->function_call.parameters = parameters;
 	return node;
 }
 
@@ -255,4 +300,18 @@ ASTNode* make_false(YYLTYPE loc) {
 	node->valueType = make_type(TYPE_BOOL, 0);
 	node->value = 0;
 	return node;
+}
+
+int count_parameters(Parameter* params) {
+        int count = 0;
+        if (params == NULL) {
+                return count;
+        }
+
+        Parameter* current = params;
+        while (current) {
+                count++;
+                current = current->next;
+        }
+        return count;
 }

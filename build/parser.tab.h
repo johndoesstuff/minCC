@@ -84,8 +84,9 @@ union YYSTYPE
 	struct ASTNode* node;
 	struct Type* type;
 	struct Argument* argument;
+	struct Parameter* parameter;
 
-#line 89 "build/parser.tab.h"
+#line 90 "build/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

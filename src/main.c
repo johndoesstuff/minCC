@@ -180,8 +180,6 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 					}
 				}
 		case AST_FUNCTION: {
-					codegen_enter_scope();
-
 					LLVMTypeRef return_type = get_llvm_type(node->function.type, cg->context);
 					
 					int arg_count = count_arguments(node->function.arguments);
@@ -196,6 +194,7 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 					LLVMTypeRef func_type = LLVMFunctionType(return_type, param_types, arg_count, 0);
 
 					LLVMValueRef llvm_func = LLVMAddFunction(cg->module, node->function.identifier, func_type);
+					codegen_create_function(node->function.identifier, llvm_func, func_type);
 					LLVMSetLinkage(llvm_func, LLVMExternalLinkage);
 
 					LLVMBasicBlockRef entry = LLVMAppendBasicBlockInContext(cg->context, llvm_func, "entry");
@@ -209,7 +208,8 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 					new_cg->context = cg->context;
 
 					arg = node->function.arguments;
-					printf("%d arguments in function\n", arg_count);
+
+					codegen_enter_scope();
 
 					for (int i = 0; i < arg_count; i++) {
 						LLVMValueRef param = LLVMGetParam(llvm_func, i);
@@ -263,6 +263,45 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 					     }
 					     return LLVMBuildLoad2(cg->builder, var->type, var->value, "loadtmp");
 				     }
+		case AST_FUNCTION_CALL: {
+						CodegenEntry* callee = codegen_lookup_function(node->function_call.identifier);
+						if (callee == NULL) {
+							char *msg;
+							asprintf(&msg, "Trying to call undeclared function '%s'", node->function_call.identifier);
+							yyerror(&node->loc, msg);
+							free(msg);
+							exit(1);
+						}
+
+						LLVMTypeRef func_sig = callee->type;
+						LLVMTypeRef return_type = LLVMGetReturnType(func_sig);
+
+						int arg_count = count_parameters(node->function_call.parameters);
+						LLVMValueRef* args = malloc(sizeof(LLVMValueRef) * arg_count);
+
+						Parameter* param = node->function_call.parameters;
+						for (int i = 0; i < arg_count; i++) {
+							args[i] = generate(param->value, cg);
+							param = param->next;
+						}
+
+						LLVMValueRef call = LLVMBuildCall2(
+								cg->builder,
+								func_sig,
+								callee->value,
+								args,
+								arg_count,
+								return_type == LLVMVoidTypeInContext(cg->context) ? "" : "calltmp"
+						);
+
+						free(args);
+
+						if (return_type == LLVMVoidTypeInContext(cg->context)) {
+							return NULL;
+						}
+
+						return call;
+					}
 		case AST_RETURN: {
 					 LLVMValueRef value = generate(node->return_stm.value, cg);
 					 return LLVMBuildRet(cg->builder, value);

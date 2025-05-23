@@ -15,6 +15,7 @@ ASTNode* root;
 	struct ASTNode* node;
 	struct Type* type;
 	struct Argument* argument;
+	struct Parameter* parameter;
 }
 
 %token <ival> NUMBER
@@ -34,6 +35,7 @@ ASTNode* root;
 %type <type> type
 %type <node> else_clause declare rvalue mag term factor expr statement input
 %type <argument> argument_list
+%type <parameter> parameter_list
 
 %left '+' '-'
 %left '*' '/'
@@ -75,9 +77,14 @@ declare:
 
 argument_list:
 	{ $$ = NULL; }
-	| type IDENTIFIER		{$$ = make_argument($1, $2, @$); }
+	| type IDENTIFIER		{ $$ = make_argument($1, $2, @$); }
 	| argument_list ',' type IDENTIFIER	{ append_argument($1, make_argument($3, $4, @$), @$); $$ = $1; }
 ;
+
+parameter_list:
+	{ $$ = NULL; }
+	| expr				{ $$ = make_parameter($1, @$); }
+	| parameter_list ',' expr	{ append_parameter($1, make_parameter($3, @$), @$); $$ = $1; }
 
 type:
 	BASE_TYPE none_or_more_pointers	{ $$ = make_type(get_base_type($1), $2); }
@@ -116,6 +123,7 @@ term:
 factor:
 	'(' rvalue ')'	{ $$ = $2; }
 	| '-' factor	{ $$ = make_unary("-", $2, @$); }
+	| IDENTIFIER '(' parameter_list ')'	{ $$ = make_function_call($1, $3, @$); }
 	| IDENTIFIER	{ $$ = make_identifier($1, @$); }
 	| NUMBER	{ $$ = make_number($1, @$); }
 	| CHARACTER	{ $$ = make_character($1, @$); }

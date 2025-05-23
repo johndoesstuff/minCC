@@ -3,12 +3,8 @@ source_filename = "global"
 
 define i32 @main() {
 entry:
-  %a = alloca i32, align 4
-  store i32 5, ptr %a, align 4
-  %b = alloca i32, align 4
-  store i32 3, ptr %b, align 4
-  %loadtmp = load i32, ptr %a, align 4
-  ret i32 %loadtmp
+  %calltmp = call i32 @foo(i32 5, i32 3)
+  ret i32 %calltmp
 }
 
 define i32 @foo(i32 %a, i32 %b) {

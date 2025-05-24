@@ -61,15 +61,15 @@ statement:
 	declare ';'	{ $$ = $1; }
 	| expr ';'	{ $$ = $1; }
 	| RETURN expr ';'	{ $$ = make_return($2, @$); }
-	| WHILE '(' expr ')' '{' input '}'	{ $$ = make_while($3, $6, @$); }
-	| IF '(' expr ')' '{' input '}' else_clause	{ $$ = make_if($3, $6, $8, @$); }
-	| type IDENTIFIER '(' argument_list ')' '{' input '}'	{ $$ = make_function($1, $2, $4, $7, @$); }
+	| WHILE '(' expr ')' '{' { sem_enter_scope(); } input '}'	{ $$ = make_while($3, $7, @$); sem_exit_scope(); }
+	| IF '(' expr ')' '{' { sem_enter_scope(); } input '}' else_clause	{ $$ = make_if($3, $7, $9, @$); sem_exit_scope(); }
+	| type IDENTIFIER { sem_enter_scope(); } '(' argument_list ')' '{' input '}'	{ sem_exit_scope(); $$ = make_function($1, $2, $5, $8, @$); }
 ;
 
 else_clause:
 			{ $$ = NULL; }
-	| ELSE '{' input '}'	{ $$ = $3; }
-	| ELSE IF '(' expr ')' '{' input '}' else_clause	{ $$ = make_if($4, $7, $9, @$); }
+	| ELSE '{' { sem_enter_scope(); } input '}'	{ $$ = $4; sem_exit_scope(); }
+	| ELSE IF '(' expr ')' '{' { sem_enter_scope(); } input '}' else_clause	{ $$ = make_if($4, $8, $10, @$); sem_exit_scope(); }
 ;
 
 declare:

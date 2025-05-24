@@ -1,5 +1,7 @@
-int a = 5;
-if (a == 5) {
-	int b = 3;
+float raymarch(float x) {
+	return x;
 }
-return b;
+
+float x = 0.0;
+
+return 0;

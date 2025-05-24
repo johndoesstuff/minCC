@@ -15,6 +15,52 @@
 extern int yyparse();
 extern ASTNode* root;
 
+LLVMValueRef codegen_logical_and(CodegenContext *cg, ASTNode *node, LLVMValueRef left, LLVMValueRef right) {
+	LLVMBasicBlockRef current = LLVMGetInsertBlock(cg->builder);
+	LLVMValueRef func = LLVMGetBasicBlockParent(current);
+
+	LLVMBasicBlockRef rhs_block = LLVMAppendBasicBlock(func, "and.rhs");
+	LLVMBasicBlockRef end_block = LLVMAppendBasicBlock(func, "and.end");
+
+	LLVMBuildCondBr(cg->builder, left, rhs_block, end_block);
+
+	LLVMPositionBuilderAtEnd(cg->builder, rhs_block);
+	LLVMValueRef rhs_value = right;
+	LLVMBuildBr(cg->builder, end_block);
+	rhs_block = LLVMGetInsertBlock(cg->builder);
+
+	LLVMPositionBuilderAtEnd(cg->builder, end_block);
+	LLVMValueRef phi = LLVMBuildPhi(cg->builder, LLVMTypeOf(left), "andtmp");
+	LLVMAddIncoming(phi, &left, &current, 1);
+	LLVMAddIncoming(phi, &rhs_value, &rhs_block, 1);
+
+	node->valueType = make_type(TYPE_BOOL, 0);
+	return phi;
+}
+
+LLVMValueRef codegen_logical_or(CodegenContext *cg, ASTNode *node, LLVMValueRef left, LLVMValueRef right) {
+	LLVMBasicBlockRef current = LLVMGetInsertBlock(cg->builder);
+	LLVMValueRef func = LLVMGetBasicBlockParent(current);
+
+	LLVMBasicBlockRef rhs_block = LLVMAppendBasicBlock(func, "or.rhs");
+	LLVMBasicBlockRef end_block = LLVMAppendBasicBlock(func, "or.end");
+
+	LLVMBuildCondBr(cg->builder, left, end_block, rhs_block);
+
+	LLVMPositionBuilderAtEnd(cg->builder, rhs_block);
+	LLVMValueRef rhs_value = right;
+	LLVMBuildBr(cg->builder, end_block);
+	rhs_block = LLVMGetInsertBlock(cg->builder); 
+
+	LLVMPositionBuilderAtEnd(cg->builder, end_block);
+	LLVMValueRef phi = LLVMBuildPhi(cg->builder, LLVMTypeOf(left), "ortmp");
+	LLVMAddIncoming(phi, &left, &current, 1);
+	LLVMAddIncoming(phi, &rhs_value, &rhs_block, 1);
+
+	node->valueType = make_type(TYPE_BOOL, 0);
+	return phi;
+}
+
 LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 	if (node == NULL) {
 		fprintf(stderr, "trying to generate null node??");
@@ -102,13 +148,21 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 						 }
 					 }
 
+					 //get types again after coercion
 					 l_type = get_llvm_type(node->binary.left->valueType, cg->context);
 					 r_type = get_llvm_type(node->binary.right->valueType, cg->context);
 
 					 l_is_float = LLVMGetTypeKind(l_type) == LLVMFloatTypeKind || LLVMGetTypeKind(l_type) == LLVMDoubleTypeKind;
 					 r_is_float = LLVMGetTypeKind(r_type) == LLVMFloatTypeKind || LLVMGetTypeKind(r_type) == LLVMDoubleTypeKind;
 
-					 if (l_is_float) {
+					 //ts pmo
+					 if (strcmp(node->binary.op, "&&") == 0) {
+						 return codegen_logical_and(cg, node, left, right);
+					 } else if (strcmp(node->binary.op, "||") == 0) {
+						 return codegen_logical_or(cg, node, left, right);
+					 }
+
+					 if (l_is_float) { //float operations
 						 if (strcmp(node->binary.op, "+") == 0) {
 							 node->valueType = make_type(TYPE_FLOAT, 0);
 							 return LLVMBuildFAdd(cg->builder, left, right, "faddtmp");
@@ -146,7 +200,7 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 							 node->valueType = make_type(TYPE_BOOL, 0);
 							 return LLVMBuildFCmp(cg->builder, LLVMRealOGE, left, right, "cmptmp");
 						 }
-					 } else {
+					 } else { //int operations
 						 if (strcmp(node->binary.op, "+") == 0) {
 							 node->valueType = make_type(TYPE_INT, 0);
 							 return LLVMBuildAdd(cg->builder, left, right, "addtmp");
@@ -185,9 +239,28 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 				 }
 		case AST_UNARY: {
 					LLVMValueRef left = generate(node->unary.left, cg);
+
+					LLVMTypeRef type = get_llvm_type(node->unary.left->valueType, cg->context);
+
 					if (strcmp(node->unary.op, "-") == 0) {
-						node->valueType = make_type(TYPE_INT, 0);
-						return LLVMBuildSub(cg->builder, LLVMConstInt(LLVMInt32TypeInContext(cg->context), 0, 0), left, "subtmp");
+						if (LLVMGetTypeKind(type) == LLVMFloatTypeKind || LLVMGetTypeKind(type) == LLVMDoubleTypeKind) {
+							node->valueType = make_type(TYPE_FLOAT, 0);
+							LLVMValueRef zero = LLVMConstReal(type, 0.0);
+							return LLVMBuildFSub(cg->builder, zero, left, "fnegtmp");
+
+						} else if (LLVMGetTypeKind(type) == LLVMIntegerTypeKind) {
+							node->valueType = make_type(TYPE_INT, 0);
+							LLVMValueRef zero = LLVMConstInt(type, 0, 0);
+							return LLVMBuildSub(cg->builder, zero, left, "inegtmp");
+
+						} else {
+							char *msg;
+							asprintf(&msg, "Invalid unary '-' operand type: %d", LLVMGetTypeKind(type));
+							yyerror(&node->loc, msg);
+							free(msg);
+							exit(1);
+						}
+
 					}
 				}
 		case AST_FUNCTION: {

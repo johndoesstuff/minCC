@@ -28,12 +28,14 @@ ASTNode* root;
 %token ELSE
 %token TRUE
 %token FALSE
+%token LOGIC_AND
+%token LOGIC_OR
 %token <sval> COMPARE
 %token <sval> BASE_TYPE
 %token <sval> STRING
 %type <ival> none_or_more_pointers
 %type <type> type
-%type <node> else_clause declare rvalue mag term factor expr statement input
+%type <node> else_clause declare rvalue mag term factor expr statement input logic_and logic_or
 %type <argument> argument_list
 %type <parameter> parameter_list
 
@@ -97,7 +99,17 @@ none_or_more_pointers:
 
 expr:
 	IDENTIFIER '=' expr	{ $$ = make_assign($1, $3, @$); }
-	| rvalue		{ $$ = $1; }
+        | logic_or              { $$ = $1; }
+;
+
+logic_or:
+        logic_or LOGIC_OR logic_and   { $$ = make_binary("||", $1, $3, @$); }
+        | logic_and              { $$ = $1; }
+;
+
+logic_and:
+        logic_and LOGIC_AND rvalue    { $$ = make_binary("&&", $1, $3, @$); }
+        | rvalue                 { $$ = $1; }
 ;
 
 rvalue:

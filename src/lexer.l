@@ -79,6 +79,8 @@ char parse_char_literal(const char *text) {
 "{"		{ return '{'; }
 "}"		{ return '}'; }
 ("int"|"bool"|"char"|"float")	{ yylval->sval = strdup(yytext); return BASE_TYPE; }
+"&&"		{ return LOGIC_AND; }
+"||"		{ return LOGIC_OR; }
 ("=="|"<"|">"|"<="|">="|"!=")		{ yylval->sval = strdup(yytext); return COMPARE; }
 [a-zA-Z_][a-zA-Z0-9_]*	{ yylval->sval = strdup(yytext); return IDENTIFIER; }
 "+"		{ return '+'; }

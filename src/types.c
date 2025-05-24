@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include "../inc/types.h"
 #include "../inc/ast.h"
 
@@ -128,4 +129,44 @@ int count_arguments(Argument* args) {
 		current = current->next;
 	}
 	return count;
+}
+
+Argument* sem_generate_argument_signature(int count, ...) {
+	va_list args;
+	va_start(args, count);
+
+	Argument* head = NULL;
+	Argument* tail = NULL;
+
+	for (int i = 0; i < count; i++) {
+		Type* t = va_arg(args, Type*);
+
+		Argument* arg = malloc(sizeof(Argument));
+		if (!arg) {
+			va_end(args);
+			return NULL;
+		}
+		arg->type = t;
+
+		char* id = malloc(32);
+		if (!id) {
+			free(arg);
+			va_end(args);
+			return NULL;
+		}
+		snprintf(id, 32, "nativeArg%d", i);
+		arg->identifier = id;
+		arg->next = NULL;
+
+		if (!head) {
+			head = arg;
+			tail = arg;
+		} else {
+			tail->next = arg;
+			tail = arg;
+		}
+	}
+
+	va_end(args);
+	return head;
 }

@@ -446,6 +446,7 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 				     LLVMBasicBlockRef endBB  = LLVMAppendBasicBlock(cg->function, "if.end");
 
 				     LLVMValueRef cond = generate(node->if_stm.conditional, cg);
+
 				     if (elseBB) {
 					     LLVMBuildCondBr(cg->builder, cond, thenBB, elseBB);
 				     } else {
@@ -455,6 +456,10 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 				     LLVMPositionBuilderAtEnd(cg->builder, thenBB);
 				     generate(node->if_stm.then_branch, cg);
 				     LLVMBuildBr(cg->builder, endBB);
+
+				     if (!LLVMGetBasicBlockTerminator(thenBB)) {
+					     LLVMBuildBr(cg->builder, endBB);
+				     }
 
 				     if (elseBB) {
 					     LLVMPositionBuilderAtEnd(cg->builder, elseBB);

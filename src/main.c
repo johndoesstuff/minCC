@@ -83,8 +83,10 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 						 	//do nothing until i implement doubles
 						 } else if (l_is_float && !r_is_float) {
 						 	right = LLVMBuildSIToFP(cg->builder, right, l_type, "sitofp_tmp");
+							node->binary.right->valueType = make_type(TYPE_FLOAT, 0);
 						 } else if (!l_is_float && r_is_float) {
 						 	left = LLVMBuildSIToFP(cg->builder, left, r_type, "sitofp_tmp");
+							node->binary.left->valueType = make_type(TYPE_FLOAT, 0);
 						 } else {
 							 //match largest int
 							 unsigned int l_width = LLVMGetIntTypeWidth(l_type);
@@ -92,11 +94,19 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 
 							 if (l_width >= r_width) {
 								right = cast_to(right, l_type, 1, cg);
+								node->binary.right->valueType = node->binary.left->valueType;
 							 } else {
 								left = cast_to(left, r_type, 1, cg);
+								node->binary.left->valueType = node->binary.right->valueType;
 							 }
 						 }
 					 }
+
+					 l_type = get_llvm_type(node->binary.left->valueType, cg->context);
+					 r_type = get_llvm_type(node->binary.right->valueType, cg->context);
+
+					 l_is_float = LLVMGetTypeKind(l_type) == LLVMFloatTypeKind || LLVMGetTypeKind(l_type) == LLVMDoubleTypeKind;
+					 r_is_float = LLVMGetTypeKind(r_type) == LLVMFloatTypeKind || LLVMGetTypeKind(r_type) == LLVMDoubleTypeKind;
 
 					 if (l_is_float) {
 						 if (strcmp(node->binary.op, "+") == 0) {
@@ -281,8 +291,35 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 						LLVMValueRef* args = malloc(sizeof(LLVMValueRef) * arg_count);
 
 						Parameter* param = node->function_call.parameters;
+						int fixed_arg_count = LLVMCountParamTypes(func_sig);
+
+						LLVMTypeRef* param_types = NULL;
+						if (fixed_arg_count > 0) {
+							param_types = malloc(sizeof(LLVMTypeRef) * fixed_arg_count);
+							LLVMGetParamTypes(func_sig, param_types);
+						}
+
+						int is_variadic = LLVMIsFunctionVarArg(func_sig);
+
 						for (int i = 0; i < arg_count; i++) {
-							args[i] = generate(param->value, cg);
+							LLVMValueRef val = generate(param->value, cg);
+
+							//needs to undergo stupid fucking variadic casting fuck my stupid fucking chungus life
+							if (is_variadic && i >= fixed_arg_count) { 
+								LLVMTypeRef val_type = LLVMTypeOf(val);
+
+								//float to double
+								if (LLVMGetTypeKind(val_type) == LLVMFloatTypeKind) {
+									val = LLVMBuildFPExt(cg->builder, val, LLVMDoubleTypeInContext(cg->context), "promoted");
+								}
+
+								//smaller ints to i32
+								if (LLVMGetTypeKind(val_type) == LLVMIntegerTypeKind && LLVMGetIntTypeWidth(val_type) < 32) {
+									val = LLVMBuildZExt(cg->builder, val, LLVMInt32TypeInContext(cg->context), "promoted");
+								}
+							}
+
+							args[i] = val;
 							param = param->next;
 						}
 

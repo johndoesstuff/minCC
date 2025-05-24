@@ -227,7 +227,7 @@ ASTNode* make_function(Type* type, char* identifier, Argument* arguments, ASTNod
 	node->function.type = type;
 	node->function.arguments = arguments;
 	
-	sem_create_function(identifier, type);
+	sem_create_function(identifier, type, arguments, 0); //todo: implement variadic functions at parsing
 
 	return node;
 }

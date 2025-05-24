@@ -42,8 +42,17 @@ SemEntry* sem_create_variable(const char* name, Type* type) {
 	return sem_create(name, type, SEM_ENTRY_VAR);
 }
 
-SemEntry* sem_create_function(const char* name, Type* type) {
-	return sem_create(name, type, SEM_ENTRY_FUNC);
+SemEntry* sem_create_function(const char* name, Type* type, Argument* arguments, int isVariadic) {
+	SemEntry* entry = sem_create(name, type, SEM_ENTRY_FUNC);
+	entry->isVariadic = isVariadic;
+	int arg_count = count_arguments(arguments);
+	entry->argTypes = malloc(sizeof(Type*) * arg_count);
+	Argument* current = arguments;
+	for (int i = 0; i < arg_count; i++) {
+		entry->argTypes[i] = current->type;
+		current = current->next;
+	}
+	return entry;
 }
 
 void sem_enter_scope() {

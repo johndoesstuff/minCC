@@ -87,7 +87,8 @@ char parse_char_literal(const char *text) {
 "/"		{ return '/'; }
 "%"		{ return '%'; }
 ","		{ return ','; }
-\/\/.*		;
+\/\/.*		; //single line comment
+\/\*([^*]|\*+[^*/])*\*+\/	; //multiline comment
 \n      { yycolumn = 1; yylineno++; }
 [ \t]+	; // ignore whitespace
 .		{ fprintf(stderr, "Invalid character: %s at %d:%d\n", yytext, yylineno, yycolumn); }

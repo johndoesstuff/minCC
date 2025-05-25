@@ -30,15 +30,37 @@ float sdf_sphere(float px, float py, float pz, float cx, float cy, float cz, flo
 	return sqrt_approx(dx*dx + dy*dy + dz*dz) - radius;
 }
 
+float sdf(float px, float py, float pz) {
+	float spacing = 3.0; // distance between spheres
+
+	float rx = fmodf(px + spacing * 0.5, spacing);
+	if (rx < 0.0) {
+		rx = rx + spacing;
+	}
+	rx = rx - spacing * 0.5;
+
+	float ry = fmodf(py + spacing * 0.5, spacing);
+	if (ry < 0.0) {
+		ry = ry + spacing;
+	}
+	ry = ry - spacing * 0.5;
+
+	float rz = fmodf(pz + spacing * 0.5, spacing) - spacing * 0.5;
+	//float rx = px;
+	//float rz = pz;
+
+	return sdf_sphere(rx, ry, rz, 0.0, 0.0, 0.0, 1.0);
+}
+
 float march_ray(float ox, float oy, float oz, float dx, float dy, float dz) {
 	float totalDist = 0.0;
 	int steps = 0;
-	while (steps < 64 && totalDist < 100.0) {
+	while (steps < 35 && totalDist < 100.0) {
 		float px = ox + dx * totalDist;
 		float py = oy + dy * totalDist;
 		float pz = oz + dz * totalDist;
 
-		float dist = sdf_sphere(px, py, pz, 0.0, 0.0, 3.0, 1.0); // sphere at (0,0,3), radius 1
+		float dist = sdf(px, py, pz); // sphere at (0,0,3), radius 1
 
 		if (dist < 0.001) {
 			return totalDist + dist; // hit
@@ -57,6 +79,8 @@ printf("Basic Raymarcher with Sphere SDF:\n\n");
 int width = 100;
 int height = 50;
 
+float cameraZ = 4.0;
+
 //iterate each character on screen
 int y = 0;
 while (y < height) {
@@ -74,16 +98,18 @@ while (y < height) {
 		dirZ = dirZ / norm;
 
 		//printf("%f", dirX);
-		float hit = march_ray(0.0, 0.0, 0.0, dirX, dirY, dirZ);
+		float hit = march_ray(0.0, 0.0, -cameraZ, dirX, dirY, dirZ);
 		if (hit == 0.0) {
 			printf(" ");
-		} else if (hit < 2) {
+		} else if (hit < 4) {
 			printf("#");
-		} else  if (hit < 5) {
+		} else  if (hit < 6) {
 			printf("=");
 		} else if (hit < 10) {
+			printf("+");
+		} else if (hit < 15) {
 			printf("-");
-		} else if (hit < 25) {
+		} else if (hit < 20) {
 			printf("'");
 		} else {
 			printf(".");

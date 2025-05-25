@@ -447,24 +447,22 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 
 				     LLVMValueRef cond = generate(node->if_stm.conditional, cg);
 
-				     if (elseBB) {
-					     LLVMBuildCondBr(cg->builder, cond, thenBB, elseBB);
-				     } else {
-					     LLVMBuildCondBr(cg->builder, cond, thenBB, endBB);
-				     }
-
+				     //build conditional
+				     LLVMBuildCondBr(cg->builder, cond, thenBB, elseBB ? elseBB : endBB);
+	
+				     //then
 				     LLVMPositionBuilderAtEnd(cg->builder, thenBB);
 				     generate(node->if_stm.then_branch, cg);
-				     LLVMBuildBr(cg->builder, endBB);
-
 				     if (!LLVMGetBasicBlockTerminator(thenBB)) {
+					     LLVMPositionBuilderAtEnd(cg->builder, thenBB);
 					     LLVMBuildBr(cg->builder, endBB);
 				     }
 
+				     //else
 				     if (elseBB) {
 					     LLVMPositionBuilderAtEnd(cg->builder, elseBB);
 					     generate(node->if_stm.else_branch, cg);
-					     if (!LLVMGetBasicBlockTerminator(elseBB)) {
+					     if (!LLVMGetBasicBlockTerminator(LLVMGetInsertBlock(cg->builder))) {
 						     LLVMBuildBr(cg->builder, endBB);
 					     }
 				     }

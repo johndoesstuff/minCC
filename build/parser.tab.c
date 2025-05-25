@@ -1639,7 +1639,7 @@ yyreduce:
 
   case 9: /* statement: WHILE '(' expr ')' '{' $@1 input '}'  */
 #line 64 "src/parser.y"
-                                                                        { (yyval.node) = make_while((yyvsp[-5].node), (yyvsp[-1].node), (yyloc)); sem_exit_scope(); }
+                                                                        { sem_exit_scope(); (yyval.node) = make_while((yyvsp[-5].node), (yyvsp[-1].node), (yyloc)); }
 #line 1644 "build/parser.tab.c"
     break;
 
@@ -1651,7 +1651,7 @@ yyreduce:
 
   case 11: /* statement: IF '(' expr ')' '{' $@2 input '}' else_clause  */
 #line 65 "src/parser.y"
-                                                                                { (yyval.node) = make_if((yyvsp[-6].node), (yyvsp[-2].node), (yyvsp[0].node), (yyloc)); sem_exit_scope(); }
+                                                                                { sem_exit_scope(); (yyval.node) = make_if((yyvsp[-6].node), (yyvsp[-2].node), (yyvsp[0].node), (yyloc)); }
 #line 1656 "build/parser.tab.c"
     break;
 
@@ -1681,7 +1681,7 @@ yyreduce:
 
   case 16: /* else_clause: ELSE '{' $@4 input '}'  */
 #line 71 "src/parser.y"
-                                                        { (yyval.node) = (yyvsp[-1].node); sem_exit_scope(); }
+                                                        { sem_exit_scope(); (yyval.node) = (yyvsp[-1].node); }
 #line 1686 "build/parser.tab.c"
     break;
 
@@ -1693,7 +1693,7 @@ yyreduce:
 
   case 18: /* else_clause: ELSE IF '(' expr ')' '{' $@5 input '}' else_clause  */
 #line 72 "src/parser.y"
-                                                                                { (yyval.node) = make_if((yyvsp[-6].node), (yyvsp[-2].node), (yyvsp[0].node), (yyloc)); sem_exit_scope(); }
+                                                                                { sem_exit_scope(); (yyval.node) = make_if((yyvsp[-6].node), (yyvsp[-2].node), (yyvsp[0].node), (yyloc)); }
 #line 1698 "build/parser.tab.c"
     break;
 

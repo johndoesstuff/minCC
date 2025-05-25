@@ -66,9 +66,13 @@ extern int yydebug;
     FALSE = 267,                   /* FALSE  */
     LOGIC_AND = 268,               /* LOGIC_AND  */
     LOGIC_OR = 269,                /* LOGIC_OR  */
-    COMPARE = 270,                 /* COMPARE  */
-    BASE_TYPE = 271,               /* BASE_TYPE  */
-    STRING = 272                   /* STRING  */
+    ASSIGNMENT_ADD_EQUALS = 270,   /* ASSIGNMENT_ADD_EQUALS  */
+    ASSIGNMENT_SUB_EQUALS = 271,   /* ASSIGNMENT_SUB_EQUALS  */
+    ASSIGNMENT_MUL_EQUALS = 272,   /* ASSIGNMENT_MUL_EQUALS  */
+    ASSIGNMENT_DIV_EQUALS = 273,   /* ASSIGNMENT_DIV_EQUALS  */
+    COMPARE = 274,                 /* COMPARE  */
+    BASE_TYPE = 275,               /* BASE_TYPE  */
+    STRING = 276                   /* STRING  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -88,7 +92,7 @@ union YYSTYPE
 	struct Argument* argument;
 	struct Parameter* parameter;
 
-#line 92 "build/parser.tab.h"
+#line 96 "build/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

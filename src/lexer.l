@@ -72,7 +72,12 @@ char parse_char_literal(const char *text) {
 "else"		{ return ELSE; }
 "true"		{ return TRUE; }
 "false"		{ return FALSE; }
+("=="|"<"|">"|"<="|">="|"!=")		{ yylval->sval = strdup(yytext); return COMPARE; }
 "="		{ return '='; }
+"+="		{ return ASSIGNMENT_ADD_EQUALS; }
+"-="		{ return ASSIGNMENT_SUB_EQUALS; }
+"*="		{ return ASSIGNMENT_MUL_EQUALS; }
+"/="		{ return ASSIGNMENT_DIV_EQUALS; }
 ";"		{ return ';'; }
 "("		{ return '('; }
 ")"		{ return ')'; }
@@ -81,7 +86,6 @@ char parse_char_literal(const char *text) {
 ("int"|"bool"|"char"|"float")	{ yylval->sval = strdup(yytext); return BASE_TYPE; }
 "&&"		{ return LOGIC_AND; }
 "||"		{ return LOGIC_OR; }
-("=="|"<"|">"|"<="|">="|"!=")		{ yylval->sval = strdup(yytext); return COMPARE; }
 [a-zA-Z_][a-zA-Z0-9_]*	{ yylval->sval = strdup(yytext); return IDENTIFIER; }
 "+"		{ return '+'; }
 "-"		{ return '-'; }

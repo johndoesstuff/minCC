@@ -16,7 +16,7 @@ float sqrt_approx(float x) {
 			i = 20;
 		} else {
 			guess = next;
-			i = i + 1;
+			i += 1;
 		}
 	}
 
@@ -31,19 +31,19 @@ float sdf_sphere(float px, float py, float pz, float cx, float cy, float cz, flo
 }
 
 float sdf(float px, float py, float pz) {
-	float spacing = 3.0; // distance between spheres
+	float spacing = 3.0; //distance between spheres
 
 	float rx = fmodf(px + spacing * 0.5, spacing);
 	if (rx < 0.0) {
-		rx = rx + spacing;
+		rx += spacing;
 	}
-	rx = rx - spacing * 0.5;
+	rx -= spacing * 0.5;
 
 	float ry = fmodf(py + spacing * 0.5, spacing);
 	if (ry < 0.0) {
-		ry = ry + spacing;
+		ry += spacing;
 	}
-	ry = ry - spacing * 0.5;
+	ry -= spacing * 0.5;
 
 	float rz = fmodf(pz + spacing * 0.5, spacing) - spacing * 0.5;
 	//float rx = px;
@@ -60,17 +60,17 @@ float march_ray(float ox, float oy, float oz, float dx, float dy, float dz) {
 		float py = oy + dy * totalDist;
 		float pz = oz + dz * totalDist;
 
-		float dist = sdf(px, py, pz); // sphere at (0,0,3), radius 1
+		float dist = sdf(px, py, pz);
 
 		if (dist < 0.001) {
-			return totalDist + dist; // hit
+			return totalDist + dist; //hit
 		}
 
-		totalDist = totalDist + dist;
-		steps = steps + 1;
+		totalDist += dist;
+		steps += 1;
 	}
 
-	return 0.0; // no hit
+	return 0.0; //no hit
 }
 
 

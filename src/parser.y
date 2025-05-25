@@ -30,6 +30,10 @@ ASTNode* root;
 %token FALSE
 %token LOGIC_AND
 %token LOGIC_OR
+%token ASSIGNMENT_ADD_EQUALS
+%token ASSIGNMENT_SUB_EQUALS
+%token ASSIGNMENT_MUL_EQUALS
+%token ASSIGNMENT_DIV_EQUALS
 %token <sval> COMPARE
 %token <sval> BASE_TYPE
 %token <sval> STRING
@@ -99,6 +103,10 @@ none_or_more_pointers:
 
 expr:
 	IDENTIFIER '=' expr	{ $$ = make_assign($1, $3, @$); }
+	| IDENTIFIER ASSIGNMENT_ADD_EQUALS expr	{ $$ = make_assign($1, make_binary("+", make_identifier($1, @$), $3, @$), @$); }
+	| IDENTIFIER ASSIGNMENT_SUB_EQUALS expr	{ $$ = make_assign($1, make_binary("-", make_identifier($1, @$), $3, @$), @$); }
+	| IDENTIFIER ASSIGNMENT_MUL_EQUALS expr	{ $$ = make_assign($1, make_binary("*", make_identifier($1, @$), $3, @$), @$); }
+	| IDENTIFIER ASSIGNMENT_DIV_EQUALS expr	{ $$ = make_assign($1, make_binary("/", make_identifier($1, @$), $3, @$), @$); }
         | logic_or              { $$ = $1; }
 ;
 

@@ -67,7 +67,7 @@ float march_ray(float ox, float oy, float oz, float dx, float dy, float dz) {
 		}
 
 		totalDist += dist;
-		steps += 1;
+		steps++;
 	}
 
 	return 0.0; //no hit

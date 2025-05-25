@@ -78,6 +78,8 @@ char parse_char_literal(const char *text) {
 "-="		{ return ASSIGNMENT_SUB_EQUALS; }
 "*="		{ return ASSIGNMENT_MUL_EQUALS; }
 "/="		{ return ASSIGNMENT_DIV_EQUALS; }
+"++"		{ return INCREMENT; }
+"--"		{ return DECREMENT; }
 ";"		{ return ';'; }
 "("		{ return '('; }
 ")"		{ return ')'; }

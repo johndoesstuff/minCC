@@ -37,7 +37,7 @@ while.body:                                       ; preds = %while.cond
   br label %while.cond2
 
 while.end:                                        ; preds = %while.cond
-  %calltmp81 = call i32 (ptr, ...) @printf(ptr @.str.9)
+  %calltmp86 = call i32 (ptr, ...) @printf(ptr @.str.9)
   ret i32 0
 
 while.cond2:                                      ; preds = %if.end, %while.body
@@ -85,106 +85,111 @@ while.body3:                                      ; preds = %while.cond2
   %loadtmp30 = load float, ptr %norm, align 4
   %fdivtmp31 = fdiv float %loadtmp29, %loadtmp30
   store float %fdivtmp31, ptr %dirX, align 4
-  %loadtmp32 = load float, ptr %dirY, align 4
-  %loadtmp33 = load float, ptr %norm, align 4
-  %fdivtmp34 = fdiv float %loadtmp32, %loadtmp33
-  store float %fdivtmp34, ptr %dirY, align 4
-  %loadtmp35 = load float, ptr %dirZ, align 4
-  %loadtmp36 = load float, ptr %norm, align 4
-  %fdivtmp37 = fdiv float %loadtmp35, %loadtmp36
-  store float %fdivtmp37, ptr %dirZ, align 4
-  %loadtmp38 = load float, ptr %cameraZ, align 4
-  %fnegtmp = fsub float 0.000000e+00, %loadtmp38
-  %loadtmp39 = load float, ptr %dirX, align 4
-  %loadtmp40 = load float, ptr %dirY, align 4
-  %loadtmp41 = load float, ptr %dirZ, align 4
-  %calltmp42 = call float @march_ray(float 0.000000e+00, float 0.000000e+00, float %fnegtmp, float %loadtmp39, float %loadtmp40, float %loadtmp41)
+  %loadtmp32 = load float, ptr %dirX, align 4
+  %loadtmp33 = load float, ptr %dirY, align 4
+  %loadtmp34 = load float, ptr %norm, align 4
+  %fdivtmp35 = fdiv float %loadtmp33, %loadtmp34
+  store float %fdivtmp35, ptr %dirY, align 4
+  %loadtmp36 = load float, ptr %dirY, align 4
+  %loadtmp37 = load float, ptr %dirZ, align 4
+  %loadtmp38 = load float, ptr %norm, align 4
+  %fdivtmp39 = fdiv float %loadtmp37, %loadtmp38
+  store float %fdivtmp39, ptr %dirZ, align 4
+  %loadtmp40 = load float, ptr %dirZ, align 4
+  %loadtmp41 = load float, ptr %cameraZ, align 4
+  %fnegtmp = fsub float 0.000000e+00, %loadtmp41
+  %loadtmp42 = load float, ptr %dirX, align 4
+  %loadtmp43 = load float, ptr %dirY, align 4
+  %loadtmp44 = load float, ptr %dirZ, align 4
+  %calltmp45 = call float @march_ray(float 0.000000e+00, float 0.000000e+00, float %fnegtmp, float %loadtmp42, float %loadtmp43, float %loadtmp44)
   %hit = alloca float, align 4
-  store float %calltmp42, ptr %hit, align 4
-  %loadtmp43 = load float, ptr %hit, align 4
-  %cmptmp44 = fcmp oeq float %loadtmp43, 0.000000e+00
-  br i1 %cmptmp44, label %if.then, label %if.else
+  store float %calltmp45, ptr %hit, align 4
+  %loadtmp46 = load float, ptr %hit, align 4
+  %cmptmp47 = fcmp oeq float %loadtmp46, 0.000000e+00
+  br i1 %cmptmp47, label %if.then, label %if.else
 
 while.end4:                                       ; preds = %while.cond2
-  %calltmp78 = call i32 (ptr, ...) @printf(ptr @.str.8)
-  %loadtmp79 = load i32, ptr %y, align 4
-  %addtmp80 = add i32 %loadtmp79, 1
-  store i32 %addtmp80, ptr %y, align 4
+  %calltmp82 = call i32 (ptr, ...) @printf(ptr @.str.8)
+  %loadtmp83 = load i32, ptr %y, align 4
+  %addtmp84 = add i32 %loadtmp83, 1
+  store i32 %addtmp84, ptr %y, align 4
+  %loadtmp85 = load i32, ptr %y, align 4
   br label %while.cond
 
 if.then:                                          ; preds = %while.body3
-  %calltmp45 = call i32 (ptr, ...) @printf(ptr @.str.1)
+  %calltmp48 = call i32 (ptr, ...) @printf(ptr @.str.1)
   br label %if.end
 
 if.else:                                          ; preds = %while.body3
-  %loadtmp49 = load float, ptr %hit, align 4
-  %cmptmp50 = fcmp olt float %loadtmp49, 4.000000e+00
-  br i1 %cmptmp50, label %if.then46, label %if.else47
+  %loadtmp52 = load float, ptr %hit, align 4
+  %cmptmp53 = fcmp olt float %loadtmp52, 4.000000e+00
+  br i1 %cmptmp53, label %if.then49, label %if.else50
 
-if.end:                                           ; preds = %if.end48, %if.then
-  %loadtmp77 = load i32, ptr %x, align 4
-  %addtmp = add i32 %loadtmp77, 1
+if.end:                                           ; preds = %if.end51, %if.then
+  %loadtmp80 = load i32, ptr %x, align 4
+  %addtmp = add i32 %loadtmp80, 1
   store i32 %addtmp, ptr %x, align 4
+  %loadtmp81 = load i32, ptr %x, align 4
   br label %while.cond2
 
-if.then46:                                        ; preds = %if.else
-  %calltmp51 = call i32 (ptr, ...) @printf(ptr @.str.2)
-  br label %if.end48
+if.then49:                                        ; preds = %if.else
+  %calltmp54 = call i32 (ptr, ...) @printf(ptr @.str.2)
+  br label %if.end51
 
-if.else47:                                        ; preds = %if.else
-  %loadtmp55 = load float, ptr %hit, align 4
-  %cmptmp56 = fcmp olt float %loadtmp55, 6.000000e+00
-  br i1 %cmptmp56, label %if.then52, label %if.else53
+if.else50:                                        ; preds = %if.else
+  %loadtmp58 = load float, ptr %hit, align 4
+  %cmptmp59 = fcmp olt float %loadtmp58, 6.000000e+00
+  br i1 %cmptmp59, label %if.then55, label %if.else56
 
-if.end48:                                         ; preds = %if.end54, %if.then46
+if.end51:                                         ; preds = %if.end57, %if.then49
   br label %if.end
 
-if.then52:                                        ; preds = %if.else47
-  %calltmp57 = call i32 (ptr, ...) @printf(ptr @.str.3)
-  br label %if.end54
+if.then55:                                        ; preds = %if.else50
+  %calltmp60 = call i32 (ptr, ...) @printf(ptr @.str.3)
+  br label %if.end57
 
-if.else53:                                        ; preds = %if.else47
-  %loadtmp61 = load float, ptr %hit, align 4
-  %cmptmp62 = fcmp olt float %loadtmp61, 1.000000e+01
-  br i1 %cmptmp62, label %if.then58, label %if.else59
+if.else56:                                        ; preds = %if.else50
+  %loadtmp64 = load float, ptr %hit, align 4
+  %cmptmp65 = fcmp olt float %loadtmp64, 1.000000e+01
+  br i1 %cmptmp65, label %if.then61, label %if.else62
 
-if.end54:                                         ; preds = %if.end60, %if.then52
-  br label %if.end48
+if.end57:                                         ; preds = %if.end63, %if.then55
+  br label %if.end51
 
-if.then58:                                        ; preds = %if.else53
-  %calltmp63 = call i32 (ptr, ...) @printf(ptr @.str.4)
-  br label %if.end60
+if.then61:                                        ; preds = %if.else56
+  %calltmp66 = call i32 (ptr, ...) @printf(ptr @.str.4)
+  br label %if.end63
 
-if.else59:                                        ; preds = %if.else53
-  %loadtmp67 = load float, ptr %hit, align 4
-  %cmptmp68 = fcmp olt float %loadtmp67, 1.500000e+01
-  br i1 %cmptmp68, label %if.then64, label %if.else65
+if.else62:                                        ; preds = %if.else56
+  %loadtmp70 = load float, ptr %hit, align 4
+  %cmptmp71 = fcmp olt float %loadtmp70, 1.500000e+01
+  br i1 %cmptmp71, label %if.then67, label %if.else68
 
-if.end60:                                         ; preds = %if.end66, %if.then58
-  br label %if.end54
+if.end63:                                         ; preds = %if.end69, %if.then61
+  br label %if.end57
 
-if.then64:                                        ; preds = %if.else59
-  %calltmp69 = call i32 (ptr, ...) @printf(ptr @.str.5)
-  br label %if.end66
+if.then67:                                        ; preds = %if.else62
+  %calltmp72 = call i32 (ptr, ...) @printf(ptr @.str.5)
+  br label %if.end69
 
-if.else65:                                        ; preds = %if.else59
-  %loadtmp73 = load float, ptr %hit, align 4
-  %cmptmp74 = fcmp olt float %loadtmp73, 2.000000e+01
-  br i1 %cmptmp74, label %if.then70, label %if.else71
+if.else68:                                        ; preds = %if.else62
+  %loadtmp76 = load float, ptr %hit, align 4
+  %cmptmp77 = fcmp olt float %loadtmp76, 2.000000e+01
+  br i1 %cmptmp77, label %if.then73, label %if.else74
 
-if.end66:                                         ; preds = %if.end72, %if.then64
-  br label %if.end60
+if.end69:                                         ; preds = %if.end75, %if.then67
+  br label %if.end63
 
-if.then70:                                        ; preds = %if.else65
-  %calltmp75 = call i32 (ptr, ...) @printf(ptr @.str.6)
-  br label %if.end72
+if.then73:                                        ; preds = %if.else68
+  %calltmp78 = call i32 (ptr, ...) @printf(ptr @.str.6)
+  br label %if.end75
 
-if.else71:                                        ; preds = %if.else65
-  %calltmp76 = call i32 (ptr, ...) @printf(ptr @.str.7)
-  br label %if.end72
+if.else74:                                        ; preds = %if.else68
+  %calltmp79 = call i32 (ptr, ...) @printf(ptr @.str.7)
+  br label %if.end75
 
-if.end72:                                         ; preds = %if.else71, %if.then70
-  br label %if.end66
+if.end75:                                         ; preds = %if.else74, %if.then73
+  br label %if.end69
 }
 
 declare i32 @printf(ptr, ...)
@@ -251,19 +256,22 @@ while.body:                                       ; preds = %while.cond
   br i1 %cmptmp18, label %and.rhs, label %and.end
 
 while.end:                                        ; preds = %while.cond
-  %loadtmp26 = load float, ptr %guess, align 4
-  ret float %loadtmp26
+  %loadtmp29 = load float, ptr %guess, align 4
+  ret float %loadtmp29
 
 if.then13:                                        ; preds = %and.end
   store i32 20, ptr %i, align 4
+  %loadtmp24 = load i32, ptr %i, align 4
   br label %if.end14
 
 if.else:                                          ; preds = %and.end
-  %loadtmp24 = load float, ptr %next, align 4
-  store float %loadtmp24, ptr %guess, align 4
-  %loadtmp25 = load i32, ptr %i, align 4
-  %addtmp = add i32 %loadtmp25, 1
+  %loadtmp25 = load float, ptr %next, align 4
+  store float %loadtmp25, ptr %guess, align 4
+  %loadtmp26 = load float, ptr %guess, align 4
+  %loadtmp27 = load i32, ptr %i, align 4
+  %addtmp = add i32 %loadtmp27, 1
   store i32 %addtmp, ptr %i, align 4
+  %loadtmp28 = load i32, ptr %i, align 4
   br label %if.end14
 
 if.end14:                                         ; preds = %if.else, %if.then13
@@ -352,55 +360,59 @@ if.then:                                          ; preds = %entry
   %loadtmp8 = load float, ptr %spacing, align 4
   %faddtmp9 = fadd float %loadtmp7, %loadtmp8
   store float %faddtmp9, ptr %rx, align 4
+  %loadtmp10 = load float, ptr %rx, align 4
   br label %if.end
 
 if.end:                                           ; preds = %if.then, %entry
-  %loadtmp10 = load float, ptr %rx, align 4
-  %loadtmp11 = load float, ptr %spacing, align 4
-  %fmultmp12 = fmul float %loadtmp11, 5.000000e-01
-  %fsubtmp = fsub float %loadtmp10, %fmultmp12
+  %loadtmp11 = load float, ptr %rx, align 4
+  %loadtmp12 = load float, ptr %spacing, align 4
+  %fmultmp13 = fmul float %loadtmp12, 5.000000e-01
+  %fsubtmp = fsub float %loadtmp11, %fmultmp13
   store float %fsubtmp, ptr %rx, align 4
-  %loadtmp13 = load float, ptr %py2, align 4
-  %loadtmp14 = load float, ptr %spacing, align 4
-  %fmultmp15 = fmul float %loadtmp14, 5.000000e-01
-  %faddtmp16 = fadd float %loadtmp13, %fmultmp15
-  %loadtmp17 = load float, ptr %spacing, align 4
-  %calltmp18 = call float @fmodf(float %faddtmp16, float %loadtmp17)
+  %loadtmp14 = load float, ptr %rx, align 4
+  %loadtmp15 = load float, ptr %py2, align 4
+  %loadtmp16 = load float, ptr %spacing, align 4
+  %fmultmp17 = fmul float %loadtmp16, 5.000000e-01
+  %faddtmp18 = fadd float %loadtmp15, %fmultmp17
+  %loadtmp19 = load float, ptr %spacing, align 4
+  %calltmp20 = call float @fmodf(float %faddtmp18, float %loadtmp19)
   %ry = alloca float, align 4
-  store float %calltmp18, ptr %ry, align 4
-  %loadtmp21 = load float, ptr %ry, align 4
-  %cmptmp22 = fcmp olt float %loadtmp21, 0.000000e+00
-  br i1 %cmptmp22, label %if.then19, label %if.end20
-
-if.then19:                                        ; preds = %if.end
+  store float %calltmp20, ptr %ry, align 4
   %loadtmp23 = load float, ptr %ry, align 4
-  %loadtmp24 = load float, ptr %spacing, align 4
-  %faddtmp25 = fadd float %loadtmp23, %loadtmp24
-  store float %faddtmp25, ptr %ry, align 4
-  br label %if.end20
+  %cmptmp24 = fcmp olt float %loadtmp23, 0.000000e+00
+  br i1 %cmptmp24, label %if.then21, label %if.end22
 
-if.end20:                                         ; preds = %if.then19, %if.end
-  %loadtmp26 = load float, ptr %ry, align 4
-  %loadtmp27 = load float, ptr %spacing, align 4
-  %fmultmp28 = fmul float %loadtmp27, 5.000000e-01
-  %fsubtmp29 = fsub float %loadtmp26, %fmultmp28
-  store float %fsubtmp29, ptr %ry, align 4
-  %loadtmp30 = load float, ptr %pz3, align 4
-  %loadtmp31 = load float, ptr %spacing, align 4
-  %fmultmp32 = fmul float %loadtmp31, 5.000000e-01
-  %faddtmp33 = fadd float %loadtmp30, %fmultmp32
-  %loadtmp34 = load float, ptr %spacing, align 4
-  %calltmp35 = call float @fmodf(float %faddtmp33, float %loadtmp34)
-  %loadtmp36 = load float, ptr %spacing, align 4
-  %fmultmp37 = fmul float %loadtmp36, 5.000000e-01
-  %fsubtmp38 = fsub float %calltmp35, %fmultmp37
+if.then21:                                        ; preds = %if.end
+  %loadtmp25 = load float, ptr %ry, align 4
+  %loadtmp26 = load float, ptr %spacing, align 4
+  %faddtmp27 = fadd float %loadtmp25, %loadtmp26
+  store float %faddtmp27, ptr %ry, align 4
+  %loadtmp28 = load float, ptr %ry, align 4
+  br label %if.end22
+
+if.end22:                                         ; preds = %if.then21, %if.end
+  %loadtmp29 = load float, ptr %ry, align 4
+  %loadtmp30 = load float, ptr %spacing, align 4
+  %fmultmp31 = fmul float %loadtmp30, 5.000000e-01
+  %fsubtmp32 = fsub float %loadtmp29, %fmultmp31
+  store float %fsubtmp32, ptr %ry, align 4
+  %loadtmp33 = load float, ptr %ry, align 4
+  %loadtmp34 = load float, ptr %pz3, align 4
+  %loadtmp35 = load float, ptr %spacing, align 4
+  %fmultmp36 = fmul float %loadtmp35, 5.000000e-01
+  %faddtmp37 = fadd float %loadtmp34, %fmultmp36
+  %loadtmp38 = load float, ptr %spacing, align 4
+  %calltmp39 = call float @fmodf(float %faddtmp37, float %loadtmp38)
+  %loadtmp40 = load float, ptr %spacing, align 4
+  %fmultmp41 = fmul float %loadtmp40, 5.000000e-01
+  %fsubtmp42 = fsub float %calltmp39, %fmultmp41
   %rz = alloca float, align 4
-  store float %fsubtmp38, ptr %rz, align 4
-  %loadtmp39 = load float, ptr %rx, align 4
-  %loadtmp40 = load float, ptr %ry, align 4
-  %loadtmp41 = load float, ptr %rz, align 4
-  %calltmp42 = call float @sdf_sphere(float %loadtmp39, float %loadtmp40, float %loadtmp41, float 0.000000e+00, float 0.000000e+00, float 0.000000e+00, float 1.000000e+00)
-  ret float %calltmp42
+  store float %fsubtmp42, ptr %rz, align 4
+  %loadtmp43 = load float, ptr %rx, align 4
+  %loadtmp44 = load float, ptr %ry, align 4
+  %loadtmp45 = load float, ptr %rz, align 4
+  %calltmp46 = call float @sdf_sphere(float %loadtmp43, float %loadtmp44, float %loadtmp45, float 0.000000e+00, float 0.000000e+00, float 0.000000e+00, float 1.000000e+00)
+  ret float %calltmp46
 }
 
 define float @march_ray(float %ox, float %oy, float %oz, float %dx, float %dy, float %dz) {
@@ -483,8 +495,11 @@ if.end:                                           ; preds = %while.body
   %loadtmp31 = load float, ptr %dist, align 4
   %faddtmp32 = fadd float %loadtmp30, %loadtmp31
   store float %faddtmp32, ptr %totalDist, align 4
-  %loadtmp33 = load i32, ptr %steps, align 4
-  %addtmp = add i32 %loadtmp33, 1
+  %loadtmp33 = load float, ptr %totalDist, align 4
+  %loadtmp34 = load i32, ptr %steps, align 4
+  %addtmp = add i32 %loadtmp34, 1
   store i32 %addtmp, ptr %steps, align 4
+  %loadtmp35 = load i32, ptr %steps, align 4
+  %subtmp = sub i32 %loadtmp35, 1
   br label %while.cond
 }

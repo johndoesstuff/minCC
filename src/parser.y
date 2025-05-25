@@ -34,6 +34,8 @@ ASTNode* root;
 %token ASSIGNMENT_SUB_EQUALS
 %token ASSIGNMENT_MUL_EQUALS
 %token ASSIGNMENT_DIV_EQUALS
+%token INCREMENT
+%token DECREMENT
 %token <sval> COMPARE
 %token <sval> BASE_TYPE
 %token <sval> STRING
@@ -143,6 +145,11 @@ term:
 factor:
 	'(' rvalue ')'	{ $$ = $2; }
 	| '-' factor	{ $$ = make_unary("-", $2, @$); }
+	//yes this is cursed i dont care ill fix it later
+	| INCREMENT IDENTIFIER	{ $$ = make_assign($2, make_binary("+", make_identifier($2, @$), make_number(1, @$), @$), @$); }
+	| DECREMENT IDENTIFIER	{ $$ = make_assign($2, make_binary("-", make_identifier($2, @$), make_number(1, @$), @$), @$); }
+	| IDENTIFIER INCREMENT	{ $$ = make_binary("-", make_assign($1, make_binary("+", make_identifier($1, @$), make_number(1, @$), @$), @$), make_number(1, @$), @$); }
+	| IDENTIFIER DECREMENT	{ $$ = make_binary("+", make_assign($1, make_binary("-", make_identifier($1, @$), make_number(1, @$), @$), @$), make_number(1, @$), @$); }
 	| IDENTIFIER '(' parameter_list ')'	{ $$ = make_function_call($1, $3, @$); }
 	| IDENTIFIER	{ $$ = make_identifier($1, @$); }
 	| NUMBER	{ $$ = make_number($1, @$); }

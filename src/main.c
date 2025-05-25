@@ -334,7 +334,8 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 					 CodegenEntry* var = codegen_lookup_variable(node->assign.identifier);
 					 LLVMValueRef value = generate(node->assign.right, cg);
 					 value = cast_to(value, var->type, 1, cg);
-					 return LLVMBuildStore(cg->builder, value, var->value);
+					 LLVMBuildStore(cg->builder, value, var->value);
+					 return LLVMBuildLoad2(cg->builder, var->type, var->value, "loadtmp");
 				 }
 		case AST_IDENTIFIER: {
 					     CodegenEntry* var = codegen_lookup_variable(node->identifier);

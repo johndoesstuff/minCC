@@ -37,7 +37,7 @@ while.body:                                       ; preds = %while.cond
   br label %while.cond2
 
 while.end:                                        ; preds = %while.cond
-  %calltmp86 = call i32 (ptr, ...) @printf(ptr @.str.9)
+  %calltmp87 = call i32 (ptr, ...) @printf(ptr @.str.9)
   ret i32 0
 
 while.cond2:                                      ; preds = %if.end, %while.body
@@ -114,6 +114,7 @@ while.end4:                                       ; preds = %while.cond2
   %addtmp84 = add i32 %loadtmp83, 1
   store i32 %addtmp84, ptr %y, align 4
   %loadtmp85 = load i32, ptr %y, align 4
+  %subtmp86 = sub i32 %loadtmp85, 1
   br label %while.cond
 
 if.then:                                          ; preds = %while.body3
@@ -130,6 +131,7 @@ if.end:                                           ; preds = %if.end51, %if.then
   %addtmp = add i32 %loadtmp80, 1
   store i32 %addtmp, ptr %x, align 4
   %loadtmp81 = load i32, ptr %x, align 4
+  %subtmp = sub i32 %loadtmp81, 1
   br label %while.cond2
 
 if.then49:                                        ; preds = %if.else
@@ -272,6 +274,7 @@ if.else:                                          ; preds = %and.end
   %addtmp = add i32 %loadtmp27, 1
   store i32 %addtmp, ptr %i, align 4
   %loadtmp28 = load i32, ptr %i, align 4
+  %subtmp = sub i32 %loadtmp28, 1
   br label %if.end14
 
 if.end14:                                         ; preds = %if.else, %if.then13

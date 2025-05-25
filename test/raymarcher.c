@@ -16,7 +16,7 @@ float sqrt_approx(float x) {
 			i = 20;
 		} else {
 			guess = next;
-			i += 1;
+			i++;
 		}
 	}
 
@@ -115,10 +115,10 @@ while (y < height) {
 			printf(".");
 		}
 
-		x = x + 1;
+		x++;
 	}
 	printf("\n");
-	y = y + 1;
+	y++;
 }
 
 printf("\n");

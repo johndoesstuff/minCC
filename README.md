@@ -4,6 +4,8 @@
 - Functions
 - While Loops
 - Variable Declaration / Assignment
+  - `=`, `+=`, `-=`, `*=`, `/=`
+  - Incrementing / Decrementing
 - Types
   - `int`
   - `bool`
@@ -27,8 +29,6 @@
 - Longs
 - Dereferencing
 - Pass by reference
-- Alternate assignment operators (`+=`, `*=`, etc..)
-- Incrementing/Decrementing
 - For loops
 - Do while loops
 - Structs

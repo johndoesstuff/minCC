@@ -68,6 +68,7 @@ char parse_char_literal(const char *text) {
 \"([^\\\"]|\\.)*\"		{ yytext[yyleng - 1] = '\0'; yylval->sval = unescape_string(yytext + 1); return STRING; }
 "return"	{ return RETURN; }
 "while"		{ return WHILE; }
+"for"		{ return FOR; }
 "if"		{ return IF; }
 "else"		{ return ELSE; }
 "true"		{ return TRUE; }

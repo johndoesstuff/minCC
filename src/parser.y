@@ -24,6 +24,7 @@ ASTNode* root;
 %token <fval> FLOAT
 %token RETURN
 %token WHILE
+%token FOR
 %token IF
 %token ELSE
 %token TRUE
@@ -41,7 +42,7 @@ ASTNode* root;
 %token <sval> STRING
 %type <ival> none_or_more_pointers
 %type <type> type
-%type <node> else_clause declare rvalue mag term factor expr statement input logic_and logic_or
+%type <node> else_clause declare rvalue mag term factor expr statement input logic_and logic_or block expr_opt declare_or_expr_opt
 %type <argument> argument_list
 %type <parameter> parameter_list
 
@@ -67,16 +68,27 @@ statement:
 	declare ';'	{ $$ = $1; }
 	| expr ';'	{ $$ = $1; }
 	| RETURN expr ';'	{ $$ = make_return($2, @$); }
-	| WHILE '(' expr ')' '{' { sem_enter_scope(); } input '}'	{ sem_exit_scope(); $$ = make_while($3, $7, @$); }
-	| IF '(' expr ')' '{' { sem_enter_scope(); } input '}' else_clause	{ sem_exit_scope(); $$ = make_if($3, $7, $9, @$); }
-	| type IDENTIFIER { sem_enter_scope(); } '(' argument_list ')' '{' input '}'	{ sem_exit_scope(); $$ = make_function($1, $2, $5, $8, @$); }
+	| WHILE '(' expr ')' block	{ $$ = make_while($3, $5, @$); }
+	| FOR '(' { sem_enter_scope(); } declare_or_expr_opt ';' expr_opt ';' expr_opt ')' block	{
+		$$ = make_program(@$);
+		append_statement($$, $4);
+		ASTNode* while_body = $10;
+		append_statement(while_body, $8);
+		append_statement($$, make_while($6, while_body, @$));
+		sem_exit_scope(); }
+	| IF '(' expr ')' block else_clause	{ $$ = make_if($3, $5, $6, @$); }
+	| type IDENTIFIER { sem_enter_scope(); } '(' argument_list ')' block	{ sem_exit_scope(); $$ = make_function($1, $2, $5, $7, @$); }
 	| ';'		{ $$ = make_empty(@$); }
 ;
 
 else_clause:
 			{ $$ = NULL; }
-	| ELSE '{' { sem_enter_scope(); } input '}'	{ sem_exit_scope(); $$ = $4; }
-	| ELSE IF '(' expr ')' '{' { sem_enter_scope(); } input '}' else_clause	{ sem_exit_scope(); $$ = make_if($4, $8, $10, @$); }
+	| ELSE block	{ $$ = $2; }
+	| ELSE IF '(' expr ')' block else_clause	{ $$ = make_if($4, $6, $7, @$); }
+;
+
+block:
+	'{' { sem_enter_scope(); } input '}' { sem_exit_scope(); $$ = $3; }
 ;
 
 declare:
@@ -102,6 +114,17 @@ type:
 none_or_more_pointers:
 	{ $$ = 0; }
 	| none_or_more_pointers '*'	{ $$ = $1 + 1; }
+;
+
+declare_or_expr_opt:
+	declare		{ $$ = $1; }
+	| expr		{ $$ = $1; }
+	|	{ $$ = make_empty(@$); }
+;
+
+expr_opt:
+	expr	{ $$ = $1; }
+	|	{ $$ = make_empty(@$); }
 ;
 
 expr:

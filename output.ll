@@ -270,14 +270,14 @@ if.else:                                          ; preds = %and.end
   %loadtmp25 = load float, ptr %next, align 4
   store float %loadtmp25, ptr %guess, align 4
   %loadtmp26 = load float, ptr %guess, align 4
+  br label %if.end14
+
+if.end14:                                         ; preds = %if.else, %if.then13
   %loadtmp27 = load i32, ptr %i, align 4
   %addtmp = add i32 %loadtmp27, 1
   store i32 %addtmp, ptr %i, align 4
   %loadtmp28 = load i32, ptr %i, align 4
   %subtmp = sub i32 %loadtmp28, 1
-  br label %if.end14
-
-if.end14:                                         ; preds = %if.else, %if.then13
   br label %while.cond
 
 and.rhs:                                          ; preds = %while.body

@@ -60,21 +60,22 @@ extern int yydebug;
     FLOAT = 261,                   /* FLOAT  */
     RETURN = 262,                  /* RETURN  */
     WHILE = 263,                   /* WHILE  */
-    IF = 264,                      /* IF  */
-    ELSE = 265,                    /* ELSE  */
-    TRUE = 266,                    /* TRUE  */
-    FALSE = 267,                   /* FALSE  */
-    LOGIC_AND = 268,               /* LOGIC_AND  */
-    LOGIC_OR = 269,                /* LOGIC_OR  */
-    ASSIGNMENT_ADD_EQUALS = 270,   /* ASSIGNMENT_ADD_EQUALS  */
-    ASSIGNMENT_SUB_EQUALS = 271,   /* ASSIGNMENT_SUB_EQUALS  */
-    ASSIGNMENT_MUL_EQUALS = 272,   /* ASSIGNMENT_MUL_EQUALS  */
-    ASSIGNMENT_DIV_EQUALS = 273,   /* ASSIGNMENT_DIV_EQUALS  */
-    INCREMENT = 274,               /* INCREMENT  */
-    DECREMENT = 275,               /* DECREMENT  */
-    COMPARE = 276,                 /* COMPARE  */
-    BASE_TYPE = 277,               /* BASE_TYPE  */
-    STRING = 278                   /* STRING  */
+    FOR = 264,                     /* FOR  */
+    IF = 265,                      /* IF  */
+    ELSE = 266,                    /* ELSE  */
+    TRUE = 267,                    /* TRUE  */
+    FALSE = 268,                   /* FALSE  */
+    LOGIC_AND = 269,               /* LOGIC_AND  */
+    LOGIC_OR = 270,                /* LOGIC_OR  */
+    ASSIGNMENT_ADD_EQUALS = 271,   /* ASSIGNMENT_ADD_EQUALS  */
+    ASSIGNMENT_SUB_EQUALS = 272,   /* ASSIGNMENT_SUB_EQUALS  */
+    ASSIGNMENT_MUL_EQUALS = 273,   /* ASSIGNMENT_MUL_EQUALS  */
+    ASSIGNMENT_DIV_EQUALS = 274,   /* ASSIGNMENT_DIV_EQUALS  */
+    INCREMENT = 275,               /* INCREMENT  */
+    DECREMENT = 276,               /* DECREMENT  */
+    COMPARE = 277,                 /* COMPARE  */
+    BASE_TYPE = 278,               /* BASE_TYPE  */
+    STRING = 279                   /* STRING  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -94,7 +95,7 @@ union YYSTYPE
 	struct Argument* argument;
 	struct Parameter* parameter;
 
-#line 98 "build/parser.tab.h"
+#line 99 "build/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

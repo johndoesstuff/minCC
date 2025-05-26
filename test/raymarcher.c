@@ -9,14 +9,12 @@ float sqrt_approx(float x) {
 	float guess = x / 2.0;
 	float epsilon = 0.00001;
 
-	int i = 0;
-	while (i < 20) {
+	for (int i = 0; i < 20; i++) {
 		float next = 0.5 * (guess + x / guess);
 		if (guess - next < epsilon && guess - next > -epsilon) {
 			i = 20;
 		} else {
 			guess = next;
-			i++;
 		}
 	}
 

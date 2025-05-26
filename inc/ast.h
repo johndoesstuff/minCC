@@ -22,6 +22,7 @@ typedef enum {
 	AST_IF,
 	AST_FUNCTION,
 	AST_FUNCTION_CALL,
+	AST_EMPTY,
 } ASTNodeType;
 
 typedef struct ASTNode {
@@ -124,5 +125,6 @@ ASTNode* make_if(ASTNode* conditional, ASTNode* then_branch, ASTNode* else_branc
 //program
 ASTNode* make_program(YYLTYPE loc);
 void append_statement(ASTNode* program_node, ASTNode* statement);
+ASTNode* make_empty(YYLTYPE loc); //empty statement
 
 #endif

@@ -471,6 +471,9 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 				     LLVMPositionBuilderAtEnd(cg->builder, endBB);
 				     return NULL;
 			     }
+		case AST_EMPTY: {
+					return NULL;
+				}
 	}
 	return NULL;
 }

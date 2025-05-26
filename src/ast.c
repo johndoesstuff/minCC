@@ -302,6 +302,13 @@ ASTNode* make_false(YYLTYPE loc) {
 	return node;
 }
 
+ASTNode* make_empty(YYLTYPE loc) {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_EMPTY;
+	node->loc = loc;
+	return node;
+}
+
 int count_parameters(Parameter* params) {
         int count = 0;
         if (params == NULL) {

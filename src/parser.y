@@ -70,6 +70,7 @@ statement:
 	| WHILE '(' expr ')' '{' { sem_enter_scope(); } input '}'	{ sem_exit_scope(); $$ = make_while($3, $7, @$); }
 	| IF '(' expr ')' '{' { sem_enter_scope(); } input '}' else_clause	{ sem_exit_scope(); $$ = make_if($3, $7, $9, @$); }
 	| type IDENTIFIER { sem_enter_scope(); } '(' argument_list ')' '{' input '}'	{ sem_exit_scope(); $$ = make_function($1, $2, $5, $8, @$); }
+	| ';'		{ $$ = make_empty(@$); }
 ;
 
 else_clause:

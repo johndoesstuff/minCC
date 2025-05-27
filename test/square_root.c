@@ -1,4 +1,4 @@
-float sqrt_approx(float x) {
+double sqrt_approx(double x) {
 	if (x < 0.0) {
 		return -1.0;
 	}
@@ -6,12 +6,12 @@ float sqrt_approx(float x) {
 		return 0.0;
 	}
 
-	float guess = x / 2.0;
-	float epsilon = 0.00001;
+	double guess = x / 2.0;
+	double epsilon = 0.00001;
 
 	int i = 0;
 	while (i < 20) {
-		float next = 0.5 * (guess + x / guess);
+		double next = 0.5 * (guess + x / guess);
 		if (guess - next < epsilon && guess - next > -epsilon) {
 			i = 20;
 		} else {

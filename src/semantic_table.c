@@ -47,6 +47,7 @@ SemEntry* sem_create_function(const char* name, Type* type, Argument* arguments,
 	entry->isVariadic = isVariadic;
 	int arg_count = count_arguments(arguments);
 	entry->argTypes = malloc(sizeof(Type*) * arg_count);
+	entry->arg_count = arg_count;
 	Argument* current = arguments;
 	for (int i = 0; i < arg_count; i++) {
 		entry->argTypes[i] = current->type;

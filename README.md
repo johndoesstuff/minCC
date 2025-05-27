@@ -8,6 +8,7 @@
   - `=`, `+=`, `-=`, `*=`, `/=`
   - Incrementing / Decrementing
 - Dereferencing + Pointer Arithmatic
+- Array indexing
 - Types
   - `int`
   - `bool`
@@ -34,5 +35,5 @@
 - Structs
 - Unions
 - Malloc
-- Array indexing
 - Break
+- Main Function

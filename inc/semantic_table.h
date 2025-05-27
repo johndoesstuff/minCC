@@ -16,6 +16,7 @@ typedef struct SemEntry {
 	SemEntryKind entryKind;
 	int isVariadic; //for functions
 	Type** argTypes; //for functions
+	int arg_count;
 	struct SemEntry* next;
 } SemEntry;
 

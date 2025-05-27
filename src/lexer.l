@@ -62,8 +62,24 @@ char parse_char_literal(const char *text) {
 
 %%
 
-([0-9]*\.[0-9]+([eE][-+]?[0-9]+)?|[0-9]+[eE][-+]?[0-9]+)	{ yylval->fval = atof(yytext); return FLOAT; }
-[0-9]+		{ yylval->ival = atoi(yytext); return NUMBER; }
+([0-9]*\.[0-9]+|[0-9]+\.)[fF]([eE][-+]?[0-9]+)? |
+[0-9]+[eE][-+]?[0-9]+[fF]           {
+	yylval->fval = strtof(yytext, NULL);
+	return FLOAT;
+}
+([0-9]+\.[0-9]*|[0-9]*\.[0-9]+)([eE][-+]?[0-9]+)? |
+[0-9]+([eE][-+]?[0-9]+) {
+	yylval->dval = strtod(yytext, NULL);
+	return DOUBLE;
+}
+[0-9]+[lL] {
+	yylval->lval = strtol(yytext, NULL, 10);
+	return LONG;
+}
+[0-9]+ {
+	yylval->ival = strtol(yytext, NULL, 10);
+	return INT;
+}
 '([^\\']|\\.)' { yylval->cval = parse_char_literal(yytext); return CHARACTER; }
 \"([^\\\"]|\\.)*\"		{ yytext[yyleng - 1] = '\0'; yylval->sval = unescape_string(yytext + 1); return STRING; }
 "return"	{ return RETURN; }
@@ -88,7 +104,7 @@ char parse_char_literal(const char *text) {
 "]"		{ return ']'; }
 "{"		{ return '{'; }
 "}"		{ return '}'; }
-("int"|"bool"|"char"|"float")	{ yylval->sval = strdup(yytext); return BASE_TYPE; }
+("int"|"bool"|"char"|"float"|"double"|"short"|"long"|"void")	{ yylval->sval = strdup(yytext); return BASE_TYPE; }
 "&&"		{ return LOGIC_AND; }
 "||"		{ return LOGIC_OR; }
 [a-zA-Z_][a-zA-Z0-9_]*	{ yylval->sval = strdup(yytext); return IDENTIFIER; }
@@ -100,7 +116,7 @@ char parse_char_literal(const char *text) {
 ","		{ return ','; }
 \/\/.*		; //single line comment
 \/\*([^*]|\*+[^*/])*\*+\/	; //multiline comment
-\n      { yycolumn = 1; yylineno++; }
+\n      { yycolumn = 1; }
 [ \t]+	; // ignore whitespace
 .		{ fprintf(stderr, "Invalid character: %s at %d:%d\n", yytext, yylineno, yycolumn); }
 

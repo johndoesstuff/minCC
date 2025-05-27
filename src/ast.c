@@ -84,12 +84,21 @@ void append_parameter(Parameter* parameters, Parameter* parameter, YYLTYPE loc) 
 	current->next = parameter;
 }
 
-ASTNode* make_number(int value, YYLTYPE loc) {
+ASTNode* make_int(int value, YYLTYPE loc) {
 	ASTNode* node = malloc(sizeof(ASTNode));
-	node->type = AST_NUMBER;
+	node->type = AST_INT;
 	node->loc = loc;
 	node->valueType = make_type(TYPE_INT, 0);
-	node->value = value;
+	node->intValue = value;
+	return node;
+}
+
+ASTNode* make_long(long value, YYLTYPE loc) {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_LONG;
+	node->loc = loc;
+	node->valueType = make_type(TYPE_LONG, 0);
+	node->longValue = value;
 	return node;
 }
 
@@ -99,6 +108,15 @@ ASTNode* make_float(float value, YYLTYPE loc) {
 	node->loc = loc;
 	node->valueType = make_type(TYPE_FLOAT, 0);
 	node->floatValue = value;
+	return node;
+}
+
+ASTNode* make_double(double value, YYLTYPE loc) {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_DOUBLE;
+	node->loc = loc;
+	node->valueType = make_type(TYPE_DOUBLE, 0);
+	node->doubleValue = value;
 	return node;
 }
 
@@ -148,6 +166,26 @@ ASTNode* make_function_call(char* identifier, Parameter* parameters, YYLTYPE loc
                 yyerror(&loc, msg);
                 free(msg);
 		exit(1);
+	}
+	Parameter* currentParam = parameters;
+	int arg_count = func->arg_count;
+	int param_count = count_parameters(parameters);
+	if (!func->isVariadic && arg_count != param_count) {
+		char *msg;
+                asprintf(&msg, "Argument mismatch for function '%s', expected %d arguments but recieved %d", identifier, arg_count, param_count);
+                yyerror(&loc, msg);
+                free(msg);
+		exit(1);
+	}
+	for (int i = 0; i < arg_count; i++) {
+		if (type_cmp(currentParam->value->valueType, func->argTypes[i]) != 0) {
+			char *msg;
+			asprintf(&msg, "Argument mismatch for function '%s', expected %s but recieved %s", identifier, type_to_str(func->argTypes[i]), type_to_str(currentParam->value->valueType));
+			yyerror(&(currentParam->loc), msg);
+			free(msg);
+			exit(1);
+		}
+		currentParam = currentParam->next;
 	}
 	node->valueType = func->type;
 	node->function_call.identifier = identifier;
@@ -294,7 +332,7 @@ ASTNode* make_unary(char* op, ASTNode* operand, YYLTYPE loc) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_UNARY;
 	node->loc = loc;
-	node->valueType = make_type(TYPE_INT, 0);
+	node->valueType = operand->valueType;
 	node->unary.op = op;
 	node->unary.operand = operand;
 	if (strcmp(op, "*") == 0) {
@@ -350,7 +388,7 @@ ASTNode* make_true(YYLTYPE loc) {
 	node->type = AST_BOOL;
 	node->loc = loc;
 	node->valueType = make_type(TYPE_BOOL, 0);
-	node->value = 1;
+	node->boolValue = 1;
 	return node;
 }
 
@@ -359,7 +397,7 @@ ASTNode* make_false(YYLTYPE loc) {
 	node->type = AST_BOOL;
 	node->loc = loc;
 	node->valueType = make_type(TYPE_BOOL, 0);
-	node->value = 0;
+	node->boolValue = 0;
 	return node;
 }
 

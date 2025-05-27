@@ -29,6 +29,9 @@ LLVMTypeRef get_llvm_type(Type* type, LLVMContextRef context) {
 		case TYPE_INT:
 			base = LLVMInt32TypeInContext(context);
 			break;
+		case TYPE_LONG:
+			base = LLVMInt64TypeInContext(context);
+			break;
 		case TYPE_BOOL:
 			base = LLVMInt1TypeInContext(context);
 			break;
@@ -37,6 +40,9 @@ LLVMTypeRef get_llvm_type(Type* type, LLVMContextRef context) {
 			break;
 		case TYPE_FLOAT:
 			base = LLVMFloatTypeInContext(context);
+			break;
+		case TYPE_DOUBLE:
+			base = LLVMDoubleTypeInContext(context);
 			break;
 		default:
 			base = LLVMVoidTypeInContext(context);
@@ -66,6 +72,14 @@ BaseType get_base_type(char* type) {
 		return TYPE_CHAR;
 	} else if (strcmp(type, "float") == 0) {
 		return TYPE_FLOAT;
+	} else if (strcmp(type, "double") == 0) {
+		return TYPE_DOUBLE;
+	} else if (strcmp(type, "short") == 0) {
+		return TYPE_SHORT;
+	} else if (strcmp(type, "long") == 0) {
+		return TYPE_LONG;
+	} else if (strcmp(type, "void") == 0) {
+		return TYPE_VOID;
 	} else {
 		fprintf(stderr, "unknown type??\n");
 		exit(1);
@@ -80,6 +94,9 @@ char* type_to_str(Type* type) {
 		case TYPE_CHAR: base = "char"; break;
 		case TYPE_FLOAT: base = "float"; break;
 		case TYPE_VOID: base = "void"; break;
+		case TYPE_DOUBLE: base = "double"; break;
+		case TYPE_SHORT: base = "short"; break;
+		case TYPE_LONG: base = "long"; break;
 		default:        base = "unknown"; break;
 	}
 
@@ -219,9 +236,11 @@ int is_numeric(Type* t) {
 	}
 	if (
 			base == TYPE_INT ||
+			base == TYPE_LONG ||
 			base == TYPE_BOOL ||
 			base == TYPE_CHAR ||
-			base == TYPE_FLOAT
+			base == TYPE_FLOAT ||
+			base == TYPE_DOUBLE
 	) {
 		return 1;
 	}

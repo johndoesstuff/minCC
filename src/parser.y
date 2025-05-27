@@ -9,19 +9,23 @@ ASTNode* root;
 
 %union {
 	int ival;
+	long lval;
 	char* sval;
 	char cval;
 	float fval;
+	double dval;
 	struct ASTNode* node;
 	struct Type* type;
 	struct Argument* argument;
 	struct Parameter* parameter;
 }
 
-%token <ival> NUMBER
+%token <ival> INT
 %token <sval> IDENTIFIER
 %token <cval> CHARACTER
 %token <fval> FLOAT
+%token <dval> DOUBLE
+%token <lval> LONG
 %token RETURN
 %token WHILE
 %token FOR
@@ -173,16 +177,18 @@ factor:
 	| '*' factor	{ $$ = make_unary("*", $2, @$); }
 	| factor '[' factor ']'	{ $$ = make_unary("*", make_binary("+", $1, $3, @$), @$); }
 	//yes this is cursed i dont care ill fix it later
-	| INCREMENT IDENTIFIER	{ $$ = make_assign($2, make_binary("+", make_identifier($2, @$), make_number(1, @$), @$), @$); }
-	| DECREMENT IDENTIFIER	{ $$ = make_assign($2, make_binary("-", make_identifier($2, @$), make_number(1, @$), @$), @$); }
-	| IDENTIFIER INCREMENT	{ $$ = make_binary("-", make_assign($1, make_binary("+", make_identifier($1, @$), make_number(1, @$), @$), @$), make_number(1, @$), @$); }
-	| IDENTIFIER DECREMENT	{ $$ = make_binary("+", make_assign($1, make_binary("-", make_identifier($1, @$), make_number(1, @$), @$), @$), make_number(1, @$), @$); }
+	| INCREMENT IDENTIFIER	{ $$ = make_assign($2, make_binary("+", make_identifier($2, @$), make_int(1, @$), @$), @$); }
+	| DECREMENT IDENTIFIER	{ $$ = make_assign($2, make_binary("-", make_identifier($2, @$), make_int(1, @$), @$), @$); }
+	| IDENTIFIER INCREMENT	{ $$ = make_binary("-", make_assign($1, make_binary("+", make_identifier($1, @$), make_int(1, @$), @$), @$), make_int(1, @$), @$); }
+	| IDENTIFIER DECREMENT	{ $$ = make_binary("+", make_assign($1, make_binary("-", make_identifier($1, @$), make_int(1, @$), @$), @$), make_int(1, @$), @$); }
 	| IDENTIFIER '(' parameter_list ')'	{ $$ = make_function_call($1, $3, @$); }
 	| IDENTIFIER	{ $$ = make_identifier($1, @$); }
-	| NUMBER	{ $$ = make_number($1, @$); }
+	| INT		{ $$ = make_int($1, @$); }
+	| LONG		{ $$ = make_long($1, @$); }
 	| CHARACTER	{ $$ = make_character($1, @$); }
 	| STRING	{ $$ = make_string($1, @$); }
 	| FLOAT		{ $$ = make_float($1, @$); }
+	| DOUBLE	{ $$ = make_double($1, @$); }
 ;
 
 %%

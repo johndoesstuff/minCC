@@ -54,28 +54,30 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    NUMBER = 258,                  /* NUMBER  */
+    INT = 258,                     /* INT  */
     IDENTIFIER = 259,              /* IDENTIFIER  */
     CHARACTER = 260,               /* CHARACTER  */
     FLOAT = 261,                   /* FLOAT  */
-    RETURN = 262,                  /* RETURN  */
-    WHILE = 263,                   /* WHILE  */
-    FOR = 264,                     /* FOR  */
-    IF = 265,                      /* IF  */
-    ELSE = 266,                    /* ELSE  */
-    TRUE = 267,                    /* TRUE  */
-    FALSE = 268,                   /* FALSE  */
-    LOGIC_AND = 269,               /* LOGIC_AND  */
-    LOGIC_OR = 270,                /* LOGIC_OR  */
-    ASSIGNMENT_ADD_EQUALS = 271,   /* ASSIGNMENT_ADD_EQUALS  */
-    ASSIGNMENT_SUB_EQUALS = 272,   /* ASSIGNMENT_SUB_EQUALS  */
-    ASSIGNMENT_MUL_EQUALS = 273,   /* ASSIGNMENT_MUL_EQUALS  */
-    ASSIGNMENT_DIV_EQUALS = 274,   /* ASSIGNMENT_DIV_EQUALS  */
-    INCREMENT = 275,               /* INCREMENT  */
-    DECREMENT = 276,               /* DECREMENT  */
-    COMPARE = 277,                 /* COMPARE  */
-    BASE_TYPE = 278,               /* BASE_TYPE  */
-    STRING = 279                   /* STRING  */
+    DOUBLE = 262,                  /* DOUBLE  */
+    LONG = 263,                    /* LONG  */
+    RETURN = 264,                  /* RETURN  */
+    WHILE = 265,                   /* WHILE  */
+    FOR = 266,                     /* FOR  */
+    IF = 267,                      /* IF  */
+    ELSE = 268,                    /* ELSE  */
+    TRUE = 269,                    /* TRUE  */
+    FALSE = 270,                   /* FALSE  */
+    LOGIC_AND = 271,               /* LOGIC_AND  */
+    LOGIC_OR = 272,                /* LOGIC_OR  */
+    ASSIGNMENT_ADD_EQUALS = 273,   /* ASSIGNMENT_ADD_EQUALS  */
+    ASSIGNMENT_SUB_EQUALS = 274,   /* ASSIGNMENT_SUB_EQUALS  */
+    ASSIGNMENT_MUL_EQUALS = 275,   /* ASSIGNMENT_MUL_EQUALS  */
+    ASSIGNMENT_DIV_EQUALS = 276,   /* ASSIGNMENT_DIV_EQUALS  */
+    INCREMENT = 277,               /* INCREMENT  */
+    DECREMENT = 278,               /* DECREMENT  */
+    COMPARE = 279,                 /* COMPARE  */
+    BASE_TYPE = 280,               /* BASE_TYPE  */
+    STRING = 281                   /* STRING  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -87,15 +89,17 @@ union YYSTYPE
 #line 10 "src/parser.y"
 
 	int ival;
+	long lval;
 	char* sval;
 	char cval;
 	float fval;
+	double dval;
 	struct ASTNode* node;
 	struct Type* type;
 	struct Argument* argument;
 	struct Parameter* parameter;
 
-#line 99 "build/parser.tab.h"
+#line 103 "build/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

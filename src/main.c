@@ -75,10 +75,14 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 					  codegen_exit_scope();
 					  return NULL;
 				  }
-		case AST_NUMBER:
-				  return LLVMConstInt(LLVMInt32TypeInContext(cg->context), node->value, 0);
+		case AST_INT:
+				  return LLVMConstInt(LLVMInt32TypeInContext(cg->context), node->intValue, 0);
+		case AST_LONG:
+				  return LLVMConstInt(LLVMInt64TypeInContext(cg->context), node->longValue, 0);
 		case AST_FLOAT:
 				  return LLVMConstReal(LLVMFloatTypeInContext(cg->context), node->floatValue);
+		case AST_DOUBLE:
+				  return LLVMConstReal(LLVMDoubleTypeInContext(cg->context), node->doubleValue);
 		case AST_CHARACTER:
 				  return LLVMConstInt(LLVMInt8TypeInContext(cg->context), node->character, 0);
 		case AST_STRING: {
@@ -140,6 +144,11 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 					 LLVMTypeRef l_type = get_llvm_type(node->binary.left->valueType, cg->context);
 					 LLVMTypeRef r_type = get_llvm_type(node->binary.right->valueType, cg->context);
 
+					 if (LLVMTypeOf(left) != LLVMTypeOf(right) && l_type == r_type) {
+					 	printf("ast/codegen type discrepancy before casting. the compiler has fallen. billions must die.\n");
+						exit(1);
+					 }
+
 					 //check float
 					 int l_is_float = LLVMGetTypeKind(l_type) == LLVMFloatTypeKind || LLVMGetTypeKind(l_type) == LLVMDoubleTypeKind;
 					 int r_is_float = LLVMGetTypeKind(r_type) == LLVMFloatTypeKind || LLVMGetTypeKind(r_type) == LLVMDoubleTypeKind;
@@ -149,13 +158,22 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 
 						 //check floats
 						 if (l_is_float && r_is_float) {
-						 	//do nothing until i implement doubles
+							 printf("trigggered\n");
+							 if (LLVMGetTypeKind(l_type) == LLVMDoubleTypeKind) {
+								 printf("casting l\n");
+								 right = LLVMBuildFPExt(cg->builder, right, LLVMTypeOf(left), "fpext_tmp");
+								 node->binary.right->valueType = make_type(TYPE_DOUBLE, 0);
+							 } else {
+								 printf("casting r\n");
+								 left = LLVMBuildFPExt(cg->builder, left, LLVMTypeOf(right), "fpext_tmp");
+								 node->binary.left->valueType = make_type(TYPE_DOUBLE, 0);
+							 }
 						 } else if (l_is_float && !r_is_float) {
-						 	right = LLVMBuildSIToFP(cg->builder, right, l_type, "sitofp_tmp");
-							node->binary.right->valueType = make_type(TYPE_FLOAT, 0);
+						 	right = LLVMBuildSIToFP(cg->builder, right, LLVMTypeOf(left), "sitofp_tmp");
+							node->binary.right->valueType = node->binary.left->valueType;
 						 } else if (!l_is_float && r_is_float) {
-						 	left = LLVMBuildSIToFP(cg->builder, left, r_type, "sitofp_tmp");
-							node->binary.left->valueType = make_type(TYPE_FLOAT, 0);
+						 	left = LLVMBuildSIToFP(cg->builder, left, LLVMTypeOf(right), "sitofp_tmp");
+							node->binary.left->valueType = node->binary.right->valueType;
 						 } else {
 							 //match largest int
 							 unsigned int l_width = LLVMGetIntTypeWidth(l_type);
@@ -178,6 +196,11 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 					 l_is_float = LLVMGetTypeKind(l_type) == LLVMFloatTypeKind || LLVMGetTypeKind(l_type) == LLVMDoubleTypeKind;
 					 r_is_float = LLVMGetTypeKind(r_type) == LLVMFloatTypeKind || LLVMGetTypeKind(r_type) == LLVMDoubleTypeKind;
 
+					 if (LLVMTypeOf(left) != LLVMTypeOf(right) && l_type == r_type) {
+					 	printf("ast/codegen type discrepancy after casting. the compiler has fallen. billions must die.\n");
+						exit(1);
+					 }
+
 					 //ts pmo
 					 if (strcmp(node->binary.op, "&&") == 0) {
 						 return codegen_logical_and(cg, node, left, right);
@@ -187,16 +210,16 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 
 					 if (l_is_float) { //float operations
 						 if (strcmp(node->binary.op, "+") == 0) {
-							 node->valueType = make_type(TYPE_FLOAT, 0);
+							 node->valueType = node->binary.right->valueType;
 							 return LLVMBuildFAdd(cg->builder, left, right, "faddtmp");
 						 } else if (strcmp(node->binary.op, "-") == 0) {
-							 node->valueType = make_type(TYPE_FLOAT, 0);
+							 node->valueType = node->binary.right->valueType;
 							 return LLVMBuildFSub(cg->builder, left, right, "fsubtmp");
 						 } else if (strcmp(node->binary.op, "*") == 0) {
-							 node->valueType = make_type(TYPE_FLOAT, 0);
+							 node->valueType = node->binary.right->valueType;
 							 return LLVMBuildFMul(cg->builder, left, right, "fmultmp");
 						 } else if (strcmp(node->binary.op, "/") == 0) {
-							 node->valueType = make_type(TYPE_FLOAT, 0);
+							 node->valueType = node->binary.right->valueType;
 							 return LLVMBuildFDiv(cg->builder, left, right, "fdivtmp");
 						 } else if (strcmp(node->binary.op, "%") == 0) {
 							 char *msg;
@@ -225,19 +248,19 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 						 }
 					 } else { //int operations
 						 if (strcmp(node->binary.op, "+") == 0) {
-							 node->valueType = make_type(TYPE_INT, 0);
+							 node->valueType = node->binary.right->valueType;
 							 return LLVMBuildAdd(cg->builder, left, right, "addtmp");
 						 } else if (strcmp(node->binary.op, "-") == 0) {
-							 node->valueType = make_type(TYPE_INT, 0);
+							 node->valueType = node->binary.right->valueType;
 							 return LLVMBuildSub(cg->builder, left, right, "subtmp");
 						 } else if (strcmp(node->binary.op, "*") == 0) {
-							 node->valueType = make_type(TYPE_INT, 0);
+							 node->valueType = node->binary.right->valueType;
 							 return LLVMBuildMul(cg->builder, left, right, "multmp");
 						 } else if (strcmp(node->binary.op, "/") == 0) {
-							 node->valueType = make_type(TYPE_INT, 0);
+							 node->valueType = node->binary.right->valueType;
 							 return LLVMBuildSDiv(cg->builder, left, right, "divtmp");
 						 } else if (strcmp(node->binary.op, "%") == 0) {
-							 node->valueType = make_type(TYPE_INT, 0);
+							 node->valueType = node->binary.right->valueType;
 							 return LLVMBuildSRem(cg->builder, left, right, "modtmp");
 						 } else if (strcmp(node->binary.op, "==") == 0) {
 							 node->valueType = make_type(TYPE_BOOL, 0);
@@ -267,12 +290,12 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 
 					if (strcmp(node->unary.op, "-") == 0) {
 						if (LLVMGetTypeKind(type) == LLVMFloatTypeKind || LLVMGetTypeKind(type) == LLVMDoubleTypeKind) {
-							node->valueType = make_type(TYPE_FLOAT, 0);
+							node->valueType = node->unary.operand->valueType;
 							LLVMValueRef zero = LLVMConstReal(type, 0.0);
 							return LLVMBuildFSub(cg->builder, zero, operand, "fnegtmp");
 
 						} else if (LLVMGetTypeKind(type) == LLVMIntegerTypeKind) {
-							node->valueType = make_type(TYPE_INT, 0);
+							node->valueType = node->unary.operand->valueType;
 							LLVMValueRef zero = LLVMConstInt(type, 0, 0);
 							return LLVMBuildSub(cg->builder, zero, operand, "inegtmp");
 
@@ -448,7 +471,7 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 					 return LLVMBuildRet(cg->builder, value);
 				 }
 		case AST_BOOL: {
-				       return LLVMConstInt(LLVMInt1TypeInContext(cg->context), node->value, 0);
+				       return LLVMConstInt(LLVMInt1TypeInContext(cg->context), node->boolValue, 0);
 			       }
 		case AST_WHILE: {
 					LLVMBasicBlockRef condBB = LLVMAppendBasicBlock(cg->function, "while.cond");

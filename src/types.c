@@ -94,6 +94,20 @@ char* type_to_str(Type* type) {
 	return result;
 }
 
+unsigned get_float_type_bits(LLVMTypeRef type) {
+	LLVMTypeKind kind = LLVMGetTypeKind(type);
+	switch (kind) {
+		case LLVMHalfTypeKind:       return 16;
+		case LLVMFloatTypeKind:      return 32;
+		case LLVMDoubleTypeKind:     return 64;
+		case LLVMFP128TypeKind:      return 128;
+		case LLVMPPC_FP128TypeKind:  return 128;
+		default:
+					     fprintf(stderr, "Error: unknown float type kind %d\n", kind);
+					     exit(1);
+	}
+}
+
 LLVMValueRef cast_to(LLVMValueRef value, LLVMTypeRef target_type, int is_signed, CodegenContext* cg) {
 	LLVMBuilderRef builder = cg->builder;
 
@@ -112,6 +126,33 @@ LLVMValueRef cast_to(LLVMValueRef value, LLVMTypeRef target_type, int is_signed,
 		} else if (current_bits > target_bits) {
 			return LLVMBuildTrunc(builder, value, target_type, "trunc");
 		}
+	}
+
+	if (LLVMGetTypeKind(current_type) == LLVMFloatTypeKind && LLVMGetTypeKind(target_type) == LLVMIntegerTypeKind) {
+		return is_signed
+			? LLVMBuildFPToSI(builder, value, target_type, "fptosi")
+			: LLVMBuildFPToUI(builder, value, target_type, "fptoui");
+	}
+
+	if (LLVMGetTypeKind(current_type) == LLVMIntegerTypeKind && LLVMGetTypeKind(target_type) == LLVMFloatTypeKind) {
+		return is_signed
+			? LLVMBuildSIToFP(builder, value, target_type, "sitofp")
+			: LLVMBuildUIToFP(builder, value, target_type, "uitofp");
+	}
+
+	if (LLVMGetTypeKind(current_type) == LLVMFloatTypeKind && LLVMGetTypeKind(target_type) == LLVMFloatTypeKind) {
+
+		unsigned current_bits = get_float_type_bits(current_type);
+		unsigned target_bits = get_float_type_bits(target_type);
+		if (current_bits < target_bits) {
+			return LLVMBuildFPExt(builder, value, target_type, "fpext");
+		} else {
+			return LLVMBuildFPTrunc(builder, value, target_type, "fptrunc");
+		}
+	}
+
+	if (LLVMGetTypeKind(current_type) == LLVMPointerTypeKind && LLVMGetTypeKind(target_type) == LLVMPointerTypeKind) {
+		return LLVMBuildPointerCast(builder, value, target_type, "ptrcast");
 	}
 
 	return value;

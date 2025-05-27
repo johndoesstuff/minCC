@@ -308,6 +308,15 @@ ASTNode* make_unary(char* op, ASTNode* operand, YYLTYPE loc) {
 	return node;
 }
 
+ASTNode* make_cast(Type* type, ASTNode* value, YYLTYPE loc) {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_CAST;
+	node->loc = loc;
+	node->valueType = type;
+	node->cast.value = value;
+	return node;
+}
+
 ASTNode* make_return(ASTNode* value, YYLTYPE loc) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_RETURN;

@@ -167,7 +167,8 @@ term:
 ;
 
 factor:
-	'(' rvalue ')'	{ $$ = $2; }
+	'(' type ')' factor	{ $$ = make_cast($2, $4, @$); }
+	| '(' rvalue ')'	{ $$ = $2; }
 	| '-' factor	{ $$ = make_unary("-", $2, @$); }
 	| '*' factor	{ $$ = make_unary("*", $2, @$); }
 	//yes this is cursed i dont care ill fix it later

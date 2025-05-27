@@ -287,6 +287,11 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 						return LLVMBuildLoad2(cg->builder, type, operand, "deref");
 					}
 				}
+		case AST_CAST: {
+				       LLVMValueRef value = generate(node->cast.value, cg);
+				       LLVMTypeRef type = get_llvm_type(node->valueType, cg->context);
+				       return cast_to(value, type, 1, cg);
+			       }
 		case AST_FUNCTION: {
 					LLVMTypeRef return_type = get_llvm_type(node->function.type, cg->context);
 					

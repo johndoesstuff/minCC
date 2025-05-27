@@ -23,6 +23,7 @@ typedef enum {
 	AST_FUNCTION,
 	AST_FUNCTION_CALL,
 	AST_EMPTY,
+	AST_CAST,
 } ASTNodeType;
 
 typedef struct ASTNode {
@@ -80,6 +81,9 @@ typedef struct ASTNode {
 			char* identifier;
 			struct Parameter* parameters;
 		} function_call;
+		struct {
+			struct ASTNode* value;
+		} cast;
 	};
 } ASTNode;
 
@@ -110,6 +114,8 @@ void append_parameter(Parameter* parameters, Parameter* parameter, YYLTYPE loc);
 //operators
 ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right, YYLTYPE loc);
 ASTNode* make_unary(char* op, ASTNode* left, YYLTYPE loc);
+
+ASTNode* make_cast(Type* type, ASTNode* value, YYLTYPE loc);
 
 //variables
 ASTNode* make_assign(char* identifier, ASTNode* right, YYLTYPE loc);

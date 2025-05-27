@@ -72,10 +72,10 @@ float march_ray(float ox, float oy, float oz, float dx, float dy, float dz) {
 
 printf("Basic Raymarcher with Sphere SDF:\n\n");
 
-int width = 100;
-int height = 50;
+int width = 200;
+int height = 100;
 
-char* charset = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'.";
+char* charset = "@&%QWNM0gB$#DR8mHXKAUbGOpV4d9h6PkqwSE2]ayjxY5Zoen[ult13If}C{iF|(7J)vTLs?z/*cr!+<>;=^,_:'-.`";
 
 float cameraZ = 4.0;
 
@@ -97,18 +97,14 @@ for (int y = 0; y < height; y++) {
 		float hit = march_ray(0.0, 0.0, -cameraZ, dirX, dirY, dirZ);
 		if (hit == 0.0) {
 			printf(" ");
-		} else if (hit < 4) {
-			printf("%c", *charset);
-		} else  if (hit < 6) {
-			printf("%c", *(charset + 4));
-		} else if (hit < 10) {
-			printf("%c", *(charset + 8));
-		} else if (hit < 15) {
-			printf("%c", *(charset + 12));
-		} else if (hit < 20) {
-			printf("%c", *(charset + 16));
 		} else {
-			printf("%c", *(charset + 20));
+			int charset_len = 91;
+			int index = (int)((hit / 20.0) * (charset_len - 1));
+			if (index >= charset_len) {
+				printf(" ");
+			} else {
+				printf("%c", *(charset + index));
+			}
 		}
 
 	}

@@ -171,6 +171,7 @@ factor:
 	| '(' rvalue ')'	{ $$ = $2; }
 	| '-' factor	{ $$ = make_unary("-", $2, @$); }
 	| '*' factor	{ $$ = make_unary("*", $2, @$); }
+	| factor '[' factor ']'	{ $$ = make_unary("*", make_binary("+", $1, $3, @$), @$); }
 	//yes this is cursed i dont care ill fix it later
 	| INCREMENT IDENTIFIER	{ $$ = make_assign($2, make_binary("+", make_identifier($2, @$), make_number(1, @$), @$), @$); }
 	| DECREMENT IDENTIFIER	{ $$ = make_assign($2, make_binary("-", make_identifier($2, @$), make_number(1, @$), @$), @$); }

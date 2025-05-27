@@ -103,7 +103,7 @@ for (int y = 0; y < height; y++) {
 			if (index >= charset_len) {
 				printf(" ");
 			} else {
-				printf("%c", *(charset + index));
+				printf("%c", charset[index]);
 			}
 		}
 

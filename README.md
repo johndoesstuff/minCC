@@ -3,9 +3,11 @@
 - If Statements
 - Functions
 - While Loops
+- For loops
 - Variable Declaration / Assignment
   - `=`, `+=`, `-=`, `*=`, `/=`
   - Incrementing / Decrementing
+- Dereferencing + Pointer Arithmatic
 - Types
   - `int`
   - `bool`
@@ -27,9 +29,7 @@
 - Doubles
 - Shorts
 - Longs
-- Dereferencing
 - Pass by reference
-- For loops
 - Do while loops
 - Structs
 - Unions

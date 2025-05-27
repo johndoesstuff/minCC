@@ -84,6 +84,8 @@ char parse_char_literal(const char *text) {
 ";"		{ return ';'; }
 "("		{ return '('; }
 ")"		{ return ')'; }
+"["		{ return '['; }
+"]"		{ return ']'; }
 "{"		{ return '{'; }
 "}"		{ return '}'; }
 ("int"|"bool"|"char"|"float")	{ yylval->sval = strdup(yytext); return BASE_TYPE; }

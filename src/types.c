@@ -15,7 +15,7 @@ int is_boolean_operator(char* op) {
 		strcmp(op, ">=") == 0;
 }
 
-int ast_type_cmp(Type* a, Type* b) {
+int type_cmp(Type* a, Type* b) {
 	if (!a || !b) {
 		fprintf(stderr, "trying to compare non existant types");
 		exit(1);
@@ -169,4 +169,27 @@ Argument* sem_generate_argument_signature(int count, ...) {
 
 	va_end(args);
 	return head;
+}
+
+int is_numeric(Type* t) {
+	BaseType base = t->baseType;
+	if (t->pointerDepth > 0) {
+		return 0;
+	}
+	if (
+			base == TYPE_INT ||
+			base == TYPE_BOOL ||
+			base == TYPE_CHAR ||
+			base == TYPE_FLOAT
+	) {
+		return 1;
+	}
+	return 0;
+}
+
+Type* typedup(Type* t) {
+	Type* newType = malloc(sizeof(Type));
+	newType->pointerDepth = t->pointerDepth;
+	newType->baseType = t->baseType;
+	return newType;
 }

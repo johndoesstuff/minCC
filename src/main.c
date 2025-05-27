@@ -113,6 +113,29 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 					 LLVMValueRef left = generate(node->binary.left, cg);
 					 LLVMValueRef right = generate(node->binary.right, cg);
 
+					 //pointer math
+					 int l_is_ptr = node->binary.left->valueType->pointerDepth > 0;
+					 int r_is_ptr = node->binary.right->valueType->pointerDepth > 0;
+					 if ((l_is_ptr && !r_is_ptr && strcmp(node->binary.op, "+") == 0) ||
+							 (!l_is_ptr && r_is_ptr && strcmp(node->binary.op, "+") == 0) ||
+							 (l_is_ptr && !r_is_ptr && strcmp(node->binary.op, "-") == 0)) {
+						 LLVMValueRef ptr_operand = l_is_ptr ? left : right;
+						 LLVMValueRef index_operand = l_is_ptr ? right : left;
+						 if (LLVMTypeOf(index_operand) != LLVMInt32TypeInContext(cg->context)) {
+							 index_operand = LLVMBuildIntCast(cg->builder, index_operand, LLVMInt32TypeInContext(cg->context), "idxcast");
+						 }
+
+						 Type* ptr_type = l_is_ptr ? node->binary.left->valueType : node->binary.right->valueType;
+						 Type* deref_type = typedup(ptr_type);
+						 deref_type->pointerDepth--;
+						 LLVMTypeRef element_llvm_type = get_llvm_type(deref_type, cg->context);
+
+						 LLVMValueRef gep_result = LLVMBuildGEP2(cg->builder, element_llvm_type, ptr_operand, &index_operand, 1, "ptradd");
+
+						 node->valueType = ptr_type;
+						 return gep_result;
+					 }
+
 					 //prepare type coercion
 					 LLVMTypeRef l_type = get_llvm_type(node->binary.left->valueType, cg->context);
 					 LLVMTypeRef r_type = get_llvm_type(node->binary.right->valueType, cg->context);
@@ -238,20 +261,20 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 					 }
 				 }
 		case AST_UNARY: {
-					LLVMValueRef left = generate(node->unary.left, cg);
+					LLVMValueRef operand = generate(node->unary.operand, cg);
 
-					LLVMTypeRef type = get_llvm_type(node->unary.left->valueType, cg->context);
+					LLVMTypeRef type = get_llvm_type(node->unary.operand->valueType, cg->context);
 
 					if (strcmp(node->unary.op, "-") == 0) {
 						if (LLVMGetTypeKind(type) == LLVMFloatTypeKind || LLVMGetTypeKind(type) == LLVMDoubleTypeKind) {
 							node->valueType = make_type(TYPE_FLOAT, 0);
 							LLVMValueRef zero = LLVMConstReal(type, 0.0);
-							return LLVMBuildFSub(cg->builder, zero, left, "fnegtmp");
+							return LLVMBuildFSub(cg->builder, zero, operand, "fnegtmp");
 
 						} else if (LLVMGetTypeKind(type) == LLVMIntegerTypeKind) {
 							node->valueType = make_type(TYPE_INT, 0);
 							LLVMValueRef zero = LLVMConstInt(type, 0, 0);
-							return LLVMBuildSub(cg->builder, zero, left, "inegtmp");
+							return LLVMBuildSub(cg->builder, zero, operand, "inegtmp");
 
 						} else {
 							char *msg;
@@ -260,7 +283,8 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 							free(msg);
 							exit(1);
 						}
-
+					} else if (strcmp(node->unary.op, "*") == 0) {
+						return LLVMBuildLoad2(cg->builder, type, operand, "deref");
 					}
 				}
 		case AST_FUNCTION: {

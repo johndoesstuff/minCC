@@ -236,9 +236,53 @@ ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right, YYLTYPE loc) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_BINARY;
 	node->loc = loc;
-	node->valueType = make_type(TYPE_INT, 0);
+
+	Type* ltype = left->valueType;
+	Type* rtype = right->valueType;
+
 	if (is_boolean_operator(op)) {
+		//value && value => bool
 		node->valueType = make_type(TYPE_BOOL, 0);
+	} else if (type_cmp(ltype, rtype) == 0) {
+		//type op type => type
+		node->valueType = ltype;
+	} else if (is_numeric(ltype) && is_numeric(rtype)) {
+		//num op num => num
+		if (ltype->baseType == TYPE_FLOAT || rtype->baseType == TYPE_FLOAT) {
+			//float + int => float
+			node->valueType = make_type(TYPE_FLOAT, 0);
+		} else {
+			//bool + int => int
+			node->valueType = make_type(TYPE_INT, 0);
+		}
+	} else if (ltype->pointerDepth > 0 && type_cmp(make_type(TYPE_INT, 0), rtype) == 0) {
+		//pointer +/- int => pointer
+		if (strcmp("+", op) == 0 || strcmp("-", op) == 0) {
+			node->valueType = ltype;
+		} else {
+			char *msg;
+			asprintf(&msg, "Cannot apply '%s' to types %s and %s", op, type_to_str(ltype), type_to_str(rtype));
+			yyerror(&loc, msg);
+			free(msg);
+			exit(1);
+		}
+	} else if (ltype->pointerDepth > 0 && rtype->pointerDepth > 0) {
+		//pointer - pointer => pointer
+		if (strcmp("-", op) == 0) {
+			node->valueType = make_type(TYPE_INT, 0);
+		} else {
+			char *msg;
+			asprintf(&msg, "Cannot apply '%s' to types %s and %s", op, type_to_str(ltype), type_to_str(rtype));
+			yyerror(&loc, msg);
+			free(msg);
+			exit(1);
+		}
+	} else {
+		char *msg;
+		asprintf(&msg, "Cannot apply '%s' to types %s and %s", op, type_to_str(ltype), type_to_str(rtype));
+		yyerror(&loc, msg);
+		free(msg);
+		exit(1);
 	}
 	node->binary.op = op;
 	node->binary.left = left;
@@ -246,13 +290,21 @@ ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right, YYLTYPE loc) {
 	return node;
 }
 
-ASTNode* make_unary(char* op, ASTNode* left, YYLTYPE loc) {
+ASTNode* make_unary(char* op, ASTNode* operand, YYLTYPE loc) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_UNARY;
 	node->loc = loc;
 	node->valueType = make_type(TYPE_INT, 0);
-	node->binary.op = op;
-	node->binary.left = left;
+	node->unary.op = op;
+	node->unary.operand = operand;
+	if (strcmp(op, "*") == 0) {
+		if (operand->valueType->pointerDepth == 0) {
+			yyerror(&loc, "Cannot dereference non-pointer type");
+			exit(1);
+		} else {
+			(node->valueType->pointerDepth)--;
+		}
+	}
 	return node;
 }
 

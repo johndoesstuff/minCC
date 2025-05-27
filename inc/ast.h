@@ -51,7 +51,7 @@ typedef struct ASTNode {
 		} binary;
 		struct {
 			char* op;
-			struct ASTNode* left;
+			struct ASTNode* operand;
 		} unary;
 		struct {
 			struct ASTNode** statements;

@@ -52,8 +52,7 @@ float sdf(float px, float py, float pz) {
 
 float march_ray(float ox, float oy, float oz, float dx, float dy, float dz) {
 	float totalDist = 0.0;
-	int steps = 0;
-	while (steps < 35 && totalDist < 100.0) {
+	for (int steps = 0; steps < 35 && totalDist < 100.0; steps++) {
 		float px = ox + dx * totalDist;
 		float py = oy + dy * totalDist;
 		float pz = oz + dz * totalDist;
@@ -65,7 +64,6 @@ float march_ray(float ox, float oy, float oz, float dx, float dy, float dz) {
 		}
 
 		totalDist += dist;
-		steps++;
 	}
 
 	return 0.0; //no hit
@@ -77,13 +75,13 @@ printf("Basic Raymarcher with Sphere SDF:\n\n");
 int width = 100;
 int height = 50;
 
+char* charset = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'.";
+
 float cameraZ = 4.0;
 
 //iterate each character on screen
-int y = 0;
-while (y < height) {
-	int x = 0;
-	while (x < width) {
+for (int y = 0; y < height; y++) {
+	for (int x = 0; x < width; x++) {
 		//normalize screen position to direction
 		float dirX = x * (1.0/width) - 0.5;
 		float dirY = y * (1.0/height) - 0.5;
@@ -100,23 +98,21 @@ while (y < height) {
 		if (hit == 0.0) {
 			printf(" ");
 		} else if (hit < 4) {
-			printf("#");
+			printf("%c", *charset);
 		} else  if (hit < 6) {
-			printf("=");
+			printf("%c", *(charset + 4));
 		} else if (hit < 10) {
-			printf("+");
+			printf("%c", *(charset + 8));
 		} else if (hit < 15) {
-			printf("-");
+			printf("%c", *(charset + 12));
 		} else if (hit < 20) {
-			printf("'");
+			printf("%c", *(charset + 16));
 		} else {
-			printf(".");
+			printf("%c", *(charset + 20));
 		}
 
-		x++;
 	}
 	printf("\n");
-	y++;
 }
 
 printf("\n");

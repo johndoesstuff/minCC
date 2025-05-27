@@ -34,5 +34,7 @@ char* type_to_str(Type* type);
 LLVMValueRef cast_to(LLVMValueRef value, LLVMTypeRef target_type, int is_signed, CodegenContext* cg);
 int count_arguments(Argument* arguments);
 Argument* sem_generate_argument_signature(int count, ...);
+int is_numeric(Type* t);
+Type* typedup(Type* t);
 
 #endif

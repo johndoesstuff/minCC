@@ -145,13 +145,13 @@ LLVMValueRef cast_to(LLVMValueRef value, LLVMTypeRef target_type, int is_signed,
 		}
 	}
 
-	if (LLVMGetTypeKind(current_type) == LLVMFloatTypeKind && LLVMGetTypeKind(target_type) == LLVMIntegerTypeKind) {
+	if ((LLVMGetTypeKind(current_type) == LLVMFloatTypeKind || LLVMGetTypeKind(current_type) == LLVMDoubleTypeKind) && LLVMGetTypeKind(target_type) == LLVMIntegerTypeKind) {
 		return is_signed
 			? LLVMBuildFPToSI(builder, value, target_type, "fptosi")
 			: LLVMBuildFPToUI(builder, value, target_type, "fptoui");
 	}
 
-	if (LLVMGetTypeKind(current_type) == LLVMIntegerTypeKind && LLVMGetTypeKind(target_type) == LLVMFloatTypeKind) {
+	if (LLVMGetTypeKind(current_type) == LLVMIntegerTypeKind && (LLVMGetTypeKind(target_type) == LLVMFloatTypeKind || LLVMGetTypeKind(target_type) == LLVMDoubleTypeKind)) {
 		return is_signed
 			? LLVMBuildSIToFP(builder, value, target_type, "sitofp")
 			: LLVMBuildUIToFP(builder, value, target_type, "uitofp");
@@ -172,7 +172,8 @@ LLVMValueRef cast_to(LLVMValueRef value, LLVMTypeRef target_type, int is_signed,
 		return LLVMBuildPointerCast(builder, value, target_type, "ptrcast");
 	}
 
-	return value;
+	printf("unable to cast\n");
+	exit(1);
 }
 
 int count_arguments(Argument* args) {

@@ -214,7 +214,7 @@ ASTNode* make_assign(char* identifier, ASTNode* right, YYLTYPE loc) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_ASSIGN;
 	node->loc = loc;
-	node->valueType = right->valueType;
+	node->valueType = typedup(right->valueType);
 	node->assign.identifier = identifier;
 	node->assign.right = right;
 	return node;
@@ -231,7 +231,7 @@ ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc)
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_DECLARE;
 	node->loc = loc;
-	node->valueType = type;
+	node->valueType = typedup(type);
 	node->declare.identifier = identifier;
 	node->declare.right = right;
 	node->declare.type = type;
@@ -283,7 +283,7 @@ ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right, YYLTYPE loc) {
 		node->valueType = make_type(TYPE_BOOL, 0);
 	} else if (type_cmp(ltype, rtype) == 0) {
 		//type op type => type
-		node->valueType = ltype;
+		node->valueType = typedup(ltype);
 	} else if (is_numeric(ltype) && is_numeric(rtype)) {
 		//num op num => num
 		if (ltype->baseType == TYPE_FLOAT || rtype->baseType == TYPE_FLOAT) {
@@ -296,7 +296,7 @@ ASTNode* make_binary(char* op, ASTNode* left, ASTNode* right, YYLTYPE loc) {
 	} else if (ltype->pointerDepth > 0 && type_cmp(make_type(TYPE_INT, 0), rtype) == 0) {
 		//pointer +/- int => pointer
 		if (strcmp("+", op) == 0 || strcmp("-", op) == 0) {
-			node->valueType = ltype;
+			node->valueType = typedup(ltype);
 		} else {
 			char *msg;
 			asprintf(&msg, "Cannot apply '%s' to types %s and %s", op, type_to_str(ltype), type_to_str(rtype));
@@ -332,7 +332,7 @@ ASTNode* make_unary(char* op, ASTNode* operand, YYLTYPE loc) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_UNARY;
 	node->loc = loc;
-	node->valueType = operand->valueType;
+	node->valueType = typedup(operand->valueType);
 	node->unary.op = op;
 	node->unary.operand = operand;
 	if (strcmp(op, "*") == 0) {
@@ -350,7 +350,7 @@ ASTNode* make_cast(Type* type, ASTNode* value, YYLTYPE loc) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_CAST;
 	node->loc = loc;
-	node->valueType = type;
+	node->valueType = typedup(type);
 	node->cast.value = value;
 	return node;
 }
@@ -359,7 +359,7 @@ ASTNode* make_return(ASTNode* value, YYLTYPE loc) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_RETURN;
 	node->loc = loc;
-	node->valueType = value->valueType;
+	node->valueType = typedup(value->valueType);
 	node->return_stm.value = value;
 	return node;
 }

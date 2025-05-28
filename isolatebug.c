@@ -103,7 +103,8 @@ for (int y = 0; y < height; y++) {
 			if (index >= charset_len) {
 				printf(" ");
 			} else {
-				printf("%c", *(charset + index));
+				printf("%f: %d ", (hit / 20.0) * (charset_len - 1), index);
+				//printf("%c", *(charset + index));
 			}
 		}
 

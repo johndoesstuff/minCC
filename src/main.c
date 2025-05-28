@@ -135,8 +135,8 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 						 LLVMTypeRef element_llvm_type = get_llvm_type(deref_type, cg->context);
 
 						 LLVMValueRef gep_result = LLVMBuildGEP2(cg->builder, element_llvm_type, ptr_operand, &index_operand, 1, "ptradd");
+						 node->valueType = typedup(ptr_type);
 
-						 node->valueType = ptr_type;
 						 return gep_result;
 					 }
 
@@ -158,22 +158,19 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 
 						 //check floats
 						 if (l_is_float && r_is_float) {
-							 printf("trigggered\n");
 							 if (LLVMGetTypeKind(l_type) == LLVMDoubleTypeKind) {
-								 printf("casting l\n");
 								 right = LLVMBuildFPExt(cg->builder, right, LLVMTypeOf(left), "fpext_tmp");
 								 node->binary.right->valueType = make_type(TYPE_DOUBLE, 0);
 							 } else {
-								 printf("casting r\n");
 								 left = LLVMBuildFPExt(cg->builder, left, LLVMTypeOf(right), "fpext_tmp");
 								 node->binary.left->valueType = make_type(TYPE_DOUBLE, 0);
 							 }
 						 } else if (l_is_float && !r_is_float) {
 						 	right = LLVMBuildSIToFP(cg->builder, right, LLVMTypeOf(left), "sitofp_tmp");
-							node->binary.right->valueType = node->binary.left->valueType;
+							node->binary.right->valueType = typedup(node->binary.left->valueType);
 						 } else if (!l_is_float && r_is_float) {
 						 	left = LLVMBuildSIToFP(cg->builder, left, LLVMTypeOf(right), "sitofp_tmp");
-							node->binary.left->valueType = node->binary.right->valueType;
+							node->binary.left->valueType = typedup(node->binary.right->valueType);
 						 } else {
 							 //match largest int
 							 unsigned int l_width = LLVMGetIntTypeWidth(l_type);
@@ -181,10 +178,10 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 
 							 if (l_width >= r_width) {
 								right = cast_to(right, l_type, 1, cg);
-								node->binary.right->valueType = node->binary.left->valueType;
+								node->binary.right->valueType = typedup(node->binary.left->valueType);
 							 } else {
 								left = cast_to(left, r_type, 1, cg);
-								node->binary.left->valueType = node->binary.right->valueType;
+								node->binary.left->valueType = typedup(node->binary.right->valueType);
 							 }
 						 }
 					 }
@@ -210,16 +207,16 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 
 					 if (l_is_float) { //float operations
 						 if (strcmp(node->binary.op, "+") == 0) {
-							 node->valueType = node->binary.right->valueType;
+							 node->valueType = typedup(node->binary.right->valueType);
 							 return LLVMBuildFAdd(cg->builder, left, right, "faddtmp");
 						 } else if (strcmp(node->binary.op, "-") == 0) {
-							 node->valueType = node->binary.right->valueType;
+							 node->valueType = typedup(node->binary.right->valueType);
 							 return LLVMBuildFSub(cg->builder, left, right, "fsubtmp");
 						 } else if (strcmp(node->binary.op, "*") == 0) {
-							 node->valueType = node->binary.right->valueType;
+							 node->valueType = typedup(node->binary.right->valueType);
 							 return LLVMBuildFMul(cg->builder, left, right, "fmultmp");
 						 } else if (strcmp(node->binary.op, "/") == 0) {
-							 node->valueType = node->binary.right->valueType;
+							 node->valueType = typedup(node->binary.right->valueType);
 							 return LLVMBuildFDiv(cg->builder, left, right, "fdivtmp");
 						 } else if (strcmp(node->binary.op, "%") == 0) {
 							 char *msg;
@@ -248,19 +245,19 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 						 }
 					 } else { //int operations
 						 if (strcmp(node->binary.op, "+") == 0) {
-							 node->valueType = node->binary.right->valueType;
+							 node->valueType = typedup(node->binary.right->valueType);
 							 return LLVMBuildAdd(cg->builder, left, right, "addtmp");
 						 } else if (strcmp(node->binary.op, "-") == 0) {
-							 node->valueType = node->binary.right->valueType;
+							 node->valueType = typedup(node->binary.right->valueType);
 							 return LLVMBuildSub(cg->builder, left, right, "subtmp");
 						 } else if (strcmp(node->binary.op, "*") == 0) {
-							 node->valueType = node->binary.right->valueType;
+							 node->valueType = typedup(node->binary.right->valueType);
 							 return LLVMBuildMul(cg->builder, left, right, "multmp");
 						 } else if (strcmp(node->binary.op, "/") == 0) {
-							 node->valueType = node->binary.right->valueType;
+							 node->valueType = typedup(node->binary.right->valueType);
 							 return LLVMBuildSDiv(cg->builder, left, right, "divtmp");
 						 } else if (strcmp(node->binary.op, "%") == 0) {
-							 node->valueType = node->binary.right->valueType;
+							 node->valueType = typedup(node->binary.right->valueType);
 							 return LLVMBuildSRem(cg->builder, left, right, "modtmp");
 						 } else if (strcmp(node->binary.op, "==") == 0) {
 							 node->valueType = make_type(TYPE_BOOL, 0);
@@ -290,12 +287,12 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 
 					if (strcmp(node->unary.op, "-") == 0) {
 						if (LLVMGetTypeKind(type) == LLVMFloatTypeKind || LLVMGetTypeKind(type) == LLVMDoubleTypeKind) {
-							node->valueType = node->unary.operand->valueType;
+							node->valueType = typedup(node->unary.operand->valueType);
 							LLVMValueRef zero = LLVMConstReal(type, 0.0);
 							return LLVMBuildFSub(cg->builder, zero, operand, "fnegtmp");
 
 						} else if (LLVMGetTypeKind(type) == LLVMIntegerTypeKind) {
-							node->valueType = node->unary.operand->valueType;
+							node->valueType = typedup(node->unary.operand->valueType);
 							LLVMValueRef zero = LLVMConstInt(type, 0, 0);
 							return LLVMBuildSub(cg->builder, zero, operand, "inegtmp");
 
@@ -307,10 +304,14 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 							exit(1);
 						}
 					} else if (strcmp(node->unary.op, "*") == 0) {
+						node->valueType = typedup(node->unary.operand->valueType);
+						node->valueType->pointerDepth--;
+						type = get_llvm_type(node->valueType, cg->context);
 						return LLVMBuildLoad2(cg->builder, type, operand, "deref");
 					}
 				}
 		case AST_CAST: {
+				       printf("building cast from %s to %s\n", type_to_str(node->cast.value->valueType), type_to_str(node->valueType));
 				       LLVMValueRef value = generate(node->cast.value, cg);
 				       LLVMTypeRef type = get_llvm_type(node->valueType, cg->context);
 				       return cast_to(value, type, 1, cg);

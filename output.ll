@@ -1,25 +1,23 @@
 ; ModuleID = 'global'
 source_filename = "global"
 
-@.str.0 = private constant [24 x i8] c"px: %f, py: %f, pz: %f\0A\00"
-@.str.1 = private constant [9 x i8] c"sdf: %f\0A\00"
-@.str.2 = private constant [36 x i8] c"Basic Raymarcher with Sphere SDF:\0A\0A\00"
-@.str.3 = private constant [92 x i8] c"@&%QWNM0gB$#DR8mHXKAUbGOpV4d9h6PkqwSE2]ayjxY5Zoen[ult13If}C{iF|(7J)vTLs?z/*cr!+<>;=^,_:'-.`\00"
-@.str.4 = private constant [2 x i8] c"?\00"
-@.str.5 = private constant [2 x i8] c" \00"
-@.str.6 = private constant [3 x i8] c"%c\00"
-@.str.7 = private constant [2 x i8] c"\0A\00"
-@.str.8 = private constant [2 x i8] c"\0A\00"
+@.str.0 = private constant [36 x i8] c"Basic Raymarcher with Sphere SDF:\0A\0A\00"
+@.str.1 = private constant [92 x i8] c"@&%QWNM0gB$#DR8mHXKAUbGOpV4d9h6PkqwSE2]ayjxY5Zoen[ult13If}C{iF|(7J)vTLs?z/*cr!+<>;=^,_:'-.`\00"
+@.str.2 = private constant [2 x i8] c" \00"
+@.str.3 = private constant [2 x i8] c" \00"
+@.str.4 = private constant [3 x i8] c"%c\00"
+@.str.5 = private constant [2 x i8] c"\0A\00"
+@.str.6 = private constant [2 x i8] c"\0A\00"
 
 define i32 @main() {
 entry:
-  %calltmp = call i32 (ptr, ...) @printf(ptr @.str.2)
+  %calltmp = call i32 (ptr, ...) @printf(ptr @.str.0)
   %width = alloca i32, align 4
   store i32 100, ptr %width, align 4
   %height = alloca i32, align 4
   store i32 50, ptr %height, align 4
-  %charset = alloca i8, align 1
-  store ptr @.str.3, ptr %charset, align 8
+  %charset = alloca ptr, align 8
+  store ptr @.str.1, ptr %charset, align 8
   %cameraZ = alloca double, align 8
   store double 4.000000e+00, ptr %cameraZ, align 8
   %y = alloca i32, align 4
@@ -38,7 +36,7 @@ while.body:                                       ; preds = %while.cond
   br label %while.cond2
 
 while.end:                                        ; preds = %while.cond
-  %calltmp73 = call i32 (ptr, ...) @printf(ptr @.str.8)
+  %calltmp72 = call i32 (ptr, ...) @printf(ptr @.str.6)
   ret i32 0
 
 while.cond2:                                      ; preds = %if.end, %while.body
@@ -110,16 +108,16 @@ while.body3:                                      ; preds = %while.cond2
   br i1 %cmptmp47, label %if.then, label %if.else
 
 while.end4:                                       ; preds = %while.cond2
-  %calltmp68 = call i32 (ptr, ...) @printf(ptr @.str.7)
-  %loadtmp69 = load i32, ptr %y, align 4
-  %addtmp70 = add i32 %loadtmp69, 1
-  store i32 %addtmp70, ptr %y, align 4
-  %loadtmp71 = load i32, ptr %y, align 4
-  %subtmp72 = sub i32 %loadtmp71, 1
+  %calltmp67 = call i32 (ptr, ...) @printf(ptr @.str.5)
+  %loadtmp68 = load i32, ptr %y, align 4
+  %addtmp69 = add i32 %loadtmp68, 1
+  store i32 %addtmp69, ptr %y, align 4
+  %loadtmp70 = load i32, ptr %y, align 4
+  %subtmp71 = sub i32 %loadtmp70, 1
   br label %while.cond
 
 if.then:                                          ; preds = %while.body3
-  %calltmp48 = call i32 (ptr, ...) @printf(ptr @.str.4)
+  %calltmp48 = call i32 (ptr, ...) @printf(ptr @.str.2)
   br label %if.end
 
 if.else:                                          ; preds = %while.body3
@@ -131,8 +129,9 @@ if.else:                                          ; preds = %while.body3
   %subtmp = sub i32 %loadtmp51, 1
   %sitofp_tmp52 = sitofp i32 %subtmp to double
   %fmultmp53 = fmul double %fdivtmp50, %sitofp_tmp52
+  %fptosi = fptosi double %fmultmp53 to i32
   %index = alloca i32, align 4
-  store double %fmultmp53, ptr %index, align 8
+  store i32 %fptosi, ptr %index, align 4
   %loadtmp57 = load i32, ptr %index, align 4
   %loadtmp58 = load i32, ptr %charset_len, align 4
   %cmptmp59 = icmp sge i32 %loadtmp57, %loadtmp58
@@ -140,23 +139,23 @@ if.else:                                          ; preds = %while.body3
 
 if.end:                                           ; preds = %if.end56, %if.then
   %loadtmp64 = load i32, ptr %x, align 4
-  %addtmp65 = add i32 %loadtmp64, 1
-  store i32 %addtmp65, ptr %x, align 4
-  %loadtmp66 = load i32, ptr %x, align 4
-  %subtmp67 = sub i32 %loadtmp66, 1
+  %addtmp = add i32 %loadtmp64, 1
+  store i32 %addtmp, ptr %x, align 4
+  %loadtmp65 = load i32, ptr %x, align 4
+  %subtmp66 = sub i32 %loadtmp65, 1
   br label %while.cond2
 
 if.then54:                                        ; preds = %if.else
-  %calltmp60 = call i32 (ptr, ...) @printf(ptr @.str.5)
+  %calltmp60 = call i32 (ptr, ...) @printf(ptr @.str.3)
   br label %if.end56
 
 if.else55:                                        ; preds = %if.else
-  %loadtmp61 = load i8, ptr %charset, align 1
+  %loadtmp61 = load ptr, ptr %charset, align 8
   %loadtmp62 = load i32, ptr %index, align 4
-  %sext = sext i8 %loadtmp61 to i32
-  %addtmp = add i32 %sext, %loadtmp62
-  %deref = load i32, i32 %addtmp, align 4
-  %calltmp63 = call i32 (ptr, ...) @printf(ptr @.str.6, i32 %deref)
+  %ptradd = getelementptr i8, ptr %loadtmp61, i32 %loadtmp62
+  %deref = load i8, ptr %ptradd, align 1
+  %promoted = zext i8 %deref to i32
+  %calltmp63 = call i32 (ptr, ...) @printf(ptr @.str.4, i32 %promoted)
   br label %if.end56
 
 if.end56:                                         ; preds = %if.else55, %if.then54
@@ -441,18 +440,12 @@ while.body:                                       ; preds = %and.end
   %loadtmp22 = load double, ptr %px, align 8
   %loadtmp23 = load double, ptr %py, align 8
   %loadtmp24 = load double, ptr %pz, align 8
-  %calltmp = call i32 (ptr, ...) @printf(ptr @.str.0, double %loadtmp22, double %loadtmp23, double %loadtmp24)
-  %loadtmp25 = load double, ptr %px, align 8
-  %loadtmp26 = load double, ptr %py, align 8
-  %loadtmp27 = load double, ptr %pz, align 8
-  %calltmp28 = call double @sdf(double %loadtmp25, double %loadtmp26, double %loadtmp27)
+  %calltmp = call double @sdf(double %loadtmp22, double %loadtmp23, double %loadtmp24)
   %dist = alloca double, align 8
-  store double %calltmp28, ptr %dist, align 8
-  %loadtmp29 = load double, ptr %dist, align 8
-  %calltmp30 = call i32 (ptr, ...) @printf(ptr @.str.1, double %loadtmp29)
-  %loadtmp31 = load double, ptr %dist, align 8
-  %cmptmp32 = fcmp olt double %loadtmp31, 1.000000e-03
-  br i1 %cmptmp32, label %if.then, label %if.end
+  store double %calltmp, ptr %dist, align 8
+  %loadtmp25 = load double, ptr %dist, align 8
+  %cmptmp26 = fcmp olt double %loadtmp25, 1.000000e-03
+  br i1 %cmptmp26, label %if.then, label %if.end
 
 while.end:                                        ; preds = %and.end
   ret double 0.000000e+00
@@ -465,21 +458,21 @@ and.end:                                          ; preds = %and.rhs, %while.con
   br i1 %andtmp, label %while.body, label %while.end
 
 if.then:                                          ; preds = %while.body
-  %loadtmp33 = load double, ptr %totalDist, align 8
-  %loadtmp34 = load double, ptr %dist, align 8
-  %faddtmp35 = fadd double %loadtmp33, %loadtmp34
-  ret double %faddtmp35
+  %loadtmp27 = load double, ptr %totalDist, align 8
+  %loadtmp28 = load double, ptr %dist, align 8
+  %faddtmp29 = fadd double %loadtmp27, %loadtmp28
+  ret double %faddtmp29
 
 if.end:                                           ; preds = %while.body
-  %loadtmp36 = load double, ptr %totalDist, align 8
-  %loadtmp37 = load double, ptr %dist, align 8
-  %faddtmp38 = fadd double %loadtmp36, %loadtmp37
-  store double %faddtmp38, ptr %totalDist, align 8
-  %loadtmp39 = load double, ptr %totalDist, align 8
-  %loadtmp40 = load i32, ptr %steps, align 4
-  %addtmp = add i32 %loadtmp40, 1
+  %loadtmp30 = load double, ptr %totalDist, align 8
+  %loadtmp31 = load double, ptr %dist, align 8
+  %faddtmp32 = fadd double %loadtmp30, %loadtmp31
+  store double %faddtmp32, ptr %totalDist, align 8
+  %loadtmp33 = load double, ptr %totalDist, align 8
+  %loadtmp34 = load i32, ptr %steps, align 4
+  %addtmp = add i32 %loadtmp34, 1
   store i32 %addtmp, ptr %steps, align 4
-  %loadtmp41 = load i32, ptr %steps, align 4
-  %subtmp = sub i32 %loadtmp41, 1
+  %loadtmp35 = load i32, ptr %steps, align 4
+  %subtmp = sub i32 %loadtmp35, 1
   br label %while.cond
 }

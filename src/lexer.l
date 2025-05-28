@@ -59,8 +59,18 @@ char parse_char_literal(const char *text) {
 %}
 
 %option yylineno
+%option noinput nounput
 
 %%
+
+"return"	{ return RETURN; }
+"while"		{ return WHILE; }
+"for"		{ return FOR; }
+"if"		{ return IF; }
+"else"		{ return ELSE; }
+"true"		{ return TRUE; }
+"false"		{ return FALSE; }
+("int"|"bool"|"char"|"float"|"double"|"short"|"long"|"void")	{ yylval->sval = strdup(yytext); return BASE_TYPE; }
 
 ([0-9]*\.[0-9]+|[0-9]+\.)[fF]([eE][-+]?[0-9]+)? |
 [0-9]+[eE][-+]?[0-9]+[fF]           {
@@ -80,15 +90,12 @@ char parse_char_literal(const char *text) {
 	yylval->ival = strtol(yytext, NULL, 10);
 	return INT;
 }
+
 '([^\\']|\\.)' { yylval->cval = parse_char_literal(yytext); return CHARACTER; }
 \"([^\\\"]|\\.)*\"		{ yytext[yyleng - 1] = '\0'; yylval->sval = unescape_string(yytext + 1); return STRING; }
-"return"	{ return RETURN; }
-"while"		{ return WHILE; }
-"for"		{ return FOR; }
-"if"		{ return IF; }
-"else"		{ return ELSE; }
-"true"		{ return TRUE; }
-"false"		{ return FALSE; }
+
+[a-zA-Z_][a-zA-Z0-9_]*	{ yylval->sval = strdup(yytext); return IDENTIFIER; }
+
 ("=="|"<"|">"|"<="|">="|"!=")		{ yylval->sval = strdup(yytext); return COMPARE; }
 "="		{ return '='; }
 "+="		{ return ASSIGNMENT_ADD_EQUALS; }
@@ -104,20 +111,20 @@ char parse_char_literal(const char *text) {
 "]"		{ return ']'; }
 "{"		{ return '{'; }
 "}"		{ return '}'; }
-("int"|"bool"|"char"|"float"|"double"|"short"|"long"|"void")	{ yylval->sval = strdup(yytext); return BASE_TYPE; }
 "&&"		{ return LOGIC_AND; }
 "||"		{ return LOGIC_OR; }
-[a-zA-Z_][a-zA-Z0-9_]*	{ yylval->sval = strdup(yytext); return IDENTIFIER; }
 "+"		{ return '+'; }
 "-"		{ return '-'; }
 "*"		{ return '*'; }
 "/"		{ return '/'; }
 "%"		{ return '%'; }
 ","		{ return ','; }
+
 \/\/.*		; //single line comment
 \/\*([^*]|\*+[^*/])*\*+\/	; //multiline comment
 \n      { yycolumn = 1; }
-[ \t]+	; // ignore whitespace
+[ \t]+	;
+
 .		{ fprintf(stderr, "Invalid character: %s at %d:%d\n", yytext, yylineno, yycolumn); }
 
 %%

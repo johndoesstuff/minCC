@@ -193,29 +193,12 @@ ASTNode* make_function_call(char* identifier, Parameter* parameters, YYLTYPE loc
 	return node;
 }
 
-ASTNode* make_assign(char* identifier, ASTNode* right, YYLTYPE loc) {
-	SemEntry* var = sem_lookup_variable(identifier);
-	if (!var) {
-		char *msg;
-                asprintf(&msg, "Assignment to undeclared variable '%s'", identifier);
-                yyerror(&loc, msg);
-		free(msg);
-		exit(1);
-	}
-
-	/*if (type_cmp(right->valueType, var->type) != 0) {
-		char *msg;
-                asprintf(&msg, "Type mismatch in assignment of '%s': expected %s, got %s", identifier, type_to_str(var->type), type_to_str(right->valueType));
-                yyerror(&loc, msg);
-		free(msg);
-		exit(1);
-	}*/
-
+ASTNode* make_assign(ASTNode* left, ASTNode* right, YYLTYPE loc) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_ASSIGN;
 	node->loc = loc;
 	node->valueType = typedup(right->valueType);
-	node->assign.identifier = identifier;
+	node->assign.left = left;
 	node->assign.right = right;
 	return node;
 }

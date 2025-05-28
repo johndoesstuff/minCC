@@ -32,7 +32,7 @@ $(TARGET): $(PARSER_C) $(PARSER_H) $(LEXER_C) $(LEXER) $(AST_C) $(SEMANTIC_TABLE
 
 # Generate parser source/header
 $(PARSER_C) $(PARSER_H): $(PARSER)
-	bison -d $(PARSER) -o $(PARSER_C)
+	bison -d -Wcounterexamples $(PARSER) -o $(PARSER_C)
 
 # Generate lexer source
 $(LEXER_C): $(LEXER)

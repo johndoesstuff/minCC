@@ -42,7 +42,7 @@ typedef struct ASTNode {
 		int boolValue;
 		char* identifier;
 		struct {
-			char* identifier;
+			struct ASTNode* left;
 			struct ASTNode* right;
 		} assign;
 		struct {
@@ -125,7 +125,7 @@ ASTNode* make_unary(char* op, ASTNode* left, YYLTYPE loc);
 ASTNode* make_cast(Type* type, ASTNode* value, YYLTYPE loc);
 
 //variables
-ASTNode* make_assign(char* identifier, ASTNode* right, YYLTYPE loc);
+ASTNode* make_assign(ASTNode* left, ASTNode* right, YYLTYPE loc);
 ASTNode* make_declare(Type* type, char* identifier, ASTNode* right, YYLTYPE loc);
 ASTNode* make_function(Type* type, char* identifier, Argument* arguments, ASTNode* body, YYLTYPE loc);
 ASTNode* make_function_call(char* identifier, Parameter* parameters, YYLTYPE loc);

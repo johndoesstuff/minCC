@@ -23,6 +23,8 @@ double sqrt_approx(double x) {
 	return guess;
 }
 
-printf("Sqrt 2 is approximately %f\n", sqrt_approx(2.0));
+int main() {
+	printf("Sqrt 2 is approximately %f\n", sqrt_approx(2.0));
 
-return 0;
+	return 0;
+}

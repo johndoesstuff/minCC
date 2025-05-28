@@ -46,7 +46,7 @@ ASTNode* root;
 %token <sval> STRING
 %type <ival> none_or_more_pointers
 %type <type> type
-%type <node> else_clause declare rvalue mag term factor expr statement input logic_and logic_or block expr_opt declare_or_expr_opt
+%type <node> else_clause declare rvalue mag term factor expr statement input logic_and logic_or block expr_opt declare_or_expr_opt postfix primary
 %type <argument> argument_list
 %type <parameter> parameter_list
 
@@ -132,11 +132,11 @@ expr_opt:
 ;
 
 expr:
-	IDENTIFIER '=' expr	{ $$ = make_assign($1, $3, @$); }
-	| IDENTIFIER ASSIGNMENT_ADD_EQUALS expr	{ $$ = make_assign($1, make_binary("+", make_identifier($1, @$), $3, @$), @$); }
-	| IDENTIFIER ASSIGNMENT_SUB_EQUALS expr	{ $$ = make_assign($1, make_binary("-", make_identifier($1, @$), $3, @$), @$); }
-	| IDENTIFIER ASSIGNMENT_MUL_EQUALS expr	{ $$ = make_assign($1, make_binary("*", make_identifier($1, @$), $3, @$), @$); }
-	| IDENTIFIER ASSIGNMENT_DIV_EQUALS expr	{ $$ = make_assign($1, make_binary("/", make_identifier($1, @$), $3, @$), @$); }
+	factor '=' expr		{ $$ = make_assign($1, $3, @$); }
+	| factor ASSIGNMENT_ADD_EQUALS expr	{ $$ = make_assign($1, make_binary("+", $1, $3, @$), @$); }
+	| factor ASSIGNMENT_SUB_EQUALS expr	{ $$ = make_assign($1, make_binary("-", $1, $3, @$), @$); }
+	| factor ASSIGNMENT_MUL_EQUALS expr	{ $$ = make_assign($1, make_binary("*", $1, $3, @$), @$); }
+	| factor ASSIGNMENT_DIV_EQUALS expr	{ $$ = make_assign($1, make_binary("/", $1, $3, @$), @$); }
         | logic_or              { $$ = $1; }
 ;
 
@@ -172,23 +172,30 @@ term:
 
 factor:
 	'(' type ')' factor	{ $$ = make_cast($2, $4, @$); }
-	| '(' rvalue ')'	{ $$ = $2; }
 	| '-' factor	{ $$ = make_unary("-", $2, @$); }
 	| '*' factor	{ $$ = make_unary("*", $2, @$); }
-	| factor '[' factor ']'	{ $$ = make_unary("*", make_binary("+", $1, $3, @$), @$); }
-	//yes this is cursed i dont care ill fix it later
-	| INCREMENT IDENTIFIER	{ $$ = make_assign($2, make_binary("+", make_identifier($2, @$), make_int(1, @$), @$), @$); }
-	| DECREMENT IDENTIFIER	{ $$ = make_assign($2, make_binary("-", make_identifier($2, @$), make_int(1, @$), @$), @$); }
-	| IDENTIFIER INCREMENT	{ $$ = make_binary("-", make_assign($1, make_binary("+", make_identifier($1, @$), make_int(1, @$), @$), @$), make_int(1, @$), @$); }
-	| IDENTIFIER DECREMENT	{ $$ = make_binary("+", make_assign($1, make_binary("-", make_identifier($1, @$), make_int(1, @$), @$), @$), make_int(1, @$), @$); }
+	| INCREMENT factor { $$ = make_assign($2, make_binary("+", $2, make_int(1, @$), @$), @$); }
+	| DECREMENT factor { $$ = make_assign($2, make_binary("-", $2, make_int(1, @$), @$), @$); }
+	| postfix	{ $$ = $1; }
+;
+
+postfix:
+	primary		{ $$ = $1; }
+	| postfix '[' factor ']'	{ $$ = make_unary("*", make_binary("+", $1, $3, @$), @$); }
 	| IDENTIFIER '(' parameter_list ')'	{ $$ = make_function_call($1, $3, @$); }
-	| IDENTIFIER	{ $$ = make_identifier($1, @$); }
+	| postfix INCREMENT	{ $$ = make_binary("-", make_assign($1, make_binary("+", $1, make_int(1, @$), @$), @$), make_int(1, @$), @$); }
+	| postfix DECREMENT	{ $$ = make_binary("+", make_assign($1, make_binary("-", $1, make_int(1, @$), @$), @$), make_int(1, @$), @$); }
+;
+
+primary:
+	IDENTIFIER	{ $$ = make_identifier($1, @$); }
 	| INT		{ $$ = make_int($1, @$); }
 	| LONG		{ $$ = make_long($1, @$); }
 	| CHARACTER	{ $$ = make_character($1, @$); }
 	| STRING	{ $$ = make_string($1, @$); }
 	| FLOAT		{ $$ = make_float($1, @$); }
 	| DOUBLE	{ $$ = make_double($1, @$); }
+	| '(' rvalue ')'	{ $$ = $2; }
 ;
 
 %%

@@ -384,11 +384,19 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 					  return NULL;
 				  }
 		case AST_ASSIGN: {
-					 CodegenEntry* var = codegen_lookup_variable(node->assign.identifier);
+					 ASTNode* left = node->assign.left;
+					 LLVMValueRef ptr = NULL;
+					 if (left->type == AST_IDENTIFIER) {
+					 	CodegenEntry* var = codegen_lookup_variable(left->identifier);
+						ptr = var->value;
+					 } else if (left->type == AST_UNARY && strcmp(left->unary.op, "*") == 0) {
+					 	ptr = generate(left->unary.operand, cg);
+					 } else {
+					 	yyerror(&left->loc, "Unsupported LHS during assignment");
+					 }
 					 LLVMValueRef value = generate(node->assign.right, cg);
-					 value = cast_to(value, var->type, 1, cg);
-					 LLVMBuildStore(cg->builder, value, var->value);
-					 return LLVMBuildLoad2(cg->builder, var->type, var->value, "loadtmp");
+
+					 return LLVMBuildStore(cg->builder, value, ptr);
 				 }
 		case AST_IDENTIFIER: {
 					     CodegenEntry* var = codegen_lookup_variable(node->identifier);
@@ -537,16 +545,11 @@ int main() {
 	LLVMModuleRef module = LLVMModuleCreateWithNameInContext("global", context);
 	LLVMBuilderRef builder = LLVMCreateBuilderInContext(context);
 
-	LLVMTypeRef funcType = LLVMFunctionType(LLVMInt32Type(), NULL, 0, 0);
-	LLVMValueRef main_function = LLVMAddFunction(module, "main", funcType);
-	LLVMBasicBlockRef entry = LLVMAppendBasicBlock(main_function, "entry");
-	LLVMPositionBuilderAtEnd(builder, entry);
-
 	CodegenContext* main_cg = malloc(sizeof(CodegenContext));
 	main_cg->context = context;
 	main_cg->builder = builder;
 	main_cg->module = module;
-	main_cg->function = main_function;
+	main_cg->function = NULL;
 
 	//parse and generate ast
 	sem_enter_scope();

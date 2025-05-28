@@ -371,8 +371,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 46
-#define YY_END_OF_BUFFER 47
+#define YY_NUM_RULES 47
+#define YY_END_OF_BUFFER 48
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -382,18 +382,18 @@ struct yy_trans_info
 	};
 static const flex_int16_t yy_accept[125] =
     {   0,
-        0,    0,   47,   45,   44,   43,   45,   45,   39,   45,
-       45,   27,   28,   37,   35,   40,   36,   45,   38,   14,
+        0,    0,   48,   46,   45,   44,   46,   46,   39,   41,
+       46,   27,   28,   37,   35,   40,   36,   46,   38,   14,
        26,   18,   19,   18,   17,   29,   30,   17,   17,   17,
        17,   17,   17,   17,   17,   17,   17,   17,   17,   31,
-       45,   32,   44,   18,    0,   16,    0,   33,    0,    0,
-       22,   24,   20,   25,   21,   11,    0,   41,   23,   11,
+       46,   32,   45,   18,    0,   16,    0,   33,    0,    0,
+       22,   24,   20,   25,   21,   11,    0,   42,   23,   11,
        14,    0,   13,   17,   17,   17,   17,   17,   17,   17,
        17,    4,   17,   17,   17,   17,   17,   17,   17,   34,
-       15,    0,    9,    0,    0,   41,   11,    0,   12,   17,
+       15,    0,    9,    0,    0,   42,   11,    0,   12,   17,
        17,   17,   17,   17,   17,    3,    8,   17,   17,   17,
 
-       17,   17,   17,    0,   11,    0,   42,   10,   17,    5,
+       17,   17,   17,    0,   11,    0,   43,   10,   17,    5,
        17,   17,   17,   17,    6,   17,    0,    9,   17,    7,
        17,    2,    1,    0
     } ;
@@ -536,11 +536,11 @@ static const flex_int16_t yy_chk[241] =
     } ;
 
 /* Table of booleans, true if rule could match eol. */
-static const flex_int32_t yy_rule_can_match_eol[47] =
+static const flex_int32_t yy_rule_can_match_eol[48] =
     {   0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 1, 1, 0, 0, 0,     };
+    0, 0, 0, 1, 1, 0, 0, 0,     };
 
 static yy_state_type yy_last_accepting_state;
 static char *yy_last_accepting_cpos;
@@ -1112,37 +1112,42 @@ YY_RULE_SETUP
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 123 "src/lexer.l"
-; //single line comment
+#line 122 "src/lexer.l"
+{ return '&'; }
 	YY_BREAK
 case 42:
-/* rule 42 can match eol */
 YY_RULE_SETUP
 #line 124 "src/lexer.l"
-; //multiline comment
+; //single line comment
 	YY_BREAK
 case 43:
 /* rule 43 can match eol */
 YY_RULE_SETUP
 #line 125 "src/lexer.l"
-{ yycolumn = 1; }
+; //multiline comment
 	YY_BREAK
 case 44:
+/* rule 44 can match eol */
 YY_RULE_SETUP
 #line 126 "src/lexer.l"
-;
+{ yycolumn = 1; }
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 128 "src/lexer.l"
-{ fprintf(stderr, "Invalid character: %s at %d:%d\n", yytext, yylineno, yycolumn); }
+#line 127 "src/lexer.l"
+;
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 130 "src/lexer.l"
+#line 129 "src/lexer.l"
+{ fprintf(stderr, "Invalid character: %s at %d:%d\n", yytext, yylineno, yycolumn); }
+	YY_BREAK
+case 47:
+YY_RULE_SETUP
+#line 131 "src/lexer.l"
 ECHO;
 	YY_BREAK
-#line 1146 "build/lex.yy.c"
+#line 1151 "build/lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2118,6 +2123,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 130 "src/lexer.l"
+#line 131 "src/lexer.l"
 
 

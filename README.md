@@ -15,8 +15,12 @@
   - `char`
   - strings (`char*`)
     - escape codes `\n`, `\t`, `\0` (for `char` only)
-  - float
-  - arbitrary pointer depth
+  - `float`
+  - `double`
+  - `short`
+  - `long`
+  - Arbitrary pointer depth
+  - Pass by reference
 - Native Functions
   - printf
 - Type Coercion
@@ -24,16 +28,12 @@
 - Scopes
 - Error Messages
 - Binary and Unary Operators
+- Main Function
 
 ## Todo:
 
-- Doubles
-- Shorts
-- Longs
-- Pass by reference
 - Do while loops
 - Structs
 - Unions
 - Malloc
 - Break
-- Main Function

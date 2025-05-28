@@ -69,48 +69,49 @@ double march_ray(double ox, double oy, double oz, double dx, double dy, double d
 	return 0.0; //no hit
 }
 
+int main() {
+	printf("Basic Raymarcher with Sphere SDF:\n\n");
 
-printf("Basic Raymarcher with Sphere SDF:\n\n");
+	int width = 100;
+	int height = 50;
 
-int width = 100;
-int height = 50;
+	char* charset = "@&%QWNM0gB$#DR8mHXKAUbGOpV4d9h6PkqwSE2]ayjxY5Zoen[ult13If}C{iF|(7J)vTLs?z/*cr!+<>;=^,_:'-.`";
 
-char* charset = "@&%QWNM0gB$#DR8mHXKAUbGOpV4d9h6PkqwSE2]ayjxY5Zoen[ult13If}C{iF|(7J)vTLs?z/*cr!+<>;=^,_:'-.`";
+	double cameraZ = 4.0;
 
-double cameraZ = 4.0;
+	//iterate each character on screen
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			//normalize screen position to direction
+			double dirX = x * (1.0/width) - 0.5;
+			double dirY = y * (1.0/height) - 0.5;
+			double dirZ = 1.0;
 
-//iterate each character on screen
-for (int y = 0; y < height; y++) {
-	for (int x = 0; x < width; x++) {
-		//normalize screen position to direction
-		double dirX = x * (1.0/width) - 0.5;
-		double dirY = y * (1.0/height) - 0.5;
-		double dirZ = 1.0;
+			//normalize vector
+			double norm = sqrt_approx(dirX*dirX + dirY*dirY + dirZ*dirZ);
+			dirX = dirX / norm;
+			dirY = dirY / norm;
+			dirZ = dirZ / norm;
 
-		//normalize vector
-		double norm = sqrt_approx(dirX*dirX + dirY*dirY + dirZ*dirZ);
-		dirX = dirX / norm;
-		dirY = dirY / norm;
-		dirZ = dirZ / norm;
-
-		//printf("%f", dirX);
-		double hit = march_ray(0.0, 0.0, -cameraZ, dirX, dirY, dirZ);
-		if (hit == 0.0) {
-			printf(" ");
-		} else {
-			int charset_len = 91;
-			int index = (int)((hit / 20.0) * (charset_len - 1));
-			if (index >= charset_len) {
+			//printf("%f", dirX);
+			double hit = march_ray(0.0, 0.0, -cameraZ, dirX, dirY, dirZ);
+			if (hit == 0.0) {
 				printf(" ");
 			} else {
-				printf("%c", *(charset + index));
+				int charset_len = 91;
+				int index = (int)((hit / 20.0) * (charset_len - 1));
+				if (index >= charset_len) {
+					printf(" ");
+				} else {
+					printf("%c", *(charset + index));
+				}
 			}
+
 		}
-
+		printf("\n");
 	}
+
 	printf("\n");
+
+	return 0;
 }
-
-printf("\n");
-
-return 0;

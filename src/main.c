@@ -145,8 +145,8 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 					 LLVMTypeRef r_type = get_llvm_type(node->binary.right->valueType, cg->context);
 
 					 if (LLVMTypeOf(left) != LLVMTypeOf(right) && l_type == r_type) {
-					 	printf("ast/codegen type discrepancy before casting. the compiler has fallen. billions must die.\n");
-						exit(1);
+						 yyerror(&node->loc, "ast/codegen type discrepancy before casting. the compiler has fallen. billions must die.\n");
+						 exit(1);
 					 }
 
 					 //check float
@@ -182,6 +182,38 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 							 } else {
 								left = cast_to(left, r_type, 1, cg);
 								node->binary.left->valueType = typedup(node->binary.right->valueType);
+							 }
+						 }
+					 }
+
+					 if (strcmp(node->binary.op, "&&") == 0 || strcmp(node->binary.op, "||") == 0) {
+						 int l_is_bool = (LLVMGetTypeKind(l_type) == LLVMIntegerTypeKind && LLVMGetIntTypeWidth(l_type) == 1);
+						 int r_is_bool = (LLVMGetTypeKind(r_type) == LLVMIntegerTypeKind && LLVMGetIntTypeWidth(r_type) == 1);
+
+						 if (!l_is_bool) {
+							 if (LLVMGetTypeKind(l_type) == LLVMIntegerTypeKind) {
+								 LLVMValueRef zero = LLVMConstInt(l_type, 0, 0);
+								 left = LLVMBuildICmp(cg->builder, LLVMIntNE, left, zero, "int_to_bool");
+							 } else if (LLVMGetTypeKind(l_type) == LLVMFloatTypeKind || LLVMGetTypeKind(l_type) == LLVMDoubleTypeKind) {
+								 LLVMValueRef zero = LLVMConstReal(l_type, 0.0);
+								 left = LLVMBuildFCmp(cg->builder, LLVMRealONE, left, zero, "float_to_bool");
+							 } else {
+								 yyerror(&node->loc, "Unsupported left operand type for boolean coercion");
+								 exit(1);
+							 }
+						 }
+
+						 // Coerce right to bool if needed
+						 if (!r_is_bool) {
+							 if (LLVMGetTypeKind(r_type) == LLVMIntegerTypeKind) {
+								 LLVMValueRef zero = LLVMConstInt(r_type, 0, 0);
+								 right = LLVMBuildICmp(cg->builder, LLVMIntNE, right, zero, "int_to_bool");
+							 } else if (LLVMGetTypeKind(r_type) == LLVMFloatTypeKind || LLVMGetTypeKind(r_type) == LLVMDoubleTypeKind) {
+								 LLVMValueRef zero = LLVMConstReal(r_type, 0.0);
+								 right = LLVMBuildFCmp(cg->builder, LLVMRealONE, right, zero, "float_to_bool");
+							 } else {
+								 yyerror(&node->loc, "Unsupported right operand type for boolean coercion");
+								 exit(1);
 							 }
 						 }
 					 }
@@ -308,6 +340,10 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 						node->valueType->pointerDepth--;
 						type = get_llvm_type(node->valueType, cg->context);
 						return LLVMBuildLoad2(cg->builder, type, operand, "deref");
+					} else if (strcmp(node->unary.op, "&") == 0) {
+						CodegenEntry* ref = codegen_lookup_variable(node->unary.operand->identifier);
+
+						return ref->value;
 					}
 				}
 		case AST_CAST: {
@@ -378,7 +414,9 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 						  LLVMValueRef alloc = LLVMBuildAlloca(cg->builder, llvm_type, node->declare.identifier);
 
 						  codegen_create_variable(node->declare.identifier, alloc, llvm_type);
-						  value = cast_to(value, llvm_type, 1, cg);
+						  if (type_cmp(node->declare.right->valueType, node->valueType) != 0) {
+							  value = cast_to(value, llvm_type, 1, cg);
+						  }
 						  LLVMBuildStore(cg->builder, value, alloc);
 					  }
 					  return NULL;
@@ -396,7 +434,8 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 					 }
 					 LLVMValueRef value = generate(node->assign.right, cg);
 
-					 return LLVMBuildStore(cg->builder, value, ptr);
+					 LLVMBuildStore(cg->builder, value, ptr);
+					 return value;
 				 }
 		case AST_IDENTIFIER: {
 					     CodegenEntry* var = codegen_lookup_variable(node->identifier);

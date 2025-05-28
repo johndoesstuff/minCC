@@ -174,6 +174,7 @@ factor:
 	'(' type ')' factor	{ $$ = make_cast($2, $4, @$); }
 	| '-' factor	{ $$ = make_unary("-", $2, @$); }
 	| '*' factor	{ $$ = make_unary("*", $2, @$); }
+	| '&' IDENTIFIER	{ $$ = make_unary("&", make_identifier($2, @$), @$); }
 	| INCREMENT factor { $$ = make_assign($2, make_binary("+", $2, make_int(1, @$), @$), @$); }
 	| DECREMENT factor { $$ = make_assign($2, make_binary("-", $2, make_int(1, @$), @$), @$); }
 	| postfix	{ $$ = $1; }
@@ -195,7 +196,7 @@ primary:
 	| STRING	{ $$ = make_string($1, @$); }
 	| FLOAT		{ $$ = make_float($1, @$); }
 	| DOUBLE	{ $$ = make_double($1, @$); }
-	| '(' rvalue ')'	{ $$ = $2; }
+	| '(' expr ')'	{ $$ = $2; }
 ;
 
 %%

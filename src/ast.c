@@ -325,6 +325,8 @@ ASTNode* make_unary(char* op, ASTNode* operand, YYLTYPE loc) {
 		} else {
 			(node->valueType->pointerDepth)--;
 		}
+	} else if (strcmp(op, "&") == 0) {
+		(node->valueType->pointerDepth)++;
 	}
 	return node;
 }

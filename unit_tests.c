@@ -1,9 +1,16 @@
 void assert(bool condition, int* current, int* passed) {
 	if (condition) {
-		printf("Test Passed\n");
+		(*current)++;
+		(*passed)++;
+		printf("Test %d Passed\n", *current);
 	} else {
-		printf("Test Failed\n");
+		(*current)++;
+		printf("Test %d Failed\n", *current);
 	}
+}
+
+int square(int x) {
+	return x * x;
 }
 
 int main() {
@@ -12,9 +19,75 @@ int main() {
 	int tests_passed = 0;
 
 	int a = 53;
-	assert(a == 53);
-	int b = 21 + a;
-	assert(b == 74);
+	int b = 21;
+	assert(a == 53, &current_test, &tests_passed);
+	assert(a + b == 74, &current_test, &tests_passed);
+	assert(a - b == 32, &current_test, &tests_passed);
+	assert(a * b == 1113, &current_test, &tests_passed);
+	assert(a / b == 2, &current_test, &tests_passed);
+	assert(a % b == 11, &current_test, &tests_passed);
+	assert(*(&a) == a, &current_test, &tests_passed);
+	assert(a * b + a == 1166, &current_test, &tests_passed);
+	assert(a * (b + a) == 3922, &current_test, &tests_passed);
+
+	char* str = "hello world";
+	assert(str[1] == 'e', &current_test, &tests_passed);
+	assert(*(str + 2) == 'l', &current_test, &tests_passed);
+	assert(*(str++) == 'h', &current_test, &tests_passed);
+	assert(*(++str) == 'l', &current_test, &tests_passed);
+
+	int x = 3;
+	assert(++x == 4, &current_test, &tests_passed);
+	assert(x++ == 4, &current_test, &tests_passed);
+	assert(x == 5, &current_test, &tests_passed);
+
+	float f = 3.0f;
+	int i = (int)(f + 2.9f);
+	assert(i == 5, &current_test, &tests_passed);
+
+	int* p = &a;
+	assert(*p == 53, &current_test, &tests_passed);
+	assert(*(p + 0) == 53, &current_test, &tests_passed);
+
+	assert(square(4) == 16, &current_test, &tests_passed);
+	assert(square(5 + 1) == 36, &current_test, &tests_passed);
+
+	assert((a > b) == true, &current_test, &tests_passed);
+	assert((a < b) == false, &current_test, &tests_passed);
+	assert((a != b) == true, &current_test, &tests_passed);
+	assert((a == 53 && b == 21), &current_test, &tests_passed);
+	assert((a == 53 || b == 0), &current_test, &tests_passed);
+
+	assert((2 + 3 * 4) == 14, &current_test, &tests_passed);
+	assert((8 / 2 + 3) * 2 == 14, &current_test, &tests_passed);
+	assert((8 / (2 + 2)) * 2 == 4, &current_test, &tests_passed);
+	assert((5 + 3) * (2 + 1) == 24, &current_test, &tests_passed);
+
+	int z = 7;
+	int* q = &z;
+	*q += 5;
+	assert(z == 12, &current_test, &tests_passed);
+
+	*q = *q * 2;
+	assert(z == 24, &current_test, &tests_passed);
+
+	int m = 5;
+	int n = 10;
+	assert(((m + n) * (n - m)) == 75, &current_test, &tests_passed);
+	assert((m += 2) == 7, &current_test, &tests_passed);
+	
+	int check = 0;
+	int result = (1 || (++check));  // short-circuit: check is not incremented
+	assert(check == 0, &current_test, &tests_passed);
+	assert(result == true, &current_test, &tests_passed);
+
+	check = 0;
+	result = (0 && (++check));  // also short-circuits: still no increment
+	assert(check == 0, &current_test, &tests_passed);
+	assert(result == false, &current_test, &tests_passed);
+
+
+	printf("\nPassed %d/%d tests\n", tests_passed, current_test);
 
 	return 0;
 }

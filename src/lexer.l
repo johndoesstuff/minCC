@@ -119,6 +119,7 @@ char parse_char_literal(const char *text) {
 "/"		{ return '/'; }
 "%"		{ return '%'; }
 ","		{ return ','; }
+"&"		{ return '&'; }
 
 \/\/.*		; //single line comment
 \/\*([^*]|\*+[^*/])*\*+\/	; //multiline comment

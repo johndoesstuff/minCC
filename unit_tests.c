@@ -5,7 +5,7 @@ void assert(bool condition, int* current, int* passed) {
 		printf("Test %d Passed\n", *current);
 	} else {
 		(*current)++;
-		printf("Test %d Failed\n", *current);
+		printf("!! Test %d Failed\n", *current);
 	}
 }
 
@@ -85,6 +85,55 @@ int main() {
 	result = (0 && (++check));  // also short-circuits: still no increment
 	assert(check == 0, &current_test, &tests_passed);
 	assert(result == false, &current_test, &tests_passed);
+
+	i = 0;
+	if (true) {
+		i = 1;
+	}
+	assert(i == 1, &current_test, &tests_passed);
+	if (false) {
+	
+	} else {
+		i = 2;
+	}
+	assert(i == 2, &current_test, &tests_passed);
+	if (false) {
+	
+	} else if (true) {
+		i = 3;
+	} else {
+	
+	}
+	assert(i == 3, &current_test, &tests_passed);
+	if (true) {
+		if (true) {
+			i = 4;
+		}
+	}
+	assert(i == 4, &current_test, &tests_passed);
+	i = 0;
+	for (int j = 0; j < 4; j++) {
+		i++;
+	}
+	assert(i == 4, &current_test, &tests_passed);
+	i = 0;
+	for (int j = 0; j < 4; j++) {
+		for (int k = 0; k < 4; k++) {
+			i++;
+		}
+	}
+	assert(i == 16, &current_test, &tests_passed);
+	f = 4.0f;
+	assert(f == 4.0f, &current_test, &tests_passed);
+	long l = 67;
+	i = 67;
+	assert(l == i, &current_test, &tests_passed);
+	assert(3.0f == 3.0, &current_test, &tests_passed);
+	assert(4294967295 != 4294967295L, &current_test, &tests_passed);
+	assert(4 + 1.5 == 5.5, &current_test, &tests_passed);
+	assert(5 + true == 6, &current_test, &tests_passed);
+	assert(true + true == 2, &current_test, &tests_passed);
+	assert(true + 1.5 == 2.5, &current_test, &tests_passed);
 
 
 	printf("\nPassed %d/%d tests\n", tests_passed, current_test);

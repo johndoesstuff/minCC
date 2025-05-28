@@ -203,7 +203,6 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 							 }
 						 }
 
-						 // Coerce right to bool if needed
 						 if (!r_is_bool) {
 							 if (LLVMGetTypeKind(r_type) == LLVMIntegerTypeKind) {
 								 LLVMValueRef zero = LLVMConstInt(r_type, 0, 0);
@@ -548,6 +547,8 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 
 				     LLVMValueRef cond = generate(node->if_stm.conditional, cg);
 
+				     int needs_end = 0;
+
 				     //build conditional
 				     LLVMBuildCondBr(cg->builder, cond, thenBB, elseBB ? elseBB : endBB);
 	
@@ -557,6 +558,10 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 				     if (!LLVMGetBasicBlockTerminator(thenBB)) {
 					     LLVMPositionBuilderAtEnd(cg->builder, thenBB);
 					     LLVMBuildBr(cg->builder, endBB);
+					     needs_end = 1;
+				     } else {
+					     LLVMBuildBr(cg->builder, endBB);
+					     needs_end = 1;
 				     }
 
 				     //else
@@ -566,9 +571,13 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 					     if (!LLVMGetBasicBlockTerminator(LLVMGetInsertBlock(cg->builder))) {
 						     LLVMBuildBr(cg->builder, endBB);
 					     }
+					     needs_end = 1;
+				     } 
+				    
+				     if (needs_end) {
+					     LLVMPositionBuilderAtEnd(cg->builder, endBB);
 				     }
 
-				     LLVMPositionBuilderAtEnd(cg->builder, endBB);
 				     return NULL;
 			     }
 		case AST_EMPTY: {

@@ -158,8 +158,6 @@ rvalue:
 mag:
 	mag '+' term	{ $$ = make_binary("+", $1, $3, @$); }
 	| mag '-' term	{ $$ = make_binary("-", $1, $3, @$); }
-	| TRUE			{ $$ = make_true(@$); }
-	| FALSE			{ $$ = make_false(@$); }
 	| term		{ $$ = $1; }
 ;
 
@@ -196,6 +194,8 @@ primary:
 	| STRING	{ $$ = make_string($1, @$); }
 	| FLOAT		{ $$ = make_float($1, @$); }
 	| DOUBLE	{ $$ = make_double($1, @$); }
+	| TRUE			{ $$ = make_true(@$); }
+	| FALSE			{ $$ = make_false(@$); }
 	| '(' expr ')'	{ $$ = $2; }
 ;
 

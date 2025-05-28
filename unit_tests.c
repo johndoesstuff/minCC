@@ -134,6 +134,11 @@ int main() {
 	assert(5 + true == 6, &current_test, &tests_passed);
 	assert(true + true == 2, &current_test, &tests_passed);
 	assert(true + 1.5 == 2.5, &current_test, &tests_passed);
+	i = 2;
+	assert(i-- == 2, &current_test, &tests_passed);
+	assert(--i == 0, &current_test, &tests_passed);
+	short s = 65537;
+	assert(s == 1, &current_test, &tests_passed);
 
 
 	printf("\nPassed %d/%d tests\n", tests_passed, current_test);

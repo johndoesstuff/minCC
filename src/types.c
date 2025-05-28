@@ -29,6 +29,9 @@ LLVMTypeRef get_llvm_type(Type* type, LLVMContextRef context) {
 		case TYPE_INT:
 			base = LLVMInt32TypeInContext(context);
 			break;
+		case TYPE_SHORT:
+			base = LLVMInt16TypeInContext(context);
+			break;
 		case TYPE_LONG:
 			base = LLVMInt64TypeInContext(context);
 			break;

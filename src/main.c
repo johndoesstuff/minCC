@@ -310,6 +310,8 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 							 return LLVMBuildICmp(cg->builder, LLVMIntSGE, left, right, "cmptmp");
 						 }
 					 }
+					 printf("reached end of control flow at ast binary\n");
+					 exit(1);
 				 }
 		case AST_UNARY: {
 					LLVMValueRef operand = generate(node->unary.operand, cg);
@@ -344,6 +346,9 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 
 						return ref->value;
 					}
+
+					printf("reached end of control flow at ast unary\n");
+					exit(1);
 				}
 		case AST_CAST: {
 				       printf("building cast from %s to %s\n", type_to_str(node->cast.value->valueType), type_to_str(node->valueType));

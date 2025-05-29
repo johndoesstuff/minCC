@@ -70,6 +70,7 @@ char parse_char_literal(const char *text) {
 "else"		{ return ELSE; }
 "true"		{ return TRUE; }
 "false"		{ return FALSE; }
+"null"		{ return NULLTOK; }
 ("int"|"bool"|"char"|"float"|"double"|"short"|"long"|"void")	{ yylval->sval = strdup(yytext); return BASE_TYPE; }
 
 ([0-9]*\.[0-9]+|[0-9]+\.)[fF]([eE][-+]?[0-9]+)? |

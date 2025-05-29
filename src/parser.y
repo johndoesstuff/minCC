@@ -41,6 +41,7 @@ ASTNode* root;
 %token ASSIGNMENT_DIV_EQUALS
 %token INCREMENT
 %token DECREMENT
+%token NULLTOK
 %token <sval> COMPARE
 %token <sval> BASE_TYPE
 %token <sval> STRING
@@ -196,6 +197,7 @@ primary:
 	| DOUBLE	{ $$ = make_double($1, @$); }
 	| TRUE			{ $$ = make_true(@$); }
 	| FALSE			{ $$ = make_false(@$); }
+	| NULLTOK		{ $$ = make_null(@$); }
 	| '(' expr ')'	{ $$ = $2; }
 ;
 

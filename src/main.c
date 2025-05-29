@@ -351,7 +351,6 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 					exit(1);
 				}
 		case AST_CAST: {
-				       printf("building cast from %s to %s\n", type_to_str(node->cast.value->valueType), type_to_str(node->valueType));
 				       LLVMValueRef value = generate(node->cast.value, cg);
 				       LLVMTypeRef type = get_llvm_type(node->valueType, cg->context);
 				       return cast_to(value, type, 1, cg);
@@ -524,6 +523,9 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 				 }
 		case AST_BOOL: {
 				       return LLVMConstInt(LLVMInt1TypeInContext(cg->context), node->boolValue, 0);
+			       }
+		case AST_NULL: {
+				       return LLVMConstNull(LLVMPointerType(LLVMInt8TypeInContext(cg->context), 0));
 			       }
 		case AST_WHILE: {
 					LLVMBasicBlockRef condBB = LLVMAppendBasicBlock(cg->function, "while.cond");

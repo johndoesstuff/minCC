@@ -13,7 +13,8 @@ typedef enum {
         TYPE_VOID,
 	TYPE_SHORT,
 	TYPE_LONG,
-	TYPE_DOUBLE
+	TYPE_DOUBLE,
+	TYPE_NULL
 } BaseType;
 
 typedef struct Type {

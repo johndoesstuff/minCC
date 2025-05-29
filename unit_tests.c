@@ -140,6 +140,23 @@ int main() {
 	short s = 65537;
 	assert(s == 1, &current_test, &tests_passed);
 
+	int ca = 10;
+	ca += 5;
+	assert(ca == 15, &current_test, &tests_passed);
+	ca -= 3;
+	assert(ca == 12, &current_test, &tests_passed);
+	ca *= 2;
+	assert(ca == 24, &current_test, &tests_passed);
+	ca /= 4;
+	assert(ca == 6, &current_test, &tests_passed);
+
+	i = 6;
+	int *p1 = &i;
+	int **p2 = &p1;
+	assert(**p2 == 6, &current_test, &tests_passed);
+
+	int *p3 = null;
+	assert(p3 == null, &current_test, &tests_passed);
 
 	printf("\nPassed %d/%d tests\n", tests_passed, current_test);
 

@@ -26,6 +26,7 @@ typedef enum {
 	AST_FUNCTION_CALL,
 	AST_EMPTY,
 	AST_CAST,
+	AST_NULL,
 } ASTNodeType;
 
 typedef struct ASTNode {
@@ -109,6 +110,7 @@ ASTNode* make_character(char character, YYLTYPE loc);
 ASTNode* make_string(char* string, YYLTYPE loc);
 ASTNode* make_true(YYLTYPE loc);
 ASTNode* make_false(YYLTYPE loc);
+ASTNode* make_null(YYLTYPE loc);
 
 //arguments / identifiers
 ASTNode* make_identifier(char* identifier, YYLTYPE loc);

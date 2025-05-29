@@ -572,9 +572,64 @@ while.end253:                                     ; preds = %while.cond251
   %loadtmp310 = load i32, ptr %current_test, align 4
   %loadtmp311 = load i32, ptr %tests_passed, align 4
   call void @assert(i1 %cmptmp309, ptr %current_test, ptr %tests_passed)
-  %loadtmp312 = load i32, ptr %tests_passed, align 4
-  %loadtmp313 = load i32, ptr %current_test, align 4
-  %calltmp314 = call i32 (ptr, ...) @printf(ptr @.str.4, i32 %loadtmp312, i32 %loadtmp313)
+  %ca = alloca i32, align 4
+  store i32 10, ptr %ca, align 4
+  %loadtmp312 = load i32, ptr %ca, align 4
+  %addtmp313 = add i32 %loadtmp312, 5
+  store i32 %addtmp313, ptr %ca, align 4
+  %loadtmp314 = load i32, ptr %ca, align 4
+  %cmptmp315 = icmp eq i32 %loadtmp314, 15
+  %loadtmp316 = load i32, ptr %current_test, align 4
+  %loadtmp317 = load i32, ptr %tests_passed, align 4
+  call void @assert(i1 %cmptmp315, ptr %current_test, ptr %tests_passed)
+  %loadtmp318 = load i32, ptr %ca, align 4
+  %subtmp319 = sub i32 %loadtmp318, 3
+  store i32 %subtmp319, ptr %ca, align 4
+  %loadtmp320 = load i32, ptr %ca, align 4
+  %cmptmp321 = icmp eq i32 %loadtmp320, 12
+  %loadtmp322 = load i32, ptr %current_test, align 4
+  %loadtmp323 = load i32, ptr %tests_passed, align 4
+  call void @assert(i1 %cmptmp321, ptr %current_test, ptr %tests_passed)
+  %loadtmp324 = load i32, ptr %ca, align 4
+  %multmp325 = mul i32 %loadtmp324, 2
+  store i32 %multmp325, ptr %ca, align 4
+  %loadtmp326 = load i32, ptr %ca, align 4
+  %cmptmp327 = icmp eq i32 %loadtmp326, 24
+  %loadtmp328 = load i32, ptr %current_test, align 4
+  %loadtmp329 = load i32, ptr %tests_passed, align 4
+  call void @assert(i1 %cmptmp327, ptr %current_test, ptr %tests_passed)
+  %loadtmp330 = load i32, ptr %ca, align 4
+  %divtmp331 = sdiv i32 %loadtmp330, 4
+  store i32 %divtmp331, ptr %ca, align 4
+  %loadtmp332 = load i32, ptr %ca, align 4
+  %cmptmp333 = icmp eq i32 %loadtmp332, 6
+  %loadtmp334 = load i32, ptr %current_test, align 4
+  %loadtmp335 = load i32, ptr %tests_passed, align 4
+  call void @assert(i1 %cmptmp333, ptr %current_test, ptr %tests_passed)
+  store i32 6, ptr %i, align 4
+  %loadtmp336 = load i32, ptr %i, align 4
+  %p1 = alloca ptr, align 8
+  store ptr %i, ptr %p1, align 8
+  %loadtmp337 = load ptr, ptr %p1, align 8
+  %p2 = alloca ptr, align 8
+  store ptr %p1, ptr %p2, align 8
+  %loadtmp338 = load ptr, ptr %p2, align 8
+  %deref339 = load ptr, ptr %loadtmp338, align 8
+  %deref340 = load i32, ptr %deref339, align 4
+  %cmptmp341 = icmp eq i32 %deref340, 6
+  %loadtmp342 = load i32, ptr %current_test, align 4
+  %loadtmp343 = load i32, ptr %tests_passed, align 4
+  call void @assert(i1 %cmptmp341, ptr %current_test, ptr %tests_passed)
+  %p3 = alloca ptr, align 8
+  store ptr null, ptr %p3, align 8
+  %loadtmp344 = load ptr, ptr %p3, align 8
+  %cmptmp345 = icmp eq ptr %loadtmp344, null
+  %loadtmp346 = load i32, ptr %current_test, align 4
+  %loadtmp347 = load i32, ptr %tests_passed, align 4
+  call void @assert(i1 %cmptmp345, ptr %current_test, ptr %tests_passed)
+  %loadtmp348 = load i32, ptr %tests_passed, align 4
+  %loadtmp349 = load i32, ptr %current_test, align 4
+  %calltmp350 = call i32 (ptr, ...) @printf(ptr @.str.4, i32 %loadtmp348, i32 %loadtmp349)
   ret i32 0
 
 while.cond256:                                    ; preds = %while.body257, %while.body252

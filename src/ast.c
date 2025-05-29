@@ -386,6 +386,14 @@ ASTNode* make_false(YYLTYPE loc) {
 	return node;
 }
 
+ASTNode* make_null(YYLTYPE loc) {
+	ASTNode* node = malloc(sizeof(ASTNode));
+	node->type = AST_NULL;
+	node->loc = loc;
+	node->valueType = make_type(TYPE_NULL, 0);
+	return node;
+}
+
 ASTNode* make_empty(YYLTYPE loc) {
 	ASTNode* node = malloc(sizeof(ASTNode));
 	node->type = AST_EMPTY;

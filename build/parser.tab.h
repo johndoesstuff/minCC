@@ -75,9 +75,10 @@ extern int yydebug;
     ASSIGNMENT_DIV_EQUALS = 276,   /* ASSIGNMENT_DIV_EQUALS  */
     INCREMENT = 277,               /* INCREMENT  */
     DECREMENT = 278,               /* DECREMENT  */
-    COMPARE = 279,                 /* COMPARE  */
-    BASE_TYPE = 280,               /* BASE_TYPE  */
-    STRING = 281                   /* STRING  */
+    NULLTOK = 279,                 /* NULLTOK  */
+    COMPARE = 280,                 /* COMPARE  */
+    BASE_TYPE = 281,               /* BASE_TYPE  */
+    STRING = 282                   /* STRING  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -99,7 +100,7 @@ union YYSTYPE
 	struct Argument* argument;
 	struct Parameter* parameter;
 
-#line 103 "build/parser.tab.h"
+#line 104 "build/parser.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

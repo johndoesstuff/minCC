@@ -83,6 +83,8 @@ BaseType get_base_type(char* type) {
 		return TYPE_LONG;
 	} else if (strcmp(type, "void") == 0) {
 		return TYPE_VOID;
+	} else if (strcmp(type, "null") == 0) {
+		return TYPE_NULL;
 	} else {
 		fprintf(stderr, "unknown type??\n");
 		exit(1);
@@ -100,6 +102,7 @@ char* type_to_str(Type* type) {
 		case TYPE_DOUBLE: base = "double"; break;
 		case TYPE_SHORT: base = "short"; break;
 		case TYPE_LONG: base = "long"; break;
+		case TYPE_NULL: base = "null"; break;
 		default:        base = "unknown"; break;
 	}
 

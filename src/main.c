@@ -14,6 +14,7 @@
 
 extern int yyparse();
 extern ASTNode* root;
+extern FILE* yyin;
 
 LLVMValueRef codegen_logical_and(CodegenContext *cg, ASTNode *node, LLVMValueRef left, LLVMValueRef right) {
 	LLVMBasicBlockRef current = LLVMGetInsertBlock(cg->builder);
@@ -594,7 +595,40 @@ LLVMValueRef generate(ASTNode* node, CodegenContext* cg) {
 	return NULL;
 }
 
-int main() {
+int main(int argc, char** argv) {
+	char* infile = NULL;
+	char* outfile = "output.ll";
+
+	//parse cli args
+	for (int i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-o") == 0) {
+			if (i + 1 < argc) {
+				outfile = argv[++i];
+			} else {
+				fprintf(stderr, "Error: -o requires an argument\n");
+				return 1;
+			}
+		} else if (!infile) {
+			infile = argv[i];
+		} else {
+			fprintf(stderr, "Error: multiple input files not supported\n");
+			return 1;
+		}
+	}
+
+	if (!infile) {
+		fprintf(stderr, "usage: %s [-o output.ll] <input file>\n", argv[0]);
+		return 1;
+	}
+
+	FILE* f = fopen(infile, "r");
+	if (!f) {
+		fprintf(stderr, "Error: Could not open file %s", infile);
+		exit(1);
+	}
+
+	yyin = f;
+
 	//build codegen context
 	LLVMContextRef context = LLVMContextCreate();
 	LLVMModuleRef module = LLVMModuleCreateWithNameInContext("global", context);
@@ -624,7 +658,10 @@ int main() {
 
 	//print generated code
 	char* ir = LLVMPrintModuleToString(module);
-	LLVMPrintModuleToFile(module, "output.ll", NULL);
+	if (LLVMPrintModuleToFile(module, outfile, NULL) != 0) {
+		fprintf(stderr, "Error: Could not write to file %s\n", outfile);
+		exit(1);
+	}
 
 	//cleanup
 	LLVMDisposeMessage(ir);
